@@ -1,8 +1,84 @@
 .NavbarComponent {
-    display: flex;
-    height: 50px;
-    background-color: burlywood;
-    justify-content: space-around;
-    align-items: center;
+display: flex;
+height: 50px;
+background-color: burlywood;
+justify-content: space-around;
+align-items: center;
+color: white;
+}
+
+/* Links inside the navbar */
+/*.navbar a {
+    float: left;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}*/
+
+/* The dropdown container */
+.dropdown {
+    /*float: left;*/
+    overflow: hidden;
+}
+
+/* Dropdown button */
+.dropdown .dropbtn {
+    font-size: 16px;
     color: white;
+    background-color: burlywood;
+    /*padding: 14px 16px;*/
+    background-color: inherit;
+    font-family: inherit;
+    margin: 0;
+}
+
+/* Dropdown content (hidden by default) */
+.dropdown-content {
+    /*padding: 10pt;*/
+    margin-top: 5pt;
+    /*padding-left: 10pt;
+    padding-right: 10pt;
+    padding-bottom: 10pt;*/
+    display: grid;
+    position: absolute;
+    background-color: burlywood;
+    min-width: 200px;
+    /*box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);*/
+    z-index: 1;
+}
+
+/* Links inside the dropdown */
+/*.dropdown-content a {
+    float: none;
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: grid;
+    text-align: left;
+    margin: 10pt;
+}*/
+
+/* Add a grey background color to dropdown links on hover */
+/*.dropdown-content a:hover {
+    background-color: #ddd;
+}*/
+
+/* Show the dropdown menu on hover */
+.dropdown .dropdown-content {
+    display: block;
+}
+
+form {
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    grid-gap: 16px;
+}
+
+label {
+    grid-column: 1 / 2;
+}
+ 
+input, button {
+    grid-column: 2 / 3;
 }

@@ -8,9 +8,9 @@ import MangaMainComponent from './MangaMainComponent';
 export default function MainComponent() {
     return (
         <React.Fragment>
-            <NavbarComponent className="NavbarComponent" field1="1" field2="2"/>
+            <NavbarComponent loggedIn={false} accName=""/>
             <Switch>
-                <Route exact path="/" component={MainPageComponent}/>
+                <Route path="/" component={MainPageComponent}/>
                 <Route path="/manga" component={MangaMainComponent}/>
             </Switch>
         </React.Fragment>
