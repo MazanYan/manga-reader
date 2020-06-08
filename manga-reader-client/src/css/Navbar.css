@@ -1,0 +1,8 @@
+.NavbarComponent {
+    display: flex;
+    height: 50px;
+    background-color: burlywood;
+    justify-content: space-around;
+    align-items: center;
+    color: white;
+}
