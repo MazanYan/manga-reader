@@ -1,7 +1,7 @@
 import React from 'react';
 import LoginSignupComponent from './LoginSignupComponent';
 
-interface MyProps {
+interface NavbarProps {
     loggedIn: boolean,
     accName: string
 };
@@ -10,8 +10,8 @@ interface NavbarState {
     loginMenuOpened: boolean
 };
  
-export default class NavbarComponent extends React.Component<MyProps, NavbarState> {
-    constructor(props: MyProps) {
+export default class NavbarComponent extends React.Component<NavbarProps, NavbarState> {
+    constructor(props: NavbarProps) {
         super(props);
 
         this.state = {

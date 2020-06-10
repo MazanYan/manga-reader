@@ -23,12 +23,13 @@ export default class LoginSignupComponent extends Component<LoginSignupProps, Lo
         //alert("Hello!");
     }
 
-    handleSubmit(event: React.FormEvent<HTMLButtonElement>) {
+    async handleSubmit(event: React.FormEvent<HTMLButtonElement>) {
         const encryptedLogin = CryptoJS.SHA256(this.state.name);
         const encryptedPassword = CryptoJS.SHA256(this.state.password);
-        //const response = await axios.post(serverAddress, {encryptedLogin, encryptedPassword});
+        const response = await axios.post(serverAddress, {email: encryptedLogin, password: encryptedPassword});
+        alert(response);
 
-        fetch("http://localhost:3000/login").then(res => alert(res.text())).catch(err => alert(err));
+        //fetch("http://localhost:3000/login").then(res => alert(res.text())).catch(err => alert(err));
         /*const res = await fetch(serverAddress, {
             method: 'GET',
             headers: {
@@ -54,18 +55,19 @@ export default class LoginSignupComponent extends Component<LoginSignupProps, Lo
 
     handlePassword(event: React.ChangeEvent<HTMLInputElement>) {
         this.setState({password: event.target.value});
-        event.preventDefault();
+        //event.preventDefault();
     }
 
     render() {
+        fetch("http://localhost:3000/login").then(res => alert(res.text()));
         return (
             <div className="dropdown-content">
-                <form method="post" action="/" className="dropdown-content">
+                <form className="dropdown-content">
                     <label htmlFor="email">E-Mail</label>
                     <input onChange={this.handleLogin} value={this.state.name} type="text" name="email"/>
                     <label htmlFor="passwd">Password</label>
                     <input onChange={this.handlePassword} value={this.state.password} type="password" name="passwd"/>
-                    <button onClick={this.handleSubmit} type="submit">Sign in</button>
+                    <button onClick={this.handleSubmit}>Sign in</button>
                     <label htmlFor="signup">Have no account?</label>
                     <button>Sign up</button>
                 </form>

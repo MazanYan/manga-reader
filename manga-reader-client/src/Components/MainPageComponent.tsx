@@ -17,7 +17,6 @@ export default class MainPageComponent extends React.Component<MainPageProps> {
         return (
             <React.Fragment>
                 Site Main Page
-                {this.getLoginPage}
             </React.Fragment>
         )
     }

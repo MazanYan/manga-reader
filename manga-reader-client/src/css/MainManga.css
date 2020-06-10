@@ -1,0 +1,34 @@
+@media (min-width: 400px) {
+    #mangaMainPage {
+        display: grid;
+        grid-gap: 1rem;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #imagePlaceholder {
+        display: block;
+        object-fit: cover;
+        grid-template: minmax(400px, 1fr);
+        grid-row: span 3;
+    }
+    #namePlaceholder {
+        display: block;
+    }
+    
+    #authorPlaceholder {
+        display: block;
+    }
+    
+    #descriptionPlaceholder {
+        display: block;
+    }
+}
+
+#openTableOfContents {
+    display: table-cell;
+    object-fit: cover;
+}
+
+#tableOfContents {
+    display: table-cell;
+}
