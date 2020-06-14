@@ -8,8 +8,6 @@ const jwt = require('jsonwebtoken')
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 
-const router = express.Router();
-
 const salt = "1234";
 const DATA = [{email: cryptoJS.SHA256("test@gmail.com"), password: cryptoJS.SHA256("1234")}]
 DATA.map(el => cryptoJS.SHA256(el + salt));
@@ -65,6 +63,8 @@ passport.deserializeUser(function(obj, cb) {
   cb(null, obj);
 });*/
 
+const router = express.Router();
+
 router.get('/', function(req, res, next) {
   res.send("The connection between server and client is established");
   //res.render('index', { title: 'Express' });
@@ -80,7 +80,7 @@ router.post('/', function(req, res, next) {
   }
   else {
     console.log('Processing unsuccessful');
-      res.send('Invalid login credentials');
+    res.send('Invalid login credentials');
   }
     //res.render('index', { title: 'Express' });
   });

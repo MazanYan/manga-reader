@@ -1,5 +1,6 @@
 import React from 'react';
 import LoginSignupComponent from './LoginSignupComponent';
+import SearchComponent from './SearchComponent';
 
 interface NavbarProps {
     loggedIn: boolean,
@@ -8,6 +9,7 @@ interface NavbarProps {
 
 interface NavbarState {
     loginMenuOpened: boolean
+    searchOpened: boolean
 };
  
 export default class NavbarComponent extends React.Component<NavbarProps, NavbarState> {
@@ -15,7 +17,8 @@ export default class NavbarComponent extends React.Component<NavbarProps, Navbar
         super(props);
 
         this.state = {
-            loginMenuOpened: false
+            loginMenuOpened: false,
+            searchOpened: false
         };
     }
 
@@ -27,29 +30,43 @@ export default class NavbarComponent extends React.Component<NavbarProps, Navbar
         }
     }
 
-    render() {
+    renderLoggedIn() {
         if (this.props.loggedIn)
             return (
-                <nav className="NavbarComponent">
-                    <a href="index.html">Manga Reader</a>
+                <React.Fragment>
                     <a href="index.html">{this.props.accName}</a>
                     <a href="index.html">Bookmarks</a>
                     <a href="index.html">Notifications</a>
                     <a href="index.html">Log Out</a>
-                </nav>
+                </React.Fragment>
             );
         else
             return (
-                <React.Fragment>
-                    <nav className="NavbarComponent">
-                        <a rel="index.html">Manga Reader</a>
-                        <div className="dropdown">
-                            <a className="dropbtn" rel="index.html" onMouseEnter={() => 
-                                this.setState({loginMenuOpened: !this.state.loginMenuOpened})}>Log In</a>
-                            {this.renderLoginMenu()}
-                        </div>
-                    </nav>
-                </React.Fragment>
-            )
+                <div className="dropdown">
+                    <a className="dropbtn" rel="index.html" onMouseEnter={() => 
+                        this.setState({loginMenuOpened: !this.state.loginMenuOpened})}>Log In</a>
+                    {this.renderLoginMenu()}
+                </div>
+            );
+    }
+
+    renderSearchMenu() {
+        if(this.state.searchOpened)
+            return (
+                <SearchComponent/>
+            );
+    }
+
+    render() {
+        return (
+            <nav className="NavbarComponent">
+                <a href="index.html">Manga Reader</a>
+                <a className="dropbtn" onMouseEnter={() => 
+                    this.setState({searchOpened: !this.state.searchOpened})}><i className="fa fa-search"></i>
+                </a>
+                {this.renderSearchMenu()}
+                {this.renderLoggedIn()}
+            </nav>
+        );
     }
 }
