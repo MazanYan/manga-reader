@@ -14,10 +14,25 @@ const databaseConfig = {
     port: 5432,
     database: "manga_reader",
     user: "postgres",
-    password: "QuaQuaSHHTK_6"
+    password: "passw"
 };
 
 const db = pgp(databaseConfig);
+
+function generateSalt() {
+    return Array(10).fill(null).map(_ => Math.ceil(Math.random() * Math.floor(9))).join('');
+}
+
+async function checkPassword(userId, password) {
+    const salt = await performQuery(
+        'SELECT salt from salts WHERE salt.id=$1', userId
+    );
+    const hashedPassword = crypt.SHA256(password + salt);
+    const correctPassword = await performQuery(
+        'SELECT password FROM account WHERE account.id=$1', userId
+    );
+    return hashedPassword === correctPassword;
+}
 
 /*db.connect()
     .then(obj => {
@@ -46,9 +61,9 @@ async function performQuery() {
     }
 }
 
-function createAccount({name, email, passw, photo = null, descr = null}) {
+async function createAccount({name, email, passw, photo = null, descr = null}) {
     const accId = crypt.MD5(email + name);
-    const salt = Array(10).fill(null).map(_ => Math.ceil(Math.random() * Math.floor(9))).join('');
+    const salt = generateSalt();
     const hashedPassw = crypt.SHA256(passw + salt);
     console.log(`Name: ${name}`);
     performQuery(
@@ -73,7 +88,7 @@ function createAccount({name, email, passw, photo = null, descr = null}) {
     );
 }
 
-function addManga({name, author, descr}) {
+async function addManga({name, author, descr}) {
     performQuery(
         'INSERT INTO manga(${this:name}) VALUES(${this:csv});',
         {
@@ -86,7 +101,7 @@ function addManga({name, author, descr}) {
     );
 }
 
-function createBookmark({accId, mangaKey, chapter = null, page = null}) {
+async function createBookmark({accId, mangaKey, chapter = null, page = null}) {
     performQuery(
         'INSERT INTO bookmark(${this:name}) VALUES(${this:csv});',
         {
@@ -99,7 +114,7 @@ function createBookmark({accId, mangaKey, chapter = null, page = null}) {
     );
 }
 
-function addComment({author, page, text, answerOn = null}) {
+async function addComment({author, page, text, answerOn = null}) {
     const commentId = crypt.MD5(string(page) + new Date().toLocaleString());
     performQuery(
         'INSERT INTO comment(${this:name}) VALUES(${this:csv});',
@@ -115,7 +130,7 @@ function addComment({author, page, text, answerOn = null}) {
     );
 }
 
-function addChapter({mangaKey, name = null, number, volume = null}) {
+async function addChapter({mangaKey, name = null, number, volume = null}) {
     const chapterKey = crypt.MD5(string(mangaKey) + number);
     performQuery(
         'INSERT INTO chapter(${this:name} VALUES(${this:csv});',
@@ -130,7 +145,7 @@ function addChapter({mangaKey, name = null, number, volume = null}) {
     );
 }
 
-function createNotification({acc, text, author}) {
+async function createNotification({acc, text, author}) {
     const notificationId = crypt.MD5(string(acc) + author + new Date().toLocaleString());
     performQuery(
         'INSERT INTO notification(${this:name} VALUES(${this:csv});',
@@ -144,33 +159,33 @@ function createNotification({acc, text, author}) {
     );
 }
 
-function searchMangaByName(name, limit) {
+async function searchMangaByName(name, limit) {
     return performQuery(
         `SELECT DISTINCT * FROM manga where UPPER(name) LIKE UPPER('%$1%') ORDER BY bookmarks_count DESC LIMIT $2;`,
         name, limit
     );
 }
 
-function searchMangaByAuthor(name, limit) {
+async function searchMangaByAuthor(name, limit) {
     return performQuery(
         `SELECT DISTINCT * FROM manga where UPPER(author) LIKE UPPER('%$1%') ORDER BY bookmarks_count DESC LIMIT $2;`,
         name, limit
     );
 }
 
-function searchPopularManga(limit) {
+async function searchPopularManga(limit) {
     return performQuery(
         'SELECT DISTINCT * FROM manga ORDER BY bookmarks_count LIMIT $1;', limit
     );
 }
 
-function getTableOfContents(mangaId) {
+async function getTableOfContents(mangaId) {
     return performQuery(
         'SELECT (volume, number, name) FROM chapter WHERE manga_key=$1 ORDER BY number ASC;', mangaId
     );
 }
 
-function getPageComments(pageId) {
+async function getPageComments(pageId) {
     return performQuery(
         'SELECT (${columns:name}) FROM comment WHERE page_key=$2;',
         [
@@ -201,7 +216,7 @@ CREATE OR REPLACE FUNCTION prev_page(IN page integer, IN chapter_num bigint)
    		END IF;
    	END; $$ LANGUAGE PLPGSQL;
 */
-function getPrevPage(pageNum, chapterKey) {
+async function getPrevPage(pageNum, chapterKey) {
     return performQuery(
         'SELECT prev_page($1, $2);', pageNum, chapterKey
     );
@@ -221,8 +236,103 @@ CREATE OR REPLACE FUNCTION next_page(IN page integer, IN chapter_num bigint)
   		END IF;
   	END; $$ LANGUAGE PLPGSQL;
 */
-function getNextPage(pageNum, chapterKey) {
+async function getNextPage(pageNum, chapterKey) {
     return performQuery(
         'SELECT prev_page($1, $2);', pageNum, chapterKey
     );
 }
+
+async function getMangaPageImage(mangaName, mangaChapter, pageNumber) {
+    return performQuery(
+        `SELECT manga.name AS manga_name, chapter.number AS chapter_number, manga_page.page_number, manga_page.image FROM manga_page
+	        INNER JOIN chapter ON chapter.chapter_key=manga_page.chapter_key AND chapter.number=$2
+	        INNER JOIN manga ON manga.name='$1'
+	        WHERE manga_page.page_number=$3;`, mangaName, mangaChapter, pageNumber
+    )
+}
+
+function changeProfilePhoto() {
+    performQuery(
+        'UPDATE'
+    )
+}
+
+function changePassword(userId, newPassword) {
+    const newSalt=generateSalt();
+    const hashedPassw=crypt.SHA256(newPassword + newSalt);
+}
+
+function changeDescription(userId, newDescription) {
+    return performQuery(
+        `UPDATE account
+            SET description=$1 WHERE account.id=$2`,
+        newDescription, userId
+    );
+}
+
+function updateBookmark(accId, mangaKey, newChapter) {
+    return performQuery(
+        `UPDATE boormark
+            SET chapter=$1 WHERE account=$2 AND manga_key=$3`,
+        newChapter, accId, mangaKey
+    );
+}
+
+async function updateComment(commentId, newText) {
+    return performQuery(
+        `UPDATE comment
+            SET comment.text=$1 WHERE comment.comment_id=$2`, newText,commentId
+    );
+}
+
+async function updateChapter() {
+
+}
+
+async function updateMangaPage(mangaName, chapterNumber, pageNumber, image) {
+    return performQuery(
+        `SELECT * FROM manga_page
+        WHERE chapter_key=(
+        SELECT chapter_key FROM chapter 
+            WHERE chapter.number=2
+            AND chapter.manga_key=(
+                SELECT manga_key FROM manga WHERE manga.name='Naruto'
+            )
+        ) AND manga_page.page_number=1;`
+    );
+}
+
+async function updateOnlineStatus(userId) {
+    return performQuery(
+        `UPDATE account
+            SET is_online=NOT is_online, last_online=NOW()
+            WHERE account.id='$1';`, userId
+    );
+}
+
+async function deleteManga(mangaName) {
+    return performQuery(
+        'DELETE FROM manga WHERE name=$1', mangaName
+    );
+}
+
+async function deleteChapter(mangaName, chapterNumber) {
+    return performQuery(
+        `DELETE FROM chapter WHERE chapter.manga_key=(
+            SELECT manga_key from manga WHERE manga.name=$1 LIMIT 1
+        ) AND chapter.number=$2`,
+        mangaName, chapterNumber
+    );
+}
+
+async function deleteUser(userId) {
+    return performQuery(
+        'DELETE FROM account where id=$1', userId
+    );
+}
+
+async function deleteNotification() {
+
+}
+
+//updateOnlineStatus(1);
