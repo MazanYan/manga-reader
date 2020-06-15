@@ -34,7 +34,8 @@ async function checkPassword(userId, password) {
     return hashedPassword === correctPassword;
 }
 
-/*db.connect()
+/*
+db.connect()
     .then(obj => {
         // Can check the server version here (pg-promise v10.1.0+):
         const serverVersion = obj.client.serverVersion;
@@ -52,8 +53,8 @@ const result = db.any('SELECT * FROM manga').then(result => console.log(result))
 async function performQuery() {
     try {
         const result = await db.query(...arguments);
-        console.log('Query completed');
-        console.log(result);
+        //console.log('Query completed');
+        //console.log(result);
         return result;
     }
     catch (error) {
@@ -160,9 +161,11 @@ async function createNotification({acc, text, author}) {
 }
 
 async function searchMangaByName(name, limit) {
+    /*return performQuery(
+        `SELECT * FROM manga where name=$1`, name
+    );*/
     return performQuery(
-        `SELECT DISTINCT * FROM manga where UPPER(name) LIKE UPPER('%$1%') ORDER BY bookmarks_count DESC LIMIT $2;`,
-        name, limit
+        `SELECT DISTINCT * FROM manga where UPPER(name) LIKE UPPER('%${name}%') ORDER BY bookmarks_count DESC LIMIT ${limit};`,
     );
 }
 
@@ -252,9 +255,9 @@ async function getMangaPageImage(mangaName, mangaChapter, pageNumber) {
 }
 
 function changeProfilePhoto() {
-    performQuery(
+    /*performQuery(
         'UPDATE'
-    )
+    )*/
 }
 
 function changePassword(userId, newPassword) {
@@ -334,5 +337,35 @@ async function deleteUser(userId) {
 async function deleteNotification() {
 
 }
+
+module.exports = {
+    checkPassword: checkPassword,
+    createAccount: createAccount,
+    addManga: addManga,
+    createBookmark: createBookmark,
+    addComment: addComment,
+    addChapter: addChapter,
+    createNotification: createNotification,
+    searchMangaByName: searchMangaByName,
+    searchMangaByAuthor: searchMangaByAuthor,
+    searchPopularManga: searchPopularManga,
+    getTableOfContents: getTableOfContents,
+    getPageComments: getPageComments,
+    getPrevPage: getPrevPage,
+    getNextPage: getNextPage,
+    getMangaPageImage: getMangaPageImage,
+    //changeProfilePhoto: changeProfilePhoto,
+    changePassword: changePassword,
+    changeDescription: changeDescription,
+    updateBookmark: updateBookmark,
+    updateComment: updateComment,
+    //updateChapter: updateChapter,
+    //updateMangaPage: updateMangaPage,
+    updateOnlineStatus: updateOnlineStatus,
+    deleteManga: deleteManga,
+    deleteChapter: deleteChapter,
+    deleteUser: deleteUser,
+    //deleteNotification : deleteNotification
+};
 
 //updateOnlineStatus(1);
