@@ -2,18 +2,10 @@ import React from 'react';
 import axios from 'axios';
 import { Redirect, RouteComponentProps, Link } from 'react-router-dom';
 import queryString from 'query-string';
-
-type MangaResponse = {
-    name: string,
-    author: string,
-    description: string,
-    manga_key: string,
-    bookmarks_count: Number,
-    add_time: Date
-};
+import { MangaResponse } from '../helpers/MangaResponse';
 
 type SearchPageState = {
-    response: Array<MangaResponse>
+    response?: Array<MangaResponse>
 };
 
 type SearchPageProps = {
@@ -25,10 +17,7 @@ interface Props extends RouteComponentProps<SearchPageProps> {};
 export default class SearchPageComponent extends React.Component<Props, SearchPageState> {
     constructor(props: Props) {
         super(props);
-        this.state = {
-            response: []
-        };
-        this.renderResponse = this.renderResponse.bind(this);
+        this.state = {};
     }
 
     async componentDidMount() {
@@ -39,47 +28,24 @@ export default class SearchPageComponent extends React.Component<Props, SearchPa
         this.setState({response: response});
     }
 
-    renderResponse() {
+    render() {
         return (
             <table>
                 <tr>
                     <th>Name</th>
                     <th>Author</th>
                     <th>Description</th>
-                    <th>Time added</th>
+                    <th>Time created</th>
                 </tr>
-                {this.state.response.map(res => (
+                {this.state.response?.map(res => (
                     <tr>
                         <td><Link to={`/manga/:${res.manga_key}`}>{res.name}</Link></td>
                         <td><Link to={`/manga/:${res.manga_key}`}>{res.author}</Link></td>
                         <td><Link to={`/manga/:${res.manga_key}`}>{res.description}</Link></td>
-                        <td><Link to={`/manga/:${res.manga_key}`}>{res.add_time}</Link></td>
+                        <td><Link to={`/manga/:${res.manga_key}`}>{res.create_time}</Link></td>
                     </tr>
                 ))}
             </table>
-        )
-    }
-
-    render() {
-        return (
-            <React.Fragment>
-                <table>
-                    <tr>
-                        <th>Name</th>
-                        <th>Author</th>
-                        <th>Description</th>
-                        <th>Time added</th>
-                    </tr>
-                    {this.state.response.map(res => (
-                        <tr>
-                            <td><Link to={`/manga/:${res.manga_key}`}>{res.name}</Link></td>
-                            <td><Link to={`/manga/:${res.manga_key}`}>{res.author}</Link></td>
-                            <td><Link to={`/manga/:${res.manga_key}`}>{res.description}</Link></td>
-                            <td><Link to={`/manga/:${res.manga_key}`}>{res.add_time}</Link></td>
-                        </tr>
-                    ))}
-                </table>
-            </React.Fragment>
         );
     }
 }

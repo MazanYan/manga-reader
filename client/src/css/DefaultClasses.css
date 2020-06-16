@@ -1,3 +1,32 @@
+html {
+    height: 100%;
+    box-sizing: border-box;
+}
+
+body {
+    position: relative;
+    margin: 0;
+    padding-bottom: 6rem;
+    min-height: 100%;
+    background-color: #fff9e6;
+}
+
+main {
+    /*padding-left: 20%;
+    padding-right: 20%;*/
+    margin-left: auto;
+    margin-right: auto;
+    align-items: center;
+    max-width: 900px;
+}
+
+button {
+    background-color: burlywood;
+    border: solid;
+    border-width: 1px;
+    border-color: #c29e70;
+}
+
 .btn-group {
     display: flex;
     flex-direction: row;
@@ -45,8 +74,12 @@ table tr:nth-child(even) {
     background-color: #f2f2f2;
 }
 
+table tr:nth-child(odd) {
+    background-color: #fffded;
+}
+
 table tr:hover {
-    background-color: #ddd;
+    background-color: #ffe7c9;
 }
 
 table a {
@@ -56,10 +89,37 @@ table a {
     text-decoration: none;
 }
 
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
 table th {
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
     background-color: rgb(197, 152, 93);
     color: white;
+}
+
+footer {
+    position: absolute;
+    min-width: fit-content;
+    display: grid;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 1rem;
+    background-color: burlywood;
+    color: white;
+    text-align: center;
+    align-items: center;
+    grid-template-columns: 1fr 1fr;
+}
+
+footer > #descr, footer > #links {
+    text-align: center;
+}
+
+#links a:hover {
+    color: #ffedd4
 }

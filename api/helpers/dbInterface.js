@@ -89,14 +89,14 @@ async function createAccount({name, email, passw, photo = null, descr = null}) {
     );
 }
 
-async function addManga({name, author, descr}) {
+async function addManga({name, author, descr, time = null}) {
     performQuery(
         'INSERT INTO manga(${this:name}) VALUES(${this:csv});',
         {
             name: name,
             author: author,
             description: descr,
-            add_time: 'NOW()',
+            create_time: time ? time : 'NOW()',
             bookmarks_count: 0,
         }
     );
@@ -160,21 +160,31 @@ async function createNotification({acc, text, author}) {
     );
 }
 
-async function searchMangaByName(name, limit) {
-    /*return performQuery(
-        `SELECT * FROM manga where name=$1`, name
-    );*/
+/*async function searchMangaByName(name, limit) {
     return performQuery(
-        `SELECT DISTINCT * FROM manga where UPPER(name) LIKE UPPER('%${name}%') ORDER BY bookmarks_count DESC LIMIT ${limit};`,
+        `SELECT DISTINCT * FROM manga WHERE UPPER(name) LIKE UPPER('%${name}%') ORDER BY bookmarks_count DESC LIMIT ${limit};`,
+    );
+}*/
+
+async function searchMangaByNameAuthor(name, limit) {
+    return performQuery(
+        `SELECT DISTINCT * FROM manga 
+            WHERE UPPER(manga.name) LIKE UPPER('%${name}%') 
+            OR UPPER(manga.author) LIKE UPPER('%${name}%') 
+            ORDER BY bookmarks_count DESC LIMIT ${limit};`,
     );
 }
 
-async function searchMangaByAuthor(name, limit) {
+async function getMangaById(id) {
+    return performQuery('SELECT * FROM manga WHERE manga_key=$1', id);
+}
+
+/*async function searchMangaByAuthor(name, limit) {
     return performQuery(
-        `SELECT DISTINCT * FROM manga where UPPER(author) LIKE UPPER('%$1%') ORDER BY bookmarks_count DESC LIMIT $2;`,
+        `SELECT DISTINCT * FROM manga WHERE UPPER(author) LIKE UPPER('%$1%') ORDER BY bookmarks_count DESC LIMIT $2;`,
         name, limit
     );
-}
+}*/
 
 async function searchPopularManga(limit) {
     return performQuery(
@@ -184,7 +194,7 @@ async function searchPopularManga(limit) {
 
 async function getTableOfContents(mangaId) {
     return performQuery(
-        'SELECT (volume, number, name) FROM chapter WHERE manga_key=$1 ORDER BY number ASC;', mangaId
+        'SELECT volume, number, name FROM chapter WHERE manga_key=$1 ORDER BY number ASC;', mangaId
     );
 }
 
@@ -346,8 +356,10 @@ module.exports = {
     addComment: addComment,
     addChapter: addChapter,
     createNotification: createNotification,
-    searchMangaByName: searchMangaByName,
-    searchMangaByAuthor: searchMangaByAuthor,
+    searchMangaByNameAuthor: searchMangaByNameAuthor,
+    //searchMangaByName: searchMangaByName,
+    getMangaById: getMangaById,
+    //searchMangaByAuthor: searchMangaByAuthor,
     searchPopularManga: searchPopularManga,
     getTableOfContents: getTableOfContents,
     getPageComments: getPageComments,
