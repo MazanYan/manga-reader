@@ -14,7 +14,7 @@ const databaseConfig = {
     port: 5432,
     database: "manga_reader",
     user: "postgres",
-    password: "passw"
+    //password: "passw"
 };
 
 const db = pgp(databaseConfig);
@@ -367,5 +367,3 @@ module.exports = {
     deleteUser: deleteUser,
     //deleteNotification : deleteNotification
 };
-
-//updateOnlineStatus(1);

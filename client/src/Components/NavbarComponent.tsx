@@ -1,6 +1,7 @@
 import React from 'react';
 import LoginSignupComponent from './LoginSignupComponent';
 import SearchComponent from './SearchComponent';
+import axios from 'axios';
 
 interface NavbarProps {
     loggedIn: boolean,
@@ -9,8 +10,18 @@ interface NavbarProps {
 
 interface NavbarState {
     loginMenuOpened: boolean
-    searchOpened: boolean
+    /*searchOpened: boolean
+    toSearch: string*/
 };
+
+type MangaResponse = {
+    name: string,
+    author: string,
+    description: string,
+    manga_key: string,
+    bookmarks_count: Number,
+    add_time: Date
+}
  
 export default class NavbarComponent extends React.Component<NavbarProps, NavbarState> {
     constructor(props: NavbarProps) {
@@ -18,7 +29,8 @@ export default class NavbarComponent extends React.Component<NavbarProps, Navbar
 
         this.state = {
             loginMenuOpened: false,
-            searchOpened: false
+            //searchOpened: false,
+            //toSearch: ""
         };
     }
 
@@ -50,21 +62,34 @@ export default class NavbarComponent extends React.Component<NavbarProps, Navbar
             );
     }
 
+    /*handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        
+        const data = {
+            toSearch: this.state.toSearch
+        };
+        let response: Array<MangaResponse>;
+        axios.post(`http://localhost:3000/search`, data)
+            .then(function (res) {
+                response = res.data.message;
+            })
+            .catch(function (error) {
+                console.log(error);
+        });
+        event.preventDefault();
+    }
+
     renderSearchMenu() {
         if(this.state.searchOpened)
             return (
                 <SearchComponent/>
             );
-    }
+    }*/
 
     render() {
         return (
             <nav className="NavbarComponent">
-                <a href="index.html">Manga Reader</a>
-                <a className="dropbtn" onMouseEnter={() => 
-                    this.setState({searchOpened: !this.state.searchOpened})}><i className="fa fa-search"></i>
-                </a>
-                {this.renderSearchMenu()}
+                <a id="siteName" href="index.html">Manga Reader</a>
+                <SearchComponent/>
                 {this.renderLoggedIn()}
             </nav>
         );

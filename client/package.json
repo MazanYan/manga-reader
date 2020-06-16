@@ -17,6 +17,7 @@
     "font-awesome": "^4.7.0",
     "fontawesome": "^5.6.3",
     "jsx": "^0.9.89",
+    "query-string": "^6.13.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.2.0",

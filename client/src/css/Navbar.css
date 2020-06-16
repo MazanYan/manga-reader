@@ -1,19 +1,25 @@
 .NavbarComponent {
-display: flex;
-height: 50px;
-background-color: burlywood;
-justify-content: space-around;
-align-items: center;
-color: white;
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+    background-color: burlywood;
+    justify-content: space-around;
+    align-items: center;
+    color: white;
+}
+
+.SearchComponent {
+    color: red;
 }
 
 /* Links inside the navbar */
-/*.navbar a {
+nav a/*:link a:visited a:hover a:active*/ {
+    color: white;
     float: left;
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
-}*/
+}
 
 /* The dropdown container */
 .dropdown {

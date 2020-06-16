@@ -1,0 +1,65 @@
+.btn-group {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-group button {
+    /*background-color: #4CAF50;
+    border: 1px solid green;
+    color: white;
+    cursor: pointer;
+    float: left;*/
+}
+
+.btn-group button:not(:last-child) {
+    border-right: none;
+}
+
+/* Clear floats (clearfix hack) */
+.btn-group:after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+/* Add a background color on hover */
+.btn-group button:hover {
+    /*background-color: #3e8e41;*/
+}
+
+table {
+    margin: 10px;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+table td, table th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+table tr:hover {
+    background-color: #ddd;
+}
+
+table a {
+    color: black;
+    float: left;
+    text-align: center;
+    text-decoration: none;
+}
+
+table th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: rgb(197, 152, 93);
+    color: white;
+}

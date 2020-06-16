@@ -15,10 +15,12 @@ router.post('/', function(req, res, next) {
     //res.render("Andomer_LL");
     const searchRequest = req.body.toSearch;
     //console.log(typeof searchRequest);
+    console.log(searchRequest);
     dbInterface.searchMangaByName(searchRequest, 1)
         .then(function(response) {
-            console.log(response);
-            res.send(JSON.stringify({message: response}));
+            const found = JSON.stringify({message: response});
+            console.log(found);
+            res.send(found);
         })            
         .catch(err => console.log(err));
     //res.render('index', { title: 'Express' });
