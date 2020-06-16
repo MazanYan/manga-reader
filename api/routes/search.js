@@ -2,28 +2,56 @@
 const router = express.Router();
 const dbInterface = require('../helpers/dbInterface');
 
-/* GET searh. */
 router.get('/', function(req, res, next) {
-    //res.send(req);
-    //res.render("Andomer_LL");
     res.send("Search query");
-    //res.render('index', { title: 'Express' });
 });
   
 router.post('/', function(req, res, next) {
-    //res.send(req);
-    //res.render("Andomer_LL");
     const searchRequest = req.body.toSearch;
-    //console.log(typeof searchRequest);
     console.log(searchRequest);
-    dbInterface.searchMangaByName(searchRequest, 1)
+    dbInterface.searchMangaByNameAuthor(searchRequest, 1)
         .then(function(response) {
             const found = JSON.stringify({message: response});
             console.log(found);
             res.send(found);
         })            
         .catch(err => console.log(err));
-    //res.render('index', { title: 'Express' });
+});
+
+/* GET general data about panga */
+router.get('/mangaId', function(req, res, next) {
+    res.send("Search query manga by id");
+});
+
+/* POST general data about panga */
+router.post('/mangaId', function(req, res, next) {
+    const searchRequest = req.body.toSearch;
+    console.log(searchRequest);
+    dbInterface.getMangaById(searchRequest)
+        .then(function(response) {
+            const found = JSON.stringify({message: response});
+            console.log(found);
+            res.send(found);
+        })            
+        .catch(err => console.log(err));
+});
+
+/* GET table of contents of manga by id */
+router.get('/mangaId/toc', function(req, res, next) {
+    res.send("Search table of contents of manga by id");
+});
+
+/* POST table of contents of manga by id */
+router.post('/mangaId/toc', function(req, res, next) {
+    const searchRequest = req.body.toSearch;
+    console.log(searchRequest);
+    dbInterface.getTableOfContents(searchRequest)
+        .then(function(response) {
+            const found = JSON.stringify({message: response});
+            console.log(found);
+            res.send(found);
+        })
+        .catch(err => console.log(err));
 });
 
 module.exports = router;
