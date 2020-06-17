@@ -9,6 +9,7 @@ const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const loginRouter = require('./routes/login');
 const searchRouter = require('./routes/search');
+const uploadRouter = require('./routes/uploadImage');
 
 const app = express();
 
@@ -27,14 +28,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/login', loginRouter);
 app.use('/search', searchRouter);
-
-/*app.route('/search')
-  .get(function (req, res, next) {
-  res.send("Andomer_LL");
-})
-  .post(function (req, res, next) {
-  res.send("Andomer_LL");
-});*/
+app.use('/upload', uploadRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

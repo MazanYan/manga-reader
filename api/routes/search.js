@@ -1,4 +1,4 @@
- express = require('express');
+express = require('express');
 const router = express.Router();
 const dbInterface = require('../helpers/dbInterface');
 
@@ -18,16 +18,16 @@ router.post('/', function(req, res, next) {
         .catch(err => console.log(err));
 });
 
-/* GET general data about panga */
+/* GET general data about manga */
 router.get('/mangaId', function(req, res, next) {
     res.send("Search query manga by id");
 });
 
-/* POST general data about panga */
+/* POST general data about manga */
 router.post('/mangaId', function(req, res, next) {
     const searchRequest = req.body.toSearch;
     console.log(searchRequest);
-    dbInterface.getMangaById(searchRequest)
+    dbInterface.getMangaByIdImage(searchRequest)
         .then(function(response) {
             const found = JSON.stringify({message: response});
             console.log(found);

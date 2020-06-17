@@ -160,11 +160,11 @@ async function createNotification({acc, text, author}) {
     );
 }
 
-/*async function searchMangaByName(name, limit) {
+async function searchMangaByName(name, limit) {
     return performQuery(
         `SELECT DISTINCT * FROM manga WHERE UPPER(name) LIKE UPPER('%${name}%') ORDER BY bookmarks_count DESC LIMIT ${limit};`,
     );
-}*/
+}
 
 async function searchMangaByNameAuthor(name, limit) {
     return performQuery(
@@ -175,16 +175,24 @@ async function searchMangaByNameAuthor(name, limit) {
     );
 }
 
+async function getMangaByIdImage(id) {
+    return performQuery(
+        `SELECT * FROM manga
+            LEFT JOIN thumbnail USING (manga_key)
+            WHERE manga.manga_key=$1;`, id
+    );
+}
+
 async function getMangaById(id) {
     return performQuery('SELECT * FROM manga WHERE manga_key=$1', id);
 }
 
-/*async function searchMangaByAuthor(name, limit) {
+async function searchMangaByAuthor(name, limit) {
     return performQuery(
         `SELECT DISTINCT * FROM manga WHERE UPPER(author) LIKE UPPER('%$1%') ORDER BY bookmarks_count DESC LIMIT $2;`,
         name, limit
     );
-}*/
+}
 
 async function searchPopularManga(limit) {
     return performQuery(
@@ -303,7 +311,7 @@ async function updateChapter() {
 }
 
 async function updateMangaPage(mangaName, chapterNumber, pageNumber, image) {
-    return performQuery(
+    /*return performQuery(
         `SELECT * FROM manga_page
         WHERE chapter_key=(
         SELECT chapter_key FROM chapter 
@@ -312,7 +320,7 @@ async function updateMangaPage(mangaName, chapterNumber, pageNumber, image) {
                 SELECT manga_key FROM manga WHERE manga.name='Naruto'
             )
         ) AND manga_page.page_number=1;`
-    );
+    );*/
 }
 
 async function updateOnlineStatus(userId) {
@@ -357,9 +365,10 @@ module.exports = {
     addChapter: addChapter,
     createNotification: createNotification,
     searchMangaByNameAuthor: searchMangaByNameAuthor,
-    //searchMangaByName: searchMangaByName,
+    searchMangaByName: searchMangaByName,
+    getMangaByIdImage: getMangaByIdImage,
     getMangaById: getMangaById,
-    //searchMangaByAuthor: searchMangaByAuthor,
+    searchMangaByAuthor: searchMangaByAuthor,
     searchPopularManga: searchPopularManga,
     getTableOfContents: getTableOfContents,
     getPageComments: getPageComments,

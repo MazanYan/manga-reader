@@ -92,15 +92,17 @@ export default class MangaMainComponent extends React.Component<Props, MangaMain
 
     render() {
         const toRender = this.state.mangaData;
+        //alert(process.cwd());
         return (
             <main>
                 <div id="mangaMainPage">
-                    <img id="imagePlaceholder" src="http://placekitten.com/g/300/200"/>
+                    <img id="imagePlaceholder" src={`http://localhost:3000/images/${toRender?.thumbnail}`}/*toRender?.thumbnail*//>
                     <div id="namePlaceholder">{toRender?.name}</div>
                     <div id="authorPlaceholder">{toRender?.author}</div>
                     <div id="descriptionPlaceholder">{toRender?.description}</div>
                     <button id="openTableOfContents" onClick={() => this.setState({tableOfContentsOpened: !this.state.tableOfContentsOpened})}>Table of Contents</button>
                     <div id="tableOfContents">{this.renderTableOfContents()}</div>
+                    {toRender?.thumbnail}
                 </div>
                 {/*<Switch>
                     <Route path={`/:chapter/:page`} component={MangaPageComponent}/>
@@ -110,3 +112,5 @@ export default class MangaMainComponent extends React.Component<Props, MangaMain
         
     }
 }
+
+// "http://placekitten.com/g/300/200"
