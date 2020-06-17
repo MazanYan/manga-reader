@@ -1,15 +1,17 @@
 import React from 'react';
 import axios from 'axios';
-import { Redirect, RouteComponentProps, Link } from 'react-router-dom';
-import queryString from 'query-string';
+import { RouteComponentProps, Link } from 'react-router-dom';
 import { MangaResponse } from '../helpers/MangaResponse';
 
 type SearchPageState = {
+    query: string,
     response?: Array<MangaResponse>
+    responseReceived: boolean
 };
 
 type SearchPageProps = {
     query: string
+    
 };
 
 interface Props extends RouteComponentProps<SearchPageProps> {};
@@ -17,35 +19,41 @@ interface Props extends RouteComponentProps<SearchPageProps> {};
 export default class SearchPageComponent extends React.Component<Props, SearchPageState> {
     constructor(props: Props) {
         super(props);
-        this.state = {};
+        this.state = {
+            query: this.props.match.params.query.slice(1),
+            responseReceived: false
+        };
     }
 
     async componentDidMount() {
-        const query = {
-            toSearch: this.props.match.params.query.slice(1)
-        };
-        const response: Array<MangaResponse> = await (await axios.post(`http://localhost:3000/search`, query)).data.message;
+        const response: Array<MangaResponse> = await (await axios.post(`http://localhost:3000/search`, {toSearch: this.state.query})).data.message;
+        if (response.length)
+            this.setState({responseReceived: true});
         this.setState({response: response});
     }
 
     render() {
-        return (
-            <table>
-                <tr>
-                    <th>Name</th>
-                    <th>Author</th>
-                    <th>Description</th>
-                    <th>Time created</th>
-                </tr>
-                {this.state.response?.map(res => (
+        if (this.state.responseReceived)
+            return (
+                <table>
                     <tr>
-                        <td><Link to={`/manga/:${res.manga_key}`}>{res.name}</Link></td>
-                        <td><Link to={`/manga/:${res.manga_key}`}>{res.author}</Link></td>
-                        <td><Link to={`/manga/:${res.manga_key}`}>{res.description}</Link></td>
-                        <td><Link to={`/manga/:${res.manga_key}`}>{res.create_time}</Link></td>
+                        <th>Name</th>
+                        <th>Author</th>
+                        <th>Description</th>
+                        <th>Time created</th>
                     </tr>
-                ))}
-            </table>
+                    {this.state.response?.map(res => (
+                        <tr>
+                            <td><Link to={`/manga/${res.manga_key}`}>{res.name}</Link></td>
+                            <td><Link to={`/manga/${res.manga_key}`}>{res.author}</Link></td>
+                            <td><Link to={`/manga/${res.manga_key}`}>{res.description}</Link></td>
+                            <td><Link to={`/manga/${res.manga_key}`}>{res.create_time}</Link></td>
+                        </tr>
+                    ))}
+                </table>
+            );
+        else return (
+            <h1>Search by '{this.state.query}' didn't get any results</h1>
         );
     }
 }

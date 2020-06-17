@@ -1,11 +1,13 @@
 import React from 'react';
 import '../css/MainManga.css';
-import { RouteComponentProps } from 'react-router-dom';
+import { RouteComponentProps, Route, Link, Router, Redirect, Switch } from 'react-router-dom';
 import { MangaResponse, TableOfContentsResponse } from '../helpers/MangaResponse';
 import axios from 'axios';
+import MangaPageComponent from './MangaPageComponent';
 
 interface TableOfContentsProps {
-    chapters: Array<TableOfContentsResponse>
+    chapters: Array<TableOfContentsResponse>,
+    path: string
 };
 
 interface MangaMainPageState {
@@ -15,12 +17,18 @@ interface MangaMainPageState {
 }
 
 interface MangaMainPageProps {
+    manga: string,
     id: string
 };
+
+/*interface RenderPageProps {
+    render: MangaResponse
+}*/
 
 interface Props extends RouteComponentProps<MangaMainPageProps> {};
 
 function RenderTableOfContents(props: TableOfContentsProps) {
+
     return (
         <table id="tableOfContents">
             <thead>
@@ -32,14 +40,39 @@ function RenderTableOfContents(props: TableOfContentsProps) {
             <tbody>
                 {props.chapters.map(chapt => (
                     <tr key={chapt.number}>
-                        <td>{chapt.volume}</td>
-                        <td>{chapt.number} - {chapt.name}</td>
+                        <td>
+                            <Link to={`${props.path}/${chapt.number}/1`}>
+                                {chapt.volume}
+                            </Link>
+                        </td>
+                        <td>
+                            <Link to={`${props.path}/${chapt.number}/1`}>
+                                {chapt.number} - {chapt.name}
+                            </Link>
+                        </td>
                     </tr>
                 ))}
             </tbody>
         </table>
     );
 }
+
+/* <Route exact path={`${props.path}/ch:${chapt.number}/p:1`} component={MangaPageComponent}> */
+
+/*function RerderMainPage(props: RenderPageProps) {
+    const toRender = props.render;
+    return (
+        <div id="mangaMainPage">
+            <img id="imagePlaceholder" src="http://placekitten.com/g/300/200"/>
+            <div id="namePlaceholder">{toRender?.name}</div>
+            <div id="authorPlaceholder">{toRender?.author}</div>
+            <div id="descriptionPlaceholder">{toRender?.description}</div>
+            <button id="openTableOfContents" onClick={() => this.setState({tableOfContentsOpened: !this.state.tableOfContentsOpened})}>Table of Contents</button>
+            <div id="tableOfContents">{this.renderTableOfContents()}</div>
+            {this.props.location.pathname}
+        </div>
+    )
+}*/
 
 export default class MangaMainComponent extends React.Component<Props, MangaMainPageState> {
     
@@ -54,8 +87,9 @@ export default class MangaMainComponent extends React.Component<Props, MangaMain
 
     async componentDidMount() {
         const mangaId = {
-            toSearch: this.props.match.params.id.slice(1)
+            toSearch: parseInt(this.props.match.params.id, 10)
         };
+        //alert(this.props.match.params.id);
         const mangaData: MangaResponse = await (await axios.post(`http://localhost:3000/search/mangaId`, mangaId)).data.message[0];
         const tableOfContents: Array<TableOfContentsResponse> = await (await axios.post(`http://localhost:3000/search/mangaId/toc`, mangaId)).data.message;
         this.setState({
@@ -67,7 +101,7 @@ export default class MangaMainComponent extends React.Component<Props, MangaMain
     renderTableOfContents() {
         if (this.state.tableOfContentsOpened) {
             return (
-                <RenderTableOfContents chapters={this.state.tableOfContents!} />
+                <RenderTableOfContents path={this.props.location.pathname} chapters={this.state.tableOfContents!} />
             );
             
         }
@@ -76,14 +110,20 @@ export default class MangaMainComponent extends React.Component<Props, MangaMain
     render() {
         const toRender = this.state.mangaData;
         return (
-            <div id="mangaMainPage">
-                <img id="imagePlaceholder" src="http://placekitten.com/g/300/200"/>
-                <div id="namePlaceholder">{toRender?.name}</div>
-                <div id="authorPlaceholder">{toRender?.author}</div>
-                <div id="descriptionPlaceholder">{toRender?.description}</div>
-                <button id="openTableOfContents" onClick={() => this.setState({tableOfContentsOpened: !this.state.tableOfContentsOpened})}>Table of Contents</button>
-                <div id="tableOfContents">{this.renderTableOfContents()}</div>
-            </div>
-        )
+            <>
+                <div id="mangaMainPage">
+                    <img id="imagePlaceholder" src="http://placekitten.com/g/300/200"/>
+                    <div id="namePlaceholder">{toRender?.name}</div>
+                    <div id="authorPlaceholder">{toRender?.author}</div>
+                    <div id="descriptionPlaceholder">{toRender?.description}</div>
+                    <button id="openTableOfContents" onClick={() => this.setState({tableOfContentsOpened: !this.state.tableOfContentsOpened})}>Table of Contents</button>
+                    <div id="tableOfContents">{this.renderTableOfContents()}</div>
+                </div>
+                {/*<Switch>
+                    <Route path={`/:chapter/:page`} component={MangaPageComponent}/>
+                </Switch>*/}
+            </>
+        );
+        
     }
 }

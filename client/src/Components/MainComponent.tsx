@@ -8,6 +8,7 @@ import MangaMainComponent from './MangaMainComponent';
 import UserPageComponent from './UserPageComponent';
 import SearchComponent from './SearchComponent';
 import SearchPageComponent from './SearchPageComponent';
+import MangaPageComponent from './MangaPageComponent';
 
 export default function MainComponent() {
     return (
@@ -17,6 +18,7 @@ export default function MainComponent() {
                 <Switch>
                     <Route exact path="/" component={MainPageComponent}/>
                     <Route path="/manga/:id" component={MangaMainComponent}/>
+                    <Route path="/manga/:id/:ch/:p" component={MangaPageComponent}/>
                     <Route path="/user" component={UserPageComponent}/>
                     <Route path="/search/:query" component={SearchPageComponent}/> 
                 </Switch>
@@ -32,3 +34,20 @@ export default function MainComponent() {
         </React.Fragment>
     )
 }
+
+/*
+<Route path="/manga" children={() => (
+    <Switch>
+        <Route path="/:id" component={MangaMainComponent}/>
+        <Route path="/:id/:ch/:p" component={MangaPageComponent}/>
+    </Switch>
+)}/>
+*/
+
+
+/*<Route path="/manga/:id" children={() => (
+                        <Switch>
+                            <Route path="/" component={MangaMainComponent}/>
+                            <Route path="/:chapter:page" component={MangaPageComponent}/>
+                        </Switch>
+                    )}/>*/
