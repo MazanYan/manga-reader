@@ -1,16 +1,19 @@
-@media (min-width: 400px) {
+#imagePlaceholder {
+    min-width: 1fr;
+    max-height: 100%;
+    object-fit: cover;
+    grid-row: span 3;
+}
+
+@media (min-width: 480px) {
     #mangaMainPage {
+        margin: 1rem;
         display: grid;
         grid-gap: 1rem;
+        grid-template-rows: 1fr;
         grid-template-columns: 1fr 1fr;
     }
 
-    #imagePlaceholder {
-        display: block;
-        object-fit: cover;
-        grid-template: minmax(400px, 1fr);
-        grid-row: span 3;
-    }
     #namePlaceholder {
         display: block;
     }
@@ -22,13 +25,35 @@
     #descriptionPlaceholder {
         display: block;
     }
+
+    #openTableOfContents {
+        display: block;
+        object-fit: cover;
+        grid-column: span 1;
+    }
+
+    #tableOfContents {
+        grid-column: span 2;
+    }
 }
 
 #openTableOfContents {
-    display: table-cell;
+    display: block;
     object-fit: cover;
+    grid-column: auto;
 }
 
-#tableOfContents {
+@media only screen and (max-width: 480px) {
+    #mangaMainPage {
+        margin: 1rem;
+        display: grid;
+        grid-gap: 1rem;
+        grid-template-rows: 1fr;
+        grid-template-columns: 1fr;
+    }
+}
+
+/*#tableOfContents {
     display: table-cell;
 }
+*/

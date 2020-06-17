@@ -1,0 +1,158 @@
+html {
+    height: 100%;
+    box-sizing: border-box;
+}
+
+body {
+    position: relative;
+    margin: 0;
+    padding-bottom: 6rem;
+    min-height: 100%;
+    background-color: #fff9e6;
+}
+
+main {
+    /*padding-left: 20%;
+    padding-right: 20%;*/
+    margin-left: auto;/*minmax(20%, 100px);*/
+    margin-right: auto;/*minmax(20%, 100px);*/
+    align-items: center;
+    max-width: 1080px;
+}
+
+button {
+    background-color: burlywood;
+    border: solid;
+    border-width: 1px;
+    border-color: #c29e70;
+}
+
+button:hover {
+    background-color: #c29e70;
+}
+
+.btn-group {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header {
+    /*padding-left: 60px;*/
+    padding-top: 60px;
+    padding-bottom: 60px;
+    width: 100%;
+    text-align: center;
+    /*background: #d4a76c;*/
+    background: #fffcf2;
+    border-bottom: 1px solid #3d230030;
+    color: black;
+    text-align: left;
+    padding-left: auto;
+    font-size: 30px;
+}
+
+.header > * {
+    padding-left: 60px;
+}
+
+.btn-group button {
+    /*background-color: #4CAF50;
+    border: 1px solid green;
+    color: white;
+    cursor: pointer;
+    float: left;*/
+}
+
+.btn-group button:not(:last-child) {
+    border-right: none;
+}
+
+/* Clear floats (clearfix hack) */
+.btn-group:after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+/* Add a background color on hover */
+.btn-group button:hover {
+    /*background-color: #3e8e41;*/
+}
+
+table {
+    margin: 10px;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+table td, table th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+table tr:nth-child(odd) {
+    background-color: #fffded;
+}
+
+table tr:hover {
+    background-color: #ffe7c9;
+}
+
+a {
+    color: black;
+    text-decoration: none;
+}
+
+footer a {
+    color: white;
+    text-decoration: none;
+}
+
+table a {
+    color: black;
+    float: left;
+    text-align: center;
+    text-decoration: none;
+}
+
+/**, *:before, *:after {
+  box-sizing: inherit;
+}*/
+
+table th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: rgb(197, 152, 93);
+    color: white;
+}
+
+footer {
+    position: absolute;
+    min-width: fit-content;
+    display: grid;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 1rem;
+    background-color: burlywood;
+    color: white;
+    text-align: center;
+    align-items: center;
+    grid-template-columns: 1fr 1fr;
+}
+
+footer > #descr, footer > #links {
+    text-align: center;
+}
+
+#links a:hover {
+    color: #ffedd4
+}

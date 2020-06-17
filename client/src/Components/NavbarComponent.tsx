@@ -2,6 +2,7 @@ import React from 'react';
 import LoginSignupComponent from './LoginSignupComponent';
 import SearchComponent from './SearchComponent';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 interface NavbarProps {
     loggedIn: boolean,
@@ -62,35 +63,12 @@ export default class NavbarComponent extends React.Component<NavbarProps, Navbar
             );
     }
 
-    /*handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-        
-        const data = {
-            toSearch: this.state.toSearch
-        };
-        let response: Array<MangaResponse>;
-        axios.post(`http://localhost:3000/search`, data)
-            .then(function (res) {
-                response = res.data.message;
-            })
-            .catch(function (error) {
-                console.log(error);
-        });
-        event.preventDefault();
-    }
-
-    renderSearchMenu() {
-        if(this.state.searchOpened)
-            return (
-                <SearchComponent/>
-            );
-    }*/
-
     render() {
         return (
             <nav className="NavbarComponent">
-                <a id="siteName" href="index.html">Manga Reader</a>
-                <SearchComponent/>
-                {this.renderLoggedIn()}
+                <a id="siteName"><Link to="/">Manga Reader</Link></a>
+                <div id="search"><SearchComponent/></div>
+                <div id="login">{this.renderLoggedIn()}</div>
             </nav>
         );
     }
