@@ -26,14 +26,16 @@ export default class SearchPageComponent extends React.Component<Props, SearchPa
     }
 
     async componentDidMount() {
-        const response: Array<MangaResponse> = await (await axios.post(`http://localhost:3000/search`, {toSearch: this.state.query})).data.message;
-        if (response.length)
-            this.setState({responseReceived: true});
-        this.setState({response: response});
+        if (this.state.query) {
+            const response: Array<MangaResponse> = await (await axios.post(`http://localhost:3000/search`, {toSearch: this.state.query})).data.message;
+            if (response.length)
+                this.setState({responseReceived: true});
+            this.setState({response: response});
+        }
     }
 
     render() {
-        if (this.state.responseReceived && this.state.query)
+        if (this.state.responseReceived)
             return (
                 <main>
                     <table>
