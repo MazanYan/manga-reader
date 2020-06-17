@@ -14,10 +14,10 @@ body {
 main {
     /*padding-left: 20%;
     padding-right: 20%;*/
-    margin-left: auto;
-    margin-right: auto;
+    margin-left: auto;/*minmax(20%, 100px);*/
+    margin-right: auto;/*minmax(20%, 100px);*/
     align-items: center;
-    max-width: 900px;
+    max-width: 1080px;
 }
 
 button {
@@ -27,11 +27,34 @@ button {
     border-color: #c29e70;
 }
 
+button:hover {
+    background-color: #c29e70;
+}
+
 .btn-group {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+}
+
+.header {
+    /*padding-left: 60px;*/
+    padding-top: 60px;
+    padding-bottom: 60px;
+    width: 100%;
+    text-align: center;
+    /*background: #d4a76c;*/
+    background: #fffcf2;
+    border-bottom: 1px solid #3d230030;
+    color: black;
+    text-align: left;
+    padding-left: auto;
+    font-size: 30px;
+}
+
+.header > * {
+    padding-left: 60px;
 }
 
 .btn-group button {
@@ -82,6 +105,16 @@ table tr:hover {
     background-color: #ffe7c9;
 }
 
+a {
+    color: black;
+    text-decoration: none;
+}
+
+footer a {
+    color: white;
+    text-decoration: none;
+}
+
 table a {
     color: black;
     float: left;
@@ -89,9 +122,9 @@ table a {
     text-decoration: none;
 }
 
-*, *:before, *:after {
+/**, *:before, *:after {
   box-sizing: inherit;
-}
+}*/
 
 table th {
     padding-top: 12px;

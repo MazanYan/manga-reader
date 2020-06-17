@@ -57,23 +57,6 @@ function RenderTableOfContents(props: TableOfContentsProps) {
     );
 }
 
-/* <Route exact path={`${props.path}/ch:${chapt.number}/p:1`} component={MangaPageComponent}> */
-
-/*function RerderMainPage(props: RenderPageProps) {
-    const toRender = props.render;
-    return (
-        <div id="mangaMainPage">
-            <img id="imagePlaceholder" src="http://placekitten.com/g/300/200"/>
-            <div id="namePlaceholder">{toRender?.name}</div>
-            <div id="authorPlaceholder">{toRender?.author}</div>
-            <div id="descriptionPlaceholder">{toRender?.description}</div>
-            <button id="openTableOfContents" onClick={() => this.setState({tableOfContentsOpened: !this.state.tableOfContentsOpened})}>Table of Contents</button>
-            <div id="tableOfContents">{this.renderTableOfContents()}</div>
-            {this.props.location.pathname}
-        </div>
-    )
-}*/
-
 export default class MangaMainComponent extends React.Component<Props, MangaMainPageState> {
     
     constructor(props: Props) {
@@ -110,7 +93,7 @@ export default class MangaMainComponent extends React.Component<Props, MangaMain
     render() {
         const toRender = this.state.mangaData;
         return (
-            <>
+            <main>
                 <div id="mangaMainPage">
                     <img id="imagePlaceholder" src="http://placekitten.com/g/300/200"/>
                     <div id="namePlaceholder">{toRender?.name}</div>
@@ -122,7 +105,7 @@ export default class MangaMainComponent extends React.Component<Props, MangaMain
                 {/*<Switch>
                     <Route path={`/:chapter/:page`} component={MangaPageComponent}/>
                 </Switch>*/}
-            </>
+            </main>
         );
         
     }

@@ -33,27 +33,31 @@ export default class SearchPageComponent extends React.Component<Props, SearchPa
     }
 
     render() {
-        if (this.state.responseReceived)
+        if (this.state.responseReceived && this.state.query)
             return (
-                <table>
-                    <tr>
-                        <th>Name</th>
-                        <th>Author</th>
-                        <th>Description</th>
-                        <th>Time created</th>
-                    </tr>
-                    {this.state.response?.map(res => (
+                <main>
+                    <table>
                         <tr>
-                            <td><Link to={`/manga/${res.manga_key}`}>{res.name}</Link></td>
-                            <td><Link to={`/manga/${res.manga_key}`}>{res.author}</Link></td>
-                            <td><Link to={`/manga/${res.manga_key}`}>{res.description}</Link></td>
-                            <td><Link to={`/manga/${res.manga_key}`}>{res.create_time}</Link></td>
+                            <th>Name</th>
+                            <th>Author</th>
+                            <th>Description</th>
+                            <th>Time created</th>
                         </tr>
-                    ))}
-                </table>
+                        {this.state.response?.map(res => (
+                            <tr>
+                                <td><Link to={`/manga/${res.manga_key}`}>{res.name}</Link></td>
+                                <td><Link to={`/manga/${res.manga_key}`}>{res.author}</Link></td>
+                                <td><Link to={`/manga/${res.manga_key}`}>{res.description}</Link></td>
+                                <td><Link to={`/manga/${res.manga_key}`}>{res.create_time}</Link></td>
+                            </tr>
+                        ))}
+                    </table>
+                </main>
             );
         else return (
-            <h1>Search by '{this.state.query}' didn't get any results</h1>
+            <main>
+                <h1>Search by '{this.state.query}' didn't get any results</h1>
+            </main>
         );
     }
 }
