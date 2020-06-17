@@ -5,6 +5,7 @@ export interface MangaResponse {
     manga_key: string,
     bookmarks_count: Number,
     create_time: Date,
+    update_time: Date,
     thumbnail: string,
     file_format: string
 };

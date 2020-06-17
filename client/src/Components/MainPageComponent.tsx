@@ -1,32 +1,37 @@
 import React from 'react';
 import '../css/MainPage.css';
+import { MangaResponse } from '../helpers/MangaResponse';
+import { convertPostgresTimestampDate, getYear } from '../helpers/ConvertTimestamp';
+import axios from 'axios';
 import MangaPageComponent from './MangaPageComponent';
 import { Link } from 'react-router-dom';
 
-interface MainPageProps {
-
+interface MainPageState {
+    popular?: Array<MangaResponse>,
+    recent?: Array<MangaResponse>,
+    random?: Array<MangaResponse>
 };
 
-interface MangaCardMainProps {
-    image?: any,
+/*interface MangaCardMainProps {
+    image?: string,
     name?: string,
     author?: string,
     description?: string,
     timeAdded?: string,
     //className?: any
-}
+}*/
 
-function RenderMangaCard(props: MangaCardMainProps) {
+function RenderMangaCard(props?: MangaResponse) {
     return (
-        <Link to="/manga/4">
+        <Link to={`/manga/${props?.manga_key}`}>
             <div className="card">
-                <img src="http://placekitten.com/g/300/200"/>
+                <img src={`http://localhost:3000/images/${props?.thumbnail}`}/>
                 <div className="container">
-                    <div className="mangaName">
-                        <h4><b>Naruto</b></h4>
-                    </div>
-                    <div className="mangaAuthor">
-                        <p>Masashi Kishimoto</p>
+                    <div>
+                        <h4><b>{props?.name}</b></h4>
+                        <p>{props?.author}</p>
+                        <p>Written at: {convertPostgresTimestampDate(props?.create_time.toString())?.getFullYear()}</p>
+                        <p>Bookmarks added: {props?.bookmarks_count}</p>
                     </div>
                 </div>
             </div>
@@ -34,18 +39,40 @@ function RenderMangaCard(props: MangaCardMainProps) {
     );
 }
 
-export default class MainPageComponent extends React.Component<MainPageProps> {
+export default class MainPageComponent extends React.Component<any, MainPageState> {
 
-    async getLoginPage() {
+    constructor(props: any) {
+        super(props);
+        this.state = {};
+    }
+
+    /*async getLoginPage() {
         const result = await fetch('http:/localhost:3000/login');
         alert(result);
         return (
             <div>
                 {result.text}
             </div>
-        )}
+        )
+    }*/
+
+    async componentDidMount() {
+        const request = {
+            limit: 6
+        };
+        const mangaData = await (await axios.post(`http://localhost:3000/search/main_page`, request)).data.response;
+        //console.log("Manga Data:");
+        //console.log(mangaData);
+        this.setState({
+            popular: mangaData.popular,
+            recent: mangaData.recent,
+            random: mangaData.random
+        });
+    }
+
 
     render() {
+        const { popular, recent, random } = this.state;
         return (
             <React.Fragment>
                 <div className="header">
@@ -54,14 +81,10 @@ export default class MainPageComponent extends React.Component<MainPageProps> {
                 <main id="main-page">
                         <div className="main-page-row">
                             <div className="main-page-row-head">
-                                <h2>Top five popular manga:</h2>
+                                <h2>Top popular manga:</h2>
                             </div>
                             <div className="main-page-row-content">
-                                {RenderMangaCard({})}
-                                {RenderMangaCard({})}
-                                {RenderMangaCard({})}
-                                {RenderMangaCard({})}
-                                {RenderMangaCard({})}
+                                {popular?.map((manga: MangaResponse) => <RenderMangaCard {...manga}/>)}
                             </div>
                         </div>
                         <div className="main-page-row">
@@ -69,11 +92,7 @@ export default class MainPageComponent extends React.Component<MainPageProps> {
                                 <h2>Top five new manga:</h2>
                             </div>
                             <div className="main-page-row-content">
-                                {RenderMangaCard({})}
-                                {RenderMangaCard({})}
-                                {RenderMangaCard({})}
-                                {RenderMangaCard({})}
-                                {RenderMangaCard({})}
+                                {recent?.map((manga: MangaResponse) => <RenderMangaCard {...manga}/>)}
                             </div>
                         </div>
                         <div className="main-page-row">
@@ -81,11 +100,7 @@ export default class MainPageComponent extends React.Component<MainPageProps> {
                                 <h2>Five random manga:</h2>
                             </div>
                             <div className="main-page-row-content">
-                                {RenderMangaCard({})}
-                                {RenderMangaCard({})}
-                                {RenderMangaCard({})}
-                                {RenderMangaCard({})}
-                                {RenderMangaCard({})}
+                                {random?.map((manga: MangaResponse) => <RenderMangaCard {...manga}/>)}
                             </div>
                         </div>
                 </main>

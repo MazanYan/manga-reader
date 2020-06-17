@@ -184,19 +184,43 @@ async function getMangaByIdImage(id) {
 }
 
 async function getMangaById(id) {
-    return performQuery('SELECT * FROM manga WHERE manga_key=$1', id);
+    return performQuery(
+        `SELECT * FROM manga 
+            LEFT JOIN thumbnail USING (manga_key)
+            WHERE manga_key=$1`, id
+        );
 }
 
 async function searchMangaByAuthor(name, limit) {
     return performQuery(
-        `SELECT DISTINCT * FROM manga WHERE UPPER(author) LIKE UPPER('%$1%') ORDER BY bookmarks_count DESC LIMIT $2;`,
+        `SELECT * FROM manga 
+            LEFT JOIN thumbnail USING (manga_key)
+            WHERE UPPER(author) LIKE UPPER('%$1%') ORDER BY bookmarks_count DESC LIMIT $2;`,
         name, limit
     );
 }
 
 async function searchPopularManga(limit) {
     return performQuery(
-        'SELECT DISTINCT * FROM manga ORDER BY bookmarks_count LIMIT $1;', limit
+        `SELECT * FROM manga 
+            LEFT JOIN thumbnail USING (manga_key)
+            ORDER BY bookmarks_count LIMIT $1;`, limit
+    );
+}
+
+async function searchRecentManga(limit) {
+    return performQuery(
+        `SELECT * FROM manga 
+            LEFT JOIN thumbnail USING (manga_key)
+            ORDER BY create_time DESC LIMIT $1;`, limit
+    );
+}
+
+async function searchRandomManga(limit) {
+    return performQuery(
+        `SELECT * FROM manga 
+            LEFT JOIN thumbnail USING (manga_key)
+            ORDER BY RANDOM() LIMIT $1;`, limit
     );
 }
 
@@ -370,6 +394,8 @@ module.exports = {
     getMangaById: getMangaById,
     searchMangaByAuthor: searchMangaByAuthor,
     searchPopularManga: searchPopularManga,
+    searchRecentManga: searchRecentManga,
+    searchRandomManga: searchRandomManga,
     getTableOfContents: getTableOfContents,
     getPageComments: getPageComments,
     getPrevPage: getPrevPage,
