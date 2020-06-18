@@ -105,7 +105,7 @@ export default class ContributionComponent extends React.Component<ContributionP
             alert('Property is undefined!');
             return;
         }
-        alert('Alles ist gut!');
+        //alert('Alles ist gut!');
         
         /* Set new names for files on client side */
         const newFileNames = this.state.imagesChapter.map((img, index) => 
@@ -135,7 +135,8 @@ export default class ContributionComponent extends React.Component<ContributionP
             images: newFileNames
         };
         
-        /*fileSendPromises.push(*/axios.post('http://localhost:3000/add/chapter', generalChapterData);//);
+        console.log(generalChapterData);
+        fileSendPromises.push(axios.post('http://localhost:3000/add/chapter', generalChapterData));
 
         Promise.all(fileSendPromises)
             .then((response: any) => {
@@ -245,7 +246,7 @@ export default class ContributionComponent extends React.Component<ContributionP
                     <label htmlFor="volume">Add volume:</label>
                     <input type="number" min="0" name="volume" onChange={
                         (e: React.FormEvent<HTMLInputElement>) =>
-                        this.setState({chapterNumber: parseInt(e.currentTarget.value)}/*oldState => {
+                        this.setState({chapterVolume: parseInt(e.currentTarget.value)}/*oldState => {
                             const value = e.currentTarget.value;
                             let addChapter = Object.assign({}, oldState.addChapter);
                             addChapter.number = parseInt(value);
@@ -254,7 +255,7 @@ export default class ContributionComponent extends React.Component<ContributionP
                     <label htmlFor="chapter">Add chapter number</label>
                     <input type="number" min="0" name="chapter" onChange={
                         (e: React.FormEvent<HTMLInputElement>) =>
-                        this.setState({chapterVolume: parseInt(e.currentTarget.value)}/*oldState => {
+                        this.setState({chapterNumber: parseInt(e.currentTarget.value)}/*oldState => {
                             const value = e.currentTarget.value;
                             let addChapter = Object.assign({}, oldState.addChapter);
                             addChapter.volume = parseInt(value);

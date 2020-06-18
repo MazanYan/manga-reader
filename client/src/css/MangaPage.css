@@ -38,6 +38,11 @@
     border-width: 1px;
 }
 
+.inactive {
+    background-color: #3d230030;
+    color: #46464630;
+}
+
 .chapter-button:hover {
     background-color: #3d230030;
     transition: 0.2s;
@@ -94,6 +99,14 @@
 .page-link:hover {
     background-color: rgb(222, 184, 135);
     transition: 0.2s;
+}
+
+.page-link.inactive {
+    background-color: rgb(222, 184, 135, 0.4);
+}
+
+.page-link.active {
+    background-color: rgb(222, 184, 135);
 }
 
 .comments {

@@ -89,4 +89,45 @@ router.post('/mangaId/toc', function(req, res, next) {
         .catch(err => console.log(err));
 });
 
+router.get('/manga_page', function(req, res, next) {
+    res.send("Search manga page by id of manga, chapter and page numbers");
+    
+});
+
+router.post('/manga_page', function(req, res, next) {
+    const searchRequest = req.body.request;
+    console.log("Request in nodejs");
+    console.log(searchRequest);
+    const answer = {
+        generalPageData: null,
+        hasPrevChapter: null,
+        hasNextChapter: null
+    };
+    
+    const generalDataPromise = dbInterface
+        .getMangaPageData(searchRequest.manga, searchRequest.chapter, searchRequest.page)
+        .then(function(response) {
+            console.log(response);
+            answer.generalPageData = response;
+        }).catch(err => console.log(err));
+
+    const hasPrevChPromise = dbInterface
+        .hasPrevChapter(searchRequest.manga, searchRequest.chapter)
+        .then(function(response) {
+            console.log(response);
+            answer.hasPrevChapter = response;
+        });
+    
+    const hasNextChPromise = dbInterface
+    .hasNextChapter(searchRequest.manga, searchRequest.chapter)
+    .then(function(response) {
+        console.log(response);
+        answer.hasNextChapter = response;
+    });
+
+    Promise.all([generalDataPromise, hasPrevChPromise, hasNextChPromise])
+        .then(() => res.send(JSON.stringify({response: answer})))
+        .catch(err => console.log(err));
+});
+
 module.exports = router;

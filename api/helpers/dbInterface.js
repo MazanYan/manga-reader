@@ -149,18 +149,19 @@ async function addChapter({mangaName, chapterName, chapterNumber, chapterVolume 
     console.log()
     //const chapterKey = crypt.MD5(string(mangaKey) + number);
     return performQuery(
-        'INSERT INTO chapter(manga_key, name, number, volume, add_time)' +
+        'INSERT INTO chapter(manga_key, name, number, volume, pages_count, add_time)' +
             'VALUES ((SELECT manga_key FROM manga WHERE manga.name=${manga_name} LIMIT 1),' +
-                     '${name}, ${number}, ${volume}, NOW());' +
+                     '${name}, ${number}, ${volume}, ${pages_count}, NOW());' +
         'INSERT INTO manga_page(image, page_number, chapter_key)' +
             'SELECT unnest(array' + arrToStr(images) + '), unnest(array' + arrToStrInts(pageNumbers) + '),' +
-            '(SELECT manga_key FROM manga WHERE manga.name=${manga_name} LIMIT 1);',
+            '(SELECT chapter_key FROM chapter WHERE chapter.name=${name} LIMIT 1);',
         {
             //chapter_key: chapterKey,
             manga_name: mangaName,
             name: chapterName,
             number: chapterNumber,
             volume: chapterVolume,
+            pages_count: pagesCount
         }
     );
 }
@@ -234,8 +235,7 @@ async function searchRecentManga(limit) {
 
 async function searchRandomManga(limit) {
     return await performQuery(
-        `SELECT * FROM manga 
-            
+        `SELECT * FROM manga
             ORDER BY RANDOM() LIMIT $1;`, limit
     );
 }
@@ -244,6 +244,20 @@ async function getTableOfContents(mangaId) {
     return await performQuery(
         'SELECT volume, number, name FROM chapter WHERE manga_key=$1 ORDER BY number ASC;', mangaId
     );
+}
+
+async function getMangaPageData(mangaId, chapterNum, pageNum) {
+    console.log(mangaId);
+    return await performQuery(
+        `SELECT 
+            manga.name as manga_name,
+            chapter.name as chapter_name, 
+            number as chapter_number,
+            volume, pages_count, image, page_number FROM chapter 
+                JOIN manga_page ON chapter.chapter_key=manga_page.chapter_key
+                JOIN manga ON chapter.manga_key=manga.manga_key
+                    WHERE manga.manga_key=$1 AND chapter.number=$2 AND manga_page.page_number=$3;`,
+                    [mangaId, chapterNum, pageNum]);
 }
 
 async function getPageComments(pageId) {
@@ -258,6 +272,24 @@ async function getPageComments(pageId) {
             'answer_on'
         ],
         pageId
+    );
+}
+
+async function hasPrevChapter(mangaId, chapterNum) {
+    console.log(mangaId);
+    console.log(chapterNum);
+    return await performQuery(
+        'SELECT COUNT(*) FROM chapter WHERE manga_key=$1 AND chapter.number=$2;',
+        [mangaId, chapterNum-1]
+    );
+}
+
+async function hasNextChapter(mangaId, chapterNum) {
+    console.log(mangaId);
+    console.log(chapterNum);
+    return await performQuery(
+        'SELECT COUNT(*) FROM chapter WHERE manga_key=$1 AND chapter.number=$2;',
+        [mangaId, chapterNum+1]
     );
 }
 
@@ -413,10 +445,13 @@ module.exports = {
     searchRecentManga: searchRecentManga,
     searchRandomManga: searchRandomManga,
     getTableOfContents: getTableOfContents,
+    getMangaPageData: getMangaPageData,
     getPageComments: getPageComments,
-    getPrevPage: getPrevPage,
-    getNextPage: getNextPage,
-    getMangaPageImage: getMangaPageImage,
+    hasPrevChapter: hasPrevChapter,
+    hasNextChapter: hasNextChapter,
+    //getPrevPage: getPrevPage,
+    //getNextPage: getNextPage,
+    //getMangaPageImage: getMangaPageImage,
     //changeProfilePhoto: changeProfilePhoto,
     changePassword: changePassword,
     changeDescription: changeDescription,
