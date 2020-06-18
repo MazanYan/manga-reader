@@ -51,7 +51,6 @@ export default class ContributionComponent extends React.Component<ContributionP
 
         this.handleSubmitManga = this.handleSubmitManga.bind(this);
         this.handleSubmitChapter = this.handleSubmitChapter.bind(this);
-        this.renderResponseSuccess = this.renderResponseSuccess.bind(this);
         this.AddMangaComponent = this.AddMangaComponent.bind(this);
         this.AddChapterComponent = this.AddChapterComponent.bind(this);
         this.AddPagesComponent = this.AddPagesComponent.bind(this);
@@ -59,21 +58,6 @@ export default class ContributionComponent extends React.Component<ContributionP
         this.renderNamesUploadedImages = this.renderNamesUploadedImages.bind(this);
     }
 
-    renderResponseSuccess() {
-        //if (this.state.responseReceived)
-        //    alert("Manga added");
-            /*return (
-                <div id="response-ok">
-                    Manga added
-                </div>
-            );*/
-    }
-
-    /* name?: string,
-    author?: string,
-    year?: number | string,
-    description?: string,
-    thumbnail?: File, */
     handleSubmitManga(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         if (!this.state.name || !this.state.author || !this.state.year || !this.state.description || !this.state.thumbnail) {
@@ -115,14 +99,6 @@ export default class ContributionComponent extends React.Component<ContributionP
             });
     }
 
-    /*
-addChapter: {
-    mangaName: undefined,
-    chapterName: undefined,
-    number: undefined,
-    volume: undefined
-},
-    */
     handleSubmitChapter(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         if (!this.state.mangaName || !this.state.chapterName || !this.state.chapterNumber || !this.state.chapterVolume || !this.state.imagesChapter) {
@@ -166,24 +142,8 @@ addChapter: {
                 if (response[0].data.result)
                     alert(response[0].data.result)
             });
-        /*
-            mangaName: undefined,
-            chapterName: undefined,
-            chapterNumber: undefined,
-            chapterVolume: undefined,
-            imagesChapterUploaded: false
-        */
-        
-        //const filesNewNames = this.state.imagesChapter.map(img =>
-        //    new File([img], ))
     }
 
-    /* mangaName?: string,
-    chapterName?: string,
-    chapterNumber?: number,
-    chapterVolume?: number,
-    imagesChapterUploaded: boolean,
-    imagesChapterNames?: Array<string> */
     AddMangaComponent() {
         return (
             <div className="card card-contrib">
@@ -323,7 +283,6 @@ addChapter: {
                         <p>{this.renderNamesUploadedImages()}</p>
                     </div>
                     <input type="submit" value="Send"/>
-                    {this.renderResponseSuccess()}
                 </form>
             </div>
         );
@@ -354,7 +313,7 @@ addChapter: {
                 <div className="header">
                     <p>A page where you can make your contribution into manga reader</p>
                 </div>
-                <main>
+                <main className="contributions-main">
                     <div className="btn-group">
                         <button className="btn-contrib" onClick={() => this.setState({pageSelected: 1})}>Add manga</button>
                         <button className="btn-contrib" onClick={() => this.setState({pageSelected: 2})}>Add chapter</button>

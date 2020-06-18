@@ -1,6 +1,6 @@
 import React from 'react';
-//import { serverPort } from '../../../config';
 import axios from 'axios';
+import '../css/Navbar.css';
 import { Redirect, Link } from 'react-router-dom';
 
 
@@ -45,7 +45,6 @@ export default class SearchComponent extends React.Component<SearchProps, Search
         axios.post(`http://localhost:3000/search`, data)
             .then(function (res) {
                 response = res.data.message;
-                //alert(response[0].author);
             })
             .catch(function (error) {
                 console.log(error);
@@ -57,8 +56,8 @@ export default class SearchComponent extends React.Component<SearchProps, Search
         return (
             <form onSubmit={this.handleSubmit} onChange={this.handleChange}>
                 <div className="btn-group">
-                    <input id="mangaName" type="text"></input>
-                    <a id="linkSubmit" type="submit">
+                    <input id="manga-name" type="text"></input>
+                    <a id="link-submit" type="submit">
                         <Link to={`/search/:${this.state.toSearch}`}>
                             <i className="fa fa-search"></i>
                         </Link>

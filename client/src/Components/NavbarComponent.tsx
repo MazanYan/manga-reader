@@ -11,8 +11,6 @@ interface NavbarProps {
 
 interface NavbarState {
     loginMenuOpened: boolean
-    /*searchOpened: boolean
-    toSearch: string*/
 };
 
 type MangaResponse = {
@@ -30,8 +28,6 @@ export default class NavbarComponent extends React.Component<NavbarProps, Navbar
 
         this.state = {
             loginMenuOpened: false,
-            //searchOpened: false,
-            //toSearch: ""
         };
     }
 
@@ -66,7 +62,7 @@ export default class NavbarComponent extends React.Component<NavbarProps, Navbar
     render() {
         return (
             <nav className="NavbarComponent">
-                <a id="siteName"><Link to="/">Manga Reader</Link></a>
+                <a id="site-name"><Link to="/">Manga Reader</Link></a>
                 <div id="search"><SearchComponent/></div>
                 <div id="login">{this.renderLoggedIn()}</div>
             </nav>

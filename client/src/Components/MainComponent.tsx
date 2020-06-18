@@ -4,12 +4,11 @@ import '../css/Navbar.css';
 import '../css/DefaultClassesTags.css';
 import { Switch, Route, Link } from 'react-router-dom';
 import MainPageComponent from './MainPageComponent';
-import MangaMainComponent from './MangaMainComponent';
 import UserPageComponent from './UserPageComponent';
 import SearchPageComponent from './SearchPageComponent';
-import MangaPageComponent from './MangaPageComponent';
 import ContributionComponent from './ContributionComponent';
 import { CopyrightClaimComponent } from './CopyrightClaimComponent';
+import MangaComponent from './MangaComponent';
 
 export default function MainComponent() {
     return (
@@ -17,8 +16,7 @@ export default function MainComponent() {
             <NavbarComponent loggedIn={false} accName=""/>
             <Switch>
                 <Route exact path="/" component={MainPageComponent}/>
-                <Route path="/manga/:id" component={MangaMainComponent}/>
-                <Route path="/manga/:id/:ch/:p" component={MangaPageComponent}/>
+                <Route path="/manga" component={MangaComponent}/>
                 <Route path="/user" component={UserPageComponent}/>
                 <Route path="/search/:query" component={SearchPageComponent}/>
                 <Route path="/contribute" component={ContributionComponent}/> 
@@ -36,20 +34,3 @@ export default function MainComponent() {
         </React.Fragment>
     )
 }
-
-/*
-<Route path="/manga" children={() => (
-    <Switch>
-        <Route path="/:id" component={MangaMainComponent}/>
-        <Route path="/:id/:ch/:p" component={MangaPageComponent}/>
-    </Switch>
-)}/>
-*/
-
-
-/*<Route path="/manga/:id" children={() => (
-                        <Switch>
-                            <Route path="/" component={MangaMainComponent}/>
-                            <Route path="/:chapter:page" component={MangaPageComponent}/>
-                        </Switch>
-                    )}/>*/

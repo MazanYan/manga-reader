@@ -3,8 +3,7 @@ import '../css/MainManga.css';
 import { RouteComponentProps, Route, Link, Router, Redirect, Switch } from 'react-router-dom';
 import { MangaResponse, TableOfContentsResponse } from '../helpers/MangaResponse';
 import axios from 'axios';
-import MangaPageComponent from './MangaPageComponent';
-import { getYear, postgresToDate } from '../helpers/ConvertTimestamp';
+import { postgresToDate } from '../helpers/ConvertTimestamp';
 
 interface TableOfContentsProps {
     chapters: Array<TableOfContentsResponse>,
@@ -17,16 +16,12 @@ interface MangaMainPageState {
     tableOfContents?: Array<TableOfContentsResponse>
 }
 
-interface MangaMainPageProps {
+interface MangaMainPageRouterProps {
     manga: string,
     id: string
 };
 
-/*interface RenderPageProps {
-    render: MangaResponse
-}*/
-
-interface Props extends RouteComponentProps<MangaMainPageProps> {};
+interface MangaMainPageProps extends RouteComponentProps<MangaMainPageRouterProps> {};
 
 function RenderTableOfContents(props: TableOfContentsProps) {
     if (props.chapters.length)
@@ -47,7 +42,7 @@ function RenderTableOfContents(props: TableOfContentsProps) {
                                 </Link>
                             </td>
                             <td>
-                                <Link to={`${props.path}/${chapt.number}/1`}>
+                                <Link to={`${props.path}/chapter${chapt.number}/page1`}>
                                     {chapt.number} - {chapt.name}
                                 </Link>
                             </td>
@@ -59,9 +54,9 @@ function RenderTableOfContents(props: TableOfContentsProps) {
     else return (<p>This manga has no added chapters yet.</p>);
 }
 
-export default class MangaMainComponent extends React.Component<Props, MangaMainPageState> {
+export default class MangaMainComponent extends React.Component<MangaMainPageProps, MangaMainPageState> {
     
-    constructor(props: Props) {
+    constructor(props: MangaMainPageProps) {
         super(props);
         this.state = {
             tableOfContentsOpened: false,
@@ -72,8 +67,10 @@ export default class MangaMainComponent extends React.Component<Props, MangaMain
 
     async componentDidMount() {
         const mangaId = {
-            toSearch: parseInt(this.props.match.params.id, 10)
+            toSearch: parseInt(this.props.match.params.id)
+            //toSearch: parseInt(this.props.match.params.id, 10)
         };
+        console.log(this.props.match.params.id);
         const mangaData: MangaResponse = await (await axios.post(`http://localhost:3000/search/mangaId`, mangaId)).data.message[0];
         const tableOfContents: Array<TableOfContentsResponse> = await (await axios.post(`http://localhost:3000/search/mangaId/toc`, mangaId)).data.message;
         this.setState({
@@ -117,9 +114,3 @@ export default class MangaMainComponent extends React.Component<Props, MangaMain
         
     }
 }
-
-/*
-<div id="namePlaceholder">{toRender?.name}</div>
-<div id="authorPlaceholder">{toRender?.author}</div>
-<div id="descriptionPlaceholder">{toRender?.description}</div>
-*/
