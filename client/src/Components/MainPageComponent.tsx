@@ -1,7 +1,7 @@
 import React from 'react';
 import '../css/MainPage.css';
 import { MangaResponse } from '../helpers/MangaResponse';
-import { convertPostgresTimestampDate, getYear } from '../helpers/ConvertTimestamp';
+import { postgresToDate, getYear } from '../helpers/ConvertTimestamp';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
@@ -20,7 +20,7 @@ function RenderMangaCard(props?: MangaResponse) {
                     <div>
                         <h4><b>{props?.name}</b></h4>
                         <p>{props?.author}</p>
-                        <p>Written at: {convertPostgresTimestampDate(props?.create_time.toString())?.getFullYear()}</p>
+                        <p>Written at: {postgresToDate(props?.create_time)?.getFullYear()}</p>
                         <p>Bookmarks added: {props?.bookmarks_count}</p>
                     </div>
                 </div>

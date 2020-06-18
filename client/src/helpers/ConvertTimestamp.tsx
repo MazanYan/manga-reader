@@ -1,4 +1,4 @@
-export function convertPostgresTimestampDate(date: string | undefined) {
+export function postgresToDate(date: string | undefined) {
     if (date)
         return new Date(date.replace(' ', 'T'));
 }

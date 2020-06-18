@@ -4,6 +4,7 @@ import { RouteComponentProps, Route, Link, Router, Redirect, Switch } from 'reac
 import { MangaResponse, TableOfContentsResponse } from '../helpers/MangaResponse';
 import axios from 'axios';
 import MangaPageComponent from './MangaPageComponent';
+import { getYear, postgresToDate } from '../helpers/ConvertTimestamp';
 
 interface TableOfContentsProps {
     chapters: Array<TableOfContentsResponse>,
@@ -28,33 +29,34 @@ interface MangaMainPageProps {
 interface Props extends RouteComponentProps<MangaMainPageProps> {};
 
 function RenderTableOfContents(props: TableOfContentsProps) {
-
-    return (
-        <table id="tableOfContents">
-            <thead>
-                <tr key={0}>
-                    <th>Volume</th>
-                    <th>Chapter</th>
-                </tr>
-            </thead>
-            <tbody>
-                {props.chapters.map(chapt => (
-                    <tr key={chapt.number}>
-                        <td>
-                            <Link to={`${props.path}/${chapt.number}/1`}>
-                                {chapt.volume}
-                            </Link>
-                        </td>
-                        <td>
-                            <Link to={`${props.path}/${chapt.number}/1`}>
-                                {chapt.number} - {chapt.name}
-                            </Link>
-                        </td>
+    if (props.chapters.length)
+        return (
+            <table id="tableOfContents">
+                <thead>
+                    <tr key={0}>
+                        <th>Volume</th>
+                        <th>Chapter</th>
                     </tr>
-                ))}
-            </tbody>
-        </table>
-    );
+                </thead>
+                <tbody>
+                    {props.chapters.map(chapt => (
+                        <tr key={chapt.number}>
+                            <td>
+                                <Link to={`${props.path}/${chapt.number}/1`}>
+                                    {chapt.volume}
+                                </Link>
+                            </td>
+                            <td>
+                                <Link to={`${props.path}/${chapt.number}/1`}>
+                                    {chapt.number} - {chapt.name}
+                                </Link>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        );
+    else return (<p>This manga has no added chapters yet.</p>);
 }
 
 export default class MangaMainComponent extends React.Component<Props, MangaMainPageState> {
@@ -95,20 +97,29 @@ export default class MangaMainComponent extends React.Component<Props, MangaMain
             <main>
                 <div id="mangaMainPage">
                     <img id="imagePlaceholder" src={`http://localhost:3000/images/thumb/${toRender?.thumbnail}`}/>
-                    <div id="namePlaceholder">{toRender?.name}</div>
-                    <div id="authorPlaceholder">{toRender?.author}</div>
-                    <div id="descriptionPlaceholder">{toRender?.description}</div>
+                    <div id="description">
+                        <strong>Name: </strong>{toRender?.name}<br/>
+                        <strong>Author: </strong>{toRender?.author}<br/>
+                        <strong>Status: </strong>{toRender?.manga_status !== null ? toRender?.manga_status : "unknown"}<br/>
+                        <strong>Years: </strong>{postgresToDate(toRender?.create_time)?.getFullYear()} - {toRender?.time_completed !== null ?
+                                     postgresToDate(toRender?.time_completed)?.getFullYear() : "now"}<br/>
+                        <strong>Description: </strong>{toRender?.description}<br/>
+                    </div>
+                    <div id="otherInfo">
+                        <p>{toRender?.bookmarks_count} people added this manga to bookmarks</p>
+                        <p>Last updated at {toRender?.last_modify_time ? postgresToDate(toRender?.last_modify_time)?.toLocaleDateString() : "unknown time"}</p>
+                    </div>
                     <button id="openTableOfContents" onClick={() => this.setState({tableOfContentsOpened: !this.state.tableOfContentsOpened})}>Table of Contents</button>
                     <div id="tableOfContents">{this.renderTableOfContents()}</div>
-                    {toRender?.thumbnail}
                 </div>
-                {/*<Switch>
-                    <Route path={`/:chapter/:page`} component={MangaPageComponent}/>
-                </Switch>*/}
             </main>
         );
         
     }
 }
 
-// "http://placekitten.com/g/300/200"
+/*
+<div id="namePlaceholder">{toRender?.name}</div>
+<div id="authorPlaceholder">{toRender?.author}</div>
+<div id="descriptionPlaceholder">{toRender?.description}</div>
+*/

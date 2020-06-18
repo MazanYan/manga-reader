@@ -2,6 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import { RouteComponentProps, Link } from 'react-router-dom';
 import { MangaResponse } from '../helpers/MangaResponse';
+import { postgresToDate } from '../helpers/ConvertTimestamp';
 
 type SearchPageState = {
     query: string,
@@ -50,7 +51,7 @@ export default class SearchPageComponent extends React.Component<Props, SearchPa
                                 <td><Link to={`/manga/${res.manga_key}`}>{res.name}</Link></td>
                                 <td><Link to={`/manga/${res.manga_key}`}>{res.author}</Link></td>
                                 <td><Link to={`/manga/${res.manga_key}`}>{res.description}</Link></td>
-                                <td><Link to={`/manga/${res.manga_key}`}>{res.create_time}</Link></td>
+                                <td><Link to={`/manga/${res.manga_key}`}>{postgresToDate(res.create_time)?.getFullYear()}</Link></td>
                             </tr>
                         ))}
                     </table>

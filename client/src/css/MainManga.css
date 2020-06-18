@@ -1,8 +1,9 @@
 #imagePlaceholder {
     min-width: 1fr;
     max-height: 100%;
+    width: 300px;
     object-fit: cover;
-    grid-row: span 3;
+    grid-row: span 2;
 }
 
 @media (min-width: 480px) {
@@ -11,25 +12,32 @@
         display: grid;
         grid-gap: 1rem;
         grid-template-rows: 1fr;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 300px 1fr;
     }
 
-    #namePlaceholder {
-        display: block;
+    #description {
+        vertical-align: top;
+    }
+
+    #otherInfo {
+        vertical-align: bottom;
+    }
+
+    /*#namePlaceholder {
+        vertical-align: top;
     }
     
     #authorPlaceholder {
-        display: block;
+        vertical-align: top;
     }
     
     #descriptionPlaceholder {
-        display: block;
-    }
+        vertical-align: top;
+    }*/
 
     #openTableOfContents {
         display: block;
         object-fit: cover;
-        grid-column: span 1;
     }
 
     #tableOfContents {
