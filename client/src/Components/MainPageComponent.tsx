@@ -24,7 +24,7 @@ function RenderMangaCard(props?: MangaResponse) {
     return (
         <Link to={`/manga/${props?.manga_key}`}>
             <div className="card main-page-card">
-                <img src={`http://localhost:3000/images/${props?.thumbnail}`}/>
+                <img src={`http://localhost:3000/images/thumb/${props?.thumbnail}`}/>
                 <div className="container">
                     <div>
                         <h4><b>{props?.name}</b></h4>

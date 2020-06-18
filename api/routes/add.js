@@ -19,15 +19,20 @@ router.get('/manga', function(req, res, next) {
 //{name, author, descr, thumbnail, time = null}
 router.post('/manga', function(req, res, next) {
     const request = req.body;
-    console.log("Adding information about manga to DB");
-    console.log(req.body);
-    console.log(Date.parse(req.body.time+'-01-01'));
-    dbInterface.addManga({
+    //console.log("Adding information about manga to DB");
+    //console.log(req.body);
+    //console.log(Date.parse(req.body.time+'-01-01'));
+    const response = dbInterface.addManga({
         mangaName: req.body.name, 
         author: req.body.author, 
         descr: req.body.descr,
         thumbnail: req.body.fileName,
         time: req.body.time+'-01-01'});
+    
+    Promise.all([response]).then(resp => {
+        res.send(JSON.stringify({result: resp}));
+    });
+    
 });
 
 module.exports = router;

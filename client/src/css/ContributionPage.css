@@ -9,3 +9,36 @@
   border-width: 1px;
   border-color: red;
 }
+
+.card-contrib {
+  border-radius: 0 5px 5px 5px;
+  padding: 10px;
+}
+
+.card-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+#images-order {
+  grid-column: span 2;
+  text-align: center;
+}
+
+.btn-contrib {
+  background-color: #fff9e6;
+  border-color: rgb(255, 221, 176);
+  border-bottom-width: 0;
+}
+
+button:hover {
+  background-color: rgb(255, 221, 176);
+}
+
+main {
+  margin-top: 5rem;
+}
+
+.btn-group {
+  justify-content: initial;
+}

@@ -53,12 +53,14 @@ const result = db.any('SELECT * FROM manga').then(result => console.log(result))
 async function performQuery() {
     try {
         const result = await db.query(...arguments);
-        //console.log('Query completed');
-        //console.log(result);
+        console.log('Query completed');
+        console.log(result);
         return result;
     }
     catch (error) {
-        console.log('ERROR:', error.message || error);
+        const myError = 'ERROR:' + (error.message || error);
+        console.log(myError);
+        return myError;
     }
 }
 
@@ -90,7 +92,7 @@ async function createAccount({name, email, passw, photo = null, descr = null}) {
 }
 
 async function addManga({mangaName, author, descr, thumbnail, time = null}) {
-    performQuery(
+    return performQuery(
         'INSERT INTO manga(${this:name}) VALUES(${this:csv});',
         {
             name: mangaName,
@@ -105,7 +107,7 @@ async function addManga({mangaName, author, descr, thumbnail, time = null}) {
 }
 
 async function createBookmark({accId, mangaKey, chapter = null, page = null}) {
-    performQuery(
+    return performQuery(
         'INSERT INTO bookmark(${this:name}) VALUES(${this:csv});',
         {
             account: accId,
@@ -119,7 +121,7 @@ async function createBookmark({accId, mangaKey, chapter = null, page = null}) {
 
 async function addComment({author, page, text, answerOn = null}) {
     const commentId = crypt.MD5(string(page) + new Date().toLocaleString());
-    performQuery(
+    return performQuery(
         'INSERT INTO comment(${this:name}) VALUES(${this:csv});',
         {
             comment_id: commentId,
@@ -133,9 +135,9 @@ async function addComment({author, page, text, answerOn = null}) {
     );
 }
 
-async function addChapter({mangaKey, name = null, number, volume = null}) {
+async function addChapter({mangaKey, name, number, volume = null}) {
     const chapterKey = crypt.MD5(string(mangaKey) + number);
-    performQuery(
+    return performQuery(
         'INSERT INTO chapter(${this:name} VALUES(${this:csv});',
         {
             chapter_key: chapterKey,
@@ -150,7 +152,7 @@ async function addChapter({mangaKey, name = null, number, volume = null}) {
 
 async function createNotification({acc, text, author}) {
     const notificationId = crypt.MD5(string(acc) + author + new Date().toLocaleString());
-    performQuery(
+    return performQuery(
         'INSERT INTO notification(${this:name} VALUES(${this:csv});',
         {
             account: acc,
@@ -178,48 +180,43 @@ async function searchMangaByNameAuthor(name, limit) {
 }
 
 async function getMangaByIdImage(id) {
-    return performQuery(
-        `SELECT * FROM manga
-            
+    return await performQuery(
+        `SELECT DISTINCT * FROM manga
             WHERE manga.manga_key=$1;`, id
     );
 }
 
 async function getMangaById(id) {
-    return performQuery(
-        `SELECT * FROM manga 
-            
+    return await performQuery(
+        `SELECT DISTINCT * FROM manga
             WHERE manga_key=$1`, id
         );
 }
 
 async function searchMangaByAuthor(name, limit) {
-    return performQuery(
-        `SELECT * FROM manga 
-            
+    return await performQuery(
+        `SELECT DISTINCT * FROM manga 
             WHERE UPPER(author) LIKE UPPER('%$1%') ORDER BY bookmarks_count DESC LIMIT $2;`,
         name, limit
     );
 }
 
 async function searchPopularManga(limit) {
-    return performQuery(
-        `SELECT * FROM manga 
-            
+    return await performQuery(
+        `SELECT DISTINCT * FROM manga 
             ORDER BY bookmarks_count DESC LIMIT $1;`, limit
     );
 }
 
 async function searchRecentManga(limit) {
-    return performQuery(
-        `SELECT * FROM manga 
-            
+    return await performQuery(
+        `SELECT DISTINCT * FROM manga
             ORDER BY create_time DESC LIMIT $1;`, limit
     );
 }
 
 async function searchRandomManga(limit) {
-    return performQuery(
+    return await performQuery(
         `SELECT * FROM manga 
             
             ORDER BY RANDOM() LIMIT $1;`, limit
@@ -227,13 +224,13 @@ async function searchRandomManga(limit) {
 }
 
 async function getTableOfContents(mangaId) {
-    return performQuery(
+    return await performQuery(
         'SELECT volume, number, name FROM chapter WHERE manga_key=$1 ORDER BY number ASC;', mangaId
     );
 }
 
 async function getPageComments(pageId) {
-    return performQuery(
+    return await performQuery(
         'SELECT (${columns:name}) FROM comment WHERE page_key=$2;',
         [
             'comment_id',
@@ -264,7 +261,7 @@ CREATE OR REPLACE FUNCTION prev_page(IN page integer, IN chapter_num bigint)
    	END; $$ LANGUAGE PLPGSQL;
 */
 async function getPrevPage(pageNum, chapterKey) {
-    return performQuery(
+    return await performQuery(
         'SELECT prev_page($1, $2);', pageNum, chapterKey
     );
 }
@@ -284,7 +281,7 @@ CREATE OR REPLACE FUNCTION next_page(IN page integer, IN chapter_num bigint)
   	END; $$ LANGUAGE PLPGSQL;
 */
 async function getNextPage(pageNum, chapterKey) {
-    return performQuery(
+    return await performQuery(
         'SELECT prev_page($1, $2);', pageNum, chapterKey
     );
 }

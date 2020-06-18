@@ -96,7 +96,7 @@ export default class MangaMainComponent extends React.Component<Props, MangaMain
         return (
             <main>
                 <div id="mangaMainPage">
-                    <img id="imagePlaceholder" src={`http://localhost:3000/images/${toRender?.thumbnail}`}/*toRender?.thumbnail*//>
+                    <img id="imagePlaceholder" src={`http://localhost:3000/images/thumb/${toRender?.thumbnail}`}/*toRender?.thumbnail*//>
                     <div id="namePlaceholder">{toRender?.name}</div>
                     <div id="authorPlaceholder">{toRender?.author}</div>
                     <div id="descriptionPlaceholder">{toRender?.description}</div>

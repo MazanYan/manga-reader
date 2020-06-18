@@ -48,7 +48,7 @@ app.use(function(err, req, res, next) {
 
 const multer  = require('multer');
 const storage = multer.diskStorage({ 
-  destination: './public/images/',
+  destination: './public/images/thumb',
   filename: function(req, file, cb) {
     cb(null, file.originalname);
   }
@@ -56,11 +56,11 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-app.get('/upload', function(req, res, next) {
-  res.send("Image uploading route");
+app.get('/upload/thumb', function(req, res, next) {
+  res.send("Manga thumbnail images uploading route");
 });
 
-app.post('/upload', upload.single('file'), function(req, res, next) {
+app.post('/upload/thumb', upload.single('file'), function(req, res, next) {
   //res.render('upload', {title: "Image uploaded"});
   //res.render("Image uploaded");
   //console.log(req.file);

@@ -11,13 +11,13 @@ router.get('/', function(req, res, next) {
 router.post('/', function(req, res, next) {
     const searchRequest = req.body.toSearch;
     //console.log(searchRequest);
-    dbInterface.searchMangaByNameAuthor(searchRequest, 1)
+    dbInterface.searchMangaByNameAuthor(searchRequest, 100)
         .then(function(response) {
             const found = JSON.stringify({message: response});
-            console.log(found);
+            //console.log(found);
             res.send(found);
         })            
-        .catch(err => console.log(err));
+        .catch(err => {console.log(err); res.send(err);});
 });
 
 /* GET popular, recent and random manga for Main Page */
