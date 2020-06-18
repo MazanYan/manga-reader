@@ -1,6 +1,8 @@
 import React from 'react';
+import '../css/ContributionPage.css';
 import { Component } from 'react';
 import { Switch, Route } from 'react-router-dom';
+import { getThumbnailName } from '../helpers/generateImageName';
 import axios from 'axios';
 
 interface ContributionProps {
@@ -8,7 +10,8 @@ interface ContributionProps {
 };
 
 interface ContributionState {
-    pageSelected: number;
+    pageSelected: number,
+    responseReceived: boolean,
     name?: string,
     author?: string,
     year?: number | string,
@@ -38,6 +41,7 @@ export default class ContributionComponent extends React.Component<ContributionP
         super(props);
         this.state = {
             pageSelected: 1,
+            responseReceived: false,
             name: undefined,
             author: undefined,
             year: undefined,
@@ -46,6 +50,7 @@ export default class ContributionComponent extends React.Component<ContributionP
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.renderResponseSuccess = this.renderResponseSuccess.bind(this);
     }
 
 
@@ -62,24 +67,46 @@ export interface MangaResponse {
     file_format: string
 };
     */
-
+    renderResponseSuccess() {
+        if (this.state.responseReceived)
+            alert("Manga added");
+            /*return (
+                <div id="response-ok">
+                    Manga added
+                </div>
+            );*/
+    }
 
     handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         for (const [property, value] of Object.entries(this.state))
-            if (!value) {
+            if (!value && property !== 'responseReceived') {
                 alert(`'${property}' in form is not entered!`);
                 return;
             }
-        alert('form can be submitted!');
+        //alert('form can be submitted!');
+        
+        // render new filename on client side
+        const newFileName = getThumbnailName(this.state.name, this.state.thumbnail!.type.slice(6));
+        const file = new File([this.state.thumbnail!], newFileName);
+
         const toSubmit = {
             name: this.state.name,
             author: this.state.author,
-            description: this.state.description,
-            thumbnail: this.state.thumbnail,
-            fileFormat: this.state.thumbnail!.type
+            descr: this.state.description,
+            time: this.state.year,
+            fileName: newFileName
         }
-        axios.post('http://localhost:3000/upload', toSubmit);
+        //file.name = 
+        const data = new FormData();
+        data.append('file', file);
+        data.append('name', file.name);
+        //console.log(file);
+        
+        const fileSendPromise = axios.post('http://localhost:3000/upload', data);
+        const dataSendPromise = axios.post('http://localhost:3000/add/manga', toSubmit);
+        this.setState({responseReceived: true});
+        //Promise.all([fileSendPromise/*, dataSendPromise*/]).then(() => this.setState({responseReceived: true}));
     }    
 
     render() {
@@ -123,6 +150,7 @@ export interface MangaResponse {
                             }
                         }/>
                         <input type="submit" value="Send"/>
+                        {this.renderResponseSuccess()}
                     </form>
                 </main>
             </>

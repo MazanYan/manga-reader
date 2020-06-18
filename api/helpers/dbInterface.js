@@ -89,15 +89,17 @@ async function createAccount({name, email, passw, photo = null, descr = null}) {
     );
 }
 
-async function addManga({name, author, descr, time = null}) {
+async function addManga({mangaName, author, descr, thumbnail, time = null}) {
     performQuery(
         'INSERT INTO manga(${this:name}) VALUES(${this:csv});',
         {
-            name: name,
+            name: mangaName,
             author: author,
             description: descr,
             create_time: time ? time : 'NOW()',
+            last_modify_time: 'NOW()',
             bookmarks_count: 0,
+            thumbnail: thumbnail
         }
     );
 }
@@ -178,7 +180,7 @@ async function searchMangaByNameAuthor(name, limit) {
 async function getMangaByIdImage(id) {
     return performQuery(
         `SELECT * FROM manga
-            LEFT JOIN thumbnail USING (manga_key)
+            
             WHERE manga.manga_key=$1;`, id
     );
 }
@@ -186,7 +188,7 @@ async function getMangaByIdImage(id) {
 async function getMangaById(id) {
     return performQuery(
         `SELECT * FROM manga 
-            LEFT JOIN thumbnail USING (manga_key)
+            
             WHERE manga_key=$1`, id
         );
 }
@@ -194,7 +196,7 @@ async function getMangaById(id) {
 async function searchMangaByAuthor(name, limit) {
     return performQuery(
         `SELECT * FROM manga 
-            LEFT JOIN thumbnail USING (manga_key)
+            
             WHERE UPPER(author) LIKE UPPER('%$1%') ORDER BY bookmarks_count DESC LIMIT $2;`,
         name, limit
     );
@@ -203,7 +205,7 @@ async function searchMangaByAuthor(name, limit) {
 async function searchPopularManga(limit) {
     return performQuery(
         `SELECT * FROM manga 
-            LEFT JOIN thumbnail USING (manga_key)
+            
             ORDER BY bookmarks_count DESC LIMIT $1;`, limit
     );
 }
@@ -211,7 +213,7 @@ async function searchPopularManga(limit) {
 async function searchRecentManga(limit) {
     return performQuery(
         `SELECT * FROM manga 
-            LEFT JOIN thumbnail USING (manga_key)
+            
             ORDER BY create_time DESC LIMIT $1;`, limit
     );
 }
@@ -219,7 +221,7 @@ async function searchRecentManga(limit) {
 async function searchRandomManga(limit) {
     return performQuery(
         `SELECT * FROM manga 
-            LEFT JOIN thumbnail USING (manga_key)
+            
             ORDER BY RANDOM() LIMIT $1;`, limit
     );
 }

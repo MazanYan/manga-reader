@@ -1,4 +1,4 @@
-express = require('express');
+const express = require('express');
 const router = express.Router();
 const dbInterface = require('../helpers/dbInterface');
 
@@ -10,7 +10,7 @@ router.get('/', function(req, res, next) {
 /* POST manga by author/name search */
 router.post('/', function(req, res, next) {
     const searchRequest = req.body.toSearch;
-    console.log(searchRequest);
+    //console.log(searchRequest);
     dbInterface.searchMangaByNameAuthor(searchRequest, 1)
         .then(function(response) {
             const found = JSON.stringify({message: response});
@@ -28,7 +28,7 @@ router.get('/main_page', function(req, res, next) {
 /* POST popular, recent and random manga for Main Page */
 router.post('/main_page', function(req, res, next) {
     const searchRequest = req.body;
-    console.log(searchRequest);
+    //console.log(searchRequest);
     const answer = {
         popular: [],
         recent: [],
@@ -61,7 +61,7 @@ router.get('/mangaId', function(req, res, next) {
 /* POST general data about manga */
 router.post('/mangaId', function(req, res, next) {
     const searchRequest = req.body.toSearch;
-    console.log(searchRequest);
+    //console.log(searchRequest);
     dbInterface.getMangaByIdImage(searchRequest)
         .then(function(response) {
             const found = JSON.stringify({message: response});
@@ -79,11 +79,11 @@ router.get('/mangaId/toc', function(req, res, next) {
 /* POST table of contents of manga by id */
 router.post('/mangaId/toc', function(req, res, next) {
     const searchRequest = req.body.toSearch;
-    console.log(searchRequest);
+    //console.log(searchRequest);
     dbInterface.getTableOfContents(searchRequest)
         .then(function(response) {
             const found = JSON.stringify({message: response});
-            console.log(found);
+            //console.log(found);
             res.send(found);
         })
         .catch(err => console.log(err));
