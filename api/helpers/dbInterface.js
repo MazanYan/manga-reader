@@ -204,7 +204,7 @@ async function searchPopularManga(limit) {
     return performQuery(
         `SELECT * FROM manga 
             LEFT JOIN thumbnail USING (manga_key)
-            ORDER BY bookmarks_count LIMIT $1;`, limit
+            ORDER BY bookmarks_count DESC LIMIT $1;`, limit
     );
 }
 

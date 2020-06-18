@@ -3,7 +3,6 @@ import '../css/MainPage.css';
 import { MangaResponse } from '../helpers/MangaResponse';
 import { convertPostgresTimestampDate, getYear } from '../helpers/ConvertTimestamp';
 import axios from 'axios';
-import MangaPageComponent from './MangaPageComponent';
 import { Link } from 'react-router-dom';
 
 interface MainPageState {
@@ -24,7 +23,7 @@ interface MainPageState {
 function RenderMangaCard(props?: MangaResponse) {
     return (
         <Link to={`/manga/${props?.manga_key}`}>
-            <div className="card">
+            <div className="card main-page-card">
                 <img src={`http://localhost:3000/images/${props?.thumbnail}`}/>
                 <div className="container">
                     <div>
@@ -89,7 +88,7 @@ export default class MainPageComponent extends React.Component<any, MainPageStat
                         </div>
                         <div className="main-page-row">
                             <div className="main-page-row-head">
-                                <h2>Top five new manga:</h2>
+                                <h2>Top new manga:</h2>
                             </div>
                             <div className="main-page-row-content">
                                 {recent?.map((manga: MangaResponse) => <RenderMangaCard {...manga}/>)}
@@ -97,7 +96,7 @@ export default class MainPageComponent extends React.Component<any, MainPageStat
                         </div>
                         <div className="main-page-row">
                             <div className="main-page-row-head">
-                                <h2>Five random manga:</h2>
+                                <h2>Random manga:</h2>
                             </div>
                             <div className="main-page-row-content">
                                 {random?.map((manga: MangaResponse) => <RenderMangaCard {...manga}/>)}

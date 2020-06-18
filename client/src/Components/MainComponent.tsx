@@ -2,13 +2,14 @@ import React from 'react';
 import NavbarComponent from './NavbarComponent';
 import '../css/Navbar.css';
 import '../css/DefaultClassesTags.css';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, Link } from 'react-router-dom';
 import MainPageComponent from './MainPageComponent';
 import MangaMainComponent from './MangaMainComponent';
 import UserPageComponent from './UserPageComponent';
-import SearchComponent from './SearchComponent';
 import SearchPageComponent from './SearchPageComponent';
 import MangaPageComponent from './MangaPageComponent';
+import ContributionComponent from './ContributionComponent';
+import { CopyrightClaimComponent } from './CopyrightClaimComponent';
 
 export default function MainComponent() {
     return (
@@ -19,14 +20,17 @@ export default function MainComponent() {
                 <Route path="/manga/:id" component={MangaMainComponent}/>
                 <Route path="/manga/:id/:ch/:p" component={MangaPageComponent}/>
                 <Route path="/user" component={UserPageComponent}/>
-                <Route path="/search/:query" component={SearchPageComponent}/> 
+                <Route path="/search/:query" component={SearchPageComponent}/>
+                <Route path="/contribute" component={ContributionComponent}/> 
+                <Route path="/right_holders" component={CopyrightClaimComponent}/>
             </Switch>
             <footer>
                 <div id="descr">
                 Simple Manga-Reading Website<br/>Created by: Yan Mazan, Group (ukr) ІВ-71
                 </div>
                 <div id="links">
-                    <a>For Right Holders</a>
+                    <a><Link to="/contribute">Make a contribution</Link></a><br/>
+                    <a><Link to="/right_holders">For right holders</Link></a>
                 </div>
             </footer>
         </React.Fragment>
