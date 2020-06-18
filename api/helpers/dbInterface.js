@@ -135,20 +135,37 @@ async function addComment({author, page, text, answerOn = null}) {
     );
 }
 
-async function addChapter({mangaKey, name, number, volume = null}) {
-    const chapterKey = crypt.MD5(string(mangaKey) + number);
+async function addChapter({mangaName, chapterName, chapterNumber, chapterVolume = null, images}) {
+    const pagesCount = images.length;
+    const pageNumbers = [...Array(pagesCount).keys()].map(i => i + 1);
+    const arrToStr = (arr) => {
+        return '[' + arr.map(el => '\'' + el + '\'').join(', ') + ']';
+    }
+    const arrToStrInts = (arr) => {
+        return '[' + arr.join(', ') + ']';
+    }
+
+    console.log(arrToStr(images));
+    console.log()
+    //const chapterKey = crypt.MD5(string(mangaKey) + number);
     return performQuery(
-        'INSERT INTO chapter(${this:name} VALUES(${this:csv});',
+        'INSERT INTO chapter(manga_key, name, number, volume, add_time)' +
+            'VALUES ((SELECT manga_key FROM manga WHERE manga.name=${manga_name} LIMIT 1),' +
+                     '${name}, ${number}, ${volume}, NOW());' +
+        'INSERT INTO manga_page(image, page_number, chapter_key)' +
+            'SELECT unnest(array' + arrToStr(images) + '), unnest(array' + arrToStrInts(pageNumbers) + '),' +
+            '(SELECT manga_key FROM manga WHERE manga.name=${manga_name} LIMIT 1);',
         {
-            chapter_key: chapterKey,
-            manga_key: mangaKey,
-            name: name,
-            number: number,
-            volume: volume,
-            add_time: 'NOW()'
+            //chapter_key: chapterKey,
+            manga_name: mangaName,
+            name: chapterName,
+            number: chapterNumber,
+            volume: chapterVolume,
         }
     );
 }
+
+//console.log(addChapter({mangaName: 'Naruto', name: 'Sasuke Uchiha!', number: 5, volume: 1}));
 
 async function createNotification({acc, text, author}) {
     const notificationId = crypt.MD5(string(acc) + author + new Date().toLocaleString());

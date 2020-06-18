@@ -72,7 +72,6 @@ export default class MangaMainComponent extends React.Component<Props, MangaMain
         const mangaId = {
             toSearch: parseInt(this.props.match.params.id, 10)
         };
-        //alert(this.props.match.params.id);
         const mangaData: MangaResponse = await (await axios.post(`http://localhost:3000/search/mangaId`, mangaId)).data.message[0];
         const tableOfContents: Array<TableOfContentsResponse> = await (await axios.post(`http://localhost:3000/search/mangaId/toc`, mangaId)).data.message;
         this.setState({
@@ -92,11 +91,10 @@ export default class MangaMainComponent extends React.Component<Props, MangaMain
 
     render() {
         const toRender = this.state.mangaData;
-        //alert(process.cwd());
         return (
             <main>
                 <div id="mangaMainPage">
-                    <img id="imagePlaceholder" src={`http://localhost:3000/images/thumb/${toRender?.thumbnail}`}/*toRender?.thumbnail*//>
+                    <img id="imagePlaceholder" src={`http://localhost:3000/images/thumb/${toRender?.thumbnail}`}/>
                     <div id="namePlaceholder">{toRender?.name}</div>
                     <div id="authorPlaceholder">{toRender?.author}</div>
                     <div id="descriptionPlaceholder">{toRender?.description}</div>

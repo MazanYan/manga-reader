@@ -27,12 +27,37 @@ router.post('/manga', function(req, res, next) {
         author: req.body.author, 
         descr: req.body.descr,
         thumbnail: req.body.fileName,
-        time: req.body.time+'-01-01'});
+        time: req.body.time+'-01-01'
+    });
     
     Promise.all([response]).then(resp => {
         res.send(JSON.stringify({result: resp}));
     });
     
+});
+
+router.get('/chapter', function(req, res, next) {
+    res.send('Here you can upload data about chapter');
+});
+
+
+/* {mangaKey, name, number, volume = null} */
+router.post('/chapter', function(req, res, next) {
+    const request = req.body;
+    console.log(request);
+
+    const response = dbInterface.addChapter({
+        mangaName: request.mangaName,
+        chapterName: request.chapterName,
+        chapterNumber: request.chapterNumber,
+        chapterVolume: request.chapterVolume,
+        images: request.images
+    });
+
+    Promise.all([response]).then(resp => {
+        console.log(resp);
+        res.send(JSON.stringify({result: resp}));
+    });
 });
 
 module.exports = router;

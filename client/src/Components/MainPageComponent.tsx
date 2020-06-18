@@ -11,15 +11,6 @@ interface MainPageState {
     random?: Array<MangaResponse>
 };
 
-/*interface MangaCardMainProps {
-    image?: string,
-    name?: string,
-    author?: string,
-    description?: string,
-    timeAdded?: string,
-    //className?: any
-}*/
-
 function RenderMangaCard(props?: MangaResponse) {
     return (
         <Link to={`/manga/${props?.manga_key}`}>
@@ -60,8 +51,6 @@ export default class MainPageComponent extends React.Component<any, MainPageStat
             limit: 6
         };
         const mangaData = await (await axios.post(`http://localhost:3000/search/main_page`, request)).data.response;
-        //console.log("Manga Data:");
-        //console.log(mangaData);
         this.setState({
             popular: mangaData.popular,
             recent: mangaData.recent,

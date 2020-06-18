@@ -1,6 +1,6 @@
-export function getMangaPageName(mangaName, volume = null, chapter, fileFormat) {
+export function getMangaPageName(mangaName, volume = null, chapter, pageNum, fileFormat) {
     const mangaNameProcessed = mangaName.replaceAll(' ', '_');
-    return `${mangaNameProcessed}_${volume ? volume : '0'}_${chapter}.${fileFormat}`;
+    return `${mangaNameProcessed}_${volume ? volume : '0'}_${chapter}_${pageNum}.${fileFormat}`;
 }
 
 export function getThumbnailName(mangaName, fileFormat) {

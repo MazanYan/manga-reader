@@ -47,20 +47,28 @@ app.use(function(err, req, res, next) {
 });
 
 const multer  = require('multer');
-const storage = multer.diskStorage({ 
+const storageThumb = multer.diskStorage({ 
   destination: './public/images/thumb',
   filename: function(req, file, cb) {
     cb(null, file.originalname);
   }
 });
 
-const upload = multer({ storage: storage });
+const storagePages = multer.diskStorage({
+  destination: './public/images/manga_pages',
+  filename: function(req, file, cb) {
+    cb(null, file.originalname);
+  }
+})
+
+const uploadThumbnail = multer({ storage: storageThumb });
+const uploadMangaPage = multer({ storage: storagePages });
 
 app.get('/upload/thumb', function(req, res, next) {
   res.send("Manga thumbnail images uploading route");
 });
 
-app.post('/upload/thumb', upload.single('file'), function(req, res, next) {
+app.post('/upload/thumb', uploadThumbnail.single('file'), function(req, res, next) {
   //res.render('upload', {title: "Image uploaded"});
   //res.render("Image uploaded");
   //console.log(req.file);
@@ -68,6 +76,14 @@ app.post('/upload/thumb', upload.single('file'), function(req, res, next) {
   //console.log(req.files);
   //const file = req.file;
   
+});
+
+app.get('/upload/thumb', function(req, res, next) {
+  res.send("Manga pages uploading route");
+});
+
+app.post('/upload/manga_pages', uploadMangaPage.single('file'), function(req, res, next) {
+  console.log("Some page file received");
 });
 
 module.exports = app

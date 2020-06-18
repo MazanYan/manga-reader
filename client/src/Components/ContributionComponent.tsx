@@ -104,11 +104,12 @@ export default class ContributionComponent extends React.Component<ContributionP
         data.append('name', file.name);
         //console.log(file);
         
-        const fileSendPromise = axios.post('http://localhost:3000/upload', data);
+        const fileSendPromise = axios.post('http://localhost:3000/upload/thumb', data);
         const dataSendPromise = axios.post('http://localhost:3000/add/manga', toSubmit);
-        this.setState({responseReceived: true});
+        
         Promise.all([fileSendPromise, dataSendPromise])
             .then((response: any) => {
+                this.setState({responseReceived: true});
                 if (response[0].data.result)
                     alert(response[0].data.result)
             });
@@ -131,22 +132,47 @@ addChapter: {
         alert('Alles ist gut!');
         
         /* Set new names for files on client side */
-        const newFileNames = this.state.imagesChapter.map(img => 
+        const newFileNames = this.state.imagesChapter.map((img, index) => 
             getMangaPageName(this.state.mangaName, 
                 this.state.chapterVolume, 
-                this.state.chapterNumber, 
+                this.state.chapterNumber,
+                index+1,
                 img.type.slice(6)));
         
         let filesWithNewNames: Array<File> = [];
         for (let i = 0; i < newFileNames.length; i++)
             filesWithNewNames.push(new File([this.state.imagesChapter[i]], newFileNames[i]));
         
-        
+        const fileSendPromises = [];
         for (let i = 0; i < newFileNames.length; i++) {
             const data = new FormData();
             data.append('file', filesWithNewNames[i]);
             data.append('name', filesWithNewNames[i].name);
+            fileSendPromises.push(axios.post('http://localhost:3000/upload/manga_pages', data));
         }
+
+        const generalChapterData = {
+            mangaName: this.state.mangaName!,
+            chapterName: this.state.chapterName!,
+            chapterNumber: this.state.chapterNumber!,
+            chapterVolume: this.state.chapterVolume!,
+            images: newFileNames
+        };
+        
+        /*fileSendPromises.push(*/axios.post('http://localhost:3000/add/chapter', generalChapterData);//);
+
+        Promise.all(fileSendPromises)
+            .then((response: any) => {
+                if (response[0].data.result)
+                    alert(response[0].data.result)
+            });
+        /*
+            mangaName: undefined,
+            chapterName: undefined,
+            chapterNumber: undefined,
+            chapterVolume: undefined,
+            imagesChapterUploaded: false
+        */
         
         //const filesNewNames = this.state.imagesChapter.map(img =>
         //    new File([img], ))
@@ -214,7 +240,6 @@ addChapter: {
                         }
                     }/>
                     <input className="btn" type="submit" value="Send"/>
-                    {/*this.renderResponseSuccess()*/}
                 </form>
             </div>
         );
