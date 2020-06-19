@@ -66,8 +66,9 @@ export default class ContributionComponent extends React.Component<ContributionP
 
     handleSubmitManga(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        if (!this.state.name || !this.state.author || !this.state.year || !this.state.description || !this.state.thumbnail) {
-            alert(`'${this.state.name}' in form is not entered!`);
+        if (!this.state.name || !this.state.author || !this.state.year || !this.state.description || !this.state.thumbnail ||
+            (!this.state.isMangaOngoing && !this.state.yearCompleted)) {
+            alert(`Not all properties in form are entered!`);
             return;
         }
         /*for (const [property, value] of Object.entries(this.state))
@@ -86,8 +87,11 @@ export default class ContributionComponent extends React.Component<ContributionP
             author: this.state.author,
             descr: this.state.description,
             time: this.state.year,
-            fileName: newFileName
+            fileName: newFileName,
+            status: this.state.isMangaOngoing ? MangaStatus.ongoing : MangaStatus.finished,
+            yearCompleted: this.state.yearCompleted
         }
+        console.log(toSubmit);
         //file.name = 
         const data = new FormData();
         data.append('file', file);
@@ -111,8 +115,7 @@ export default class ContributionComponent extends React.Component<ContributionP
             !this.state.chapterName || 
             !this.state.chapterNumber || !
             this.state.chapterVolume || 
-            !this.state.imagesChapter ||
-            (!this.state.isMangaOngoing && !this.state.yearCompleted)) {
+            !this.state.imagesChapter) {
                 alert('Property is undefined!');
                 return;
         }
@@ -143,8 +146,6 @@ export default class ContributionComponent extends React.Component<ContributionP
             chapterName: this.state.chapterName!,
             chapterNumber: this.state.chapterNumber!,
             chapterVolume: this.state.chapterVolume!,
-            status: this.state.isMangaOngoing ? MangaStatus.ongoing : MangaStatus.finished,
-            yearCompleted: this.state.yearCompleted,
             images: newFileNames
         };
         
