@@ -1,4 +1,4 @@
-enum MangaStatus {
+export enum MangaStatus {
     ongoing, finished
 }
 

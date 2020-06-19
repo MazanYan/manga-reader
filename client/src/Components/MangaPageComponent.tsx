@@ -113,7 +113,7 @@ export default class MangaPageComponent extends React.Component<MangaPageProps, 
                             </div>
                             <div className="pagination">
                                 {
-                                    Array.apply(null, Array(5))
+                                    Array.apply(null, Array(this.state.pagesCountChapter))
                                         .map(function (_, i) {return i+1})
                                         .map(i => {
                                             if (i === parseInt(this.props.match.params.pg))

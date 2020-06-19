@@ -1,9 +1,8 @@
 import React from 'react';
 import '../css/ContributionPage.css';
-import { Component } from 'react';
-import { Switch, Route, Link } from 'react-router-dom';
 import { getThumbnailName, getMangaPageName } from '../helpers/generateImageName';
 import axios from 'axios';
+import { MangaStatus } from '../helpers/MangaResponse';
 
 interface ContributionProps {
 
@@ -13,9 +12,12 @@ interface ContributionState {
     pageSelected: number,
     responseReceived: boolean,
 
+    isMangaOngoing: boolean,
+
     name?: string,
     author?: string,
     year?: number | string,
+    yearCompleted?: number | string,
     description?: string,
     thumbnail?: File,
 
@@ -35,6 +37,8 @@ export default class ContributionComponent extends React.Component<ContributionP
         this.state = {
             pageSelected: 1,
             responseReceived: false,
+
+            isMangaOngoing: false,
 
             name: undefined,
             author: undefined,
@@ -56,6 +60,8 @@ export default class ContributionComponent extends React.Component<ContributionP
         this.AddPagesComponent = this.AddPagesComponent.bind(this);
         this.RenderAddComponent = this.RenderAddComponent.bind(this);
         this.renderNamesUploadedImages = this.renderNamesUploadedImages.bind(this);
+        this.switchOngoing = this.switchOngoing.bind(this);
+        this.renderYearCompleted = this.renderYearCompleted.bind(this);
     }
 
     handleSubmitManga(event: React.FormEvent<HTMLFormElement>) {
@@ -101,9 +107,14 @@ export default class ContributionComponent extends React.Component<ContributionP
 
     handleSubmitChapter(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        if (!this.state.mangaName || !this.state.chapterName || !this.state.chapterNumber || !this.state.chapterVolume || !this.state.imagesChapter) {
-            alert('Property is undefined!');
-            return;
+        if (!this.state.mangaName || 
+            !this.state.chapterName || 
+            !this.state.chapterNumber || !
+            this.state.chapterVolume || 
+            !this.state.imagesChapter ||
+            (!this.state.isMangaOngoing && !this.state.yearCompleted)) {
+                alert('Property is undefined!');
+                return;
         }
         //alert('Alles ist gut!');
         
@@ -132,6 +143,8 @@ export default class ContributionComponent extends React.Component<ContributionP
             chapterName: this.state.chapterName!,
             chapterNumber: this.state.chapterNumber!,
             chapterVolume: this.state.chapterVolume!,
+            status: this.state.isMangaOngoing ? MangaStatus.ongoing : MangaStatus.finished,
+            yearCompleted: this.state.yearCompleted,
             images: newFileNames
         };
         
@@ -145,6 +158,24 @@ export default class ContributionComponent extends React.Component<ContributionP
             });
     }
 
+    switchOngoing() {
+        this.setState({isMangaOngoing: !this.state.isMangaOngoing});
+        
+    }
+
+    renderYearCompleted() {
+        if(!this.state.isMangaOngoing)
+            return (
+                <>
+                    <label htmlFor="yearEnd">Year when manga was completed:</label>
+                    <input type="number" min="1930" max="2020" name="yearEnd" onChange={
+                        (e: React.FormEvent<HTMLInputElement>) =>
+                        this.setState({yearCompleted: e.currentTarget.value })}/>
+                </>
+            );
+        else return (<></>);
+    }
+
     AddMangaComponent() {
         return (
             <div className="card card-contrib">
@@ -153,48 +184,28 @@ export default class ContributionComponent extends React.Component<ContributionP
                     <label htmlFor="name">Add name:</label>
                     <input type="text" name="name" onChange={
                         (e: React.FormEvent<HTMLInputElement>) =>
-                        this.setState({name: e.currentTarget.value})/*prevState => {
-                            console.log(e.currentTarget.value);
-                            return {
-                            addManga: {
-                                ...prevState.addManga,
-                                name: e.currentTarget.value
-                            }}
-                    })*/}/>
+                        this.setState({name: e.currentTarget.value})}/>
                     <label htmlFor="author">Add author:</label>
                     <input type="text" name="author" onChange={
                         (e: React.FormEvent<HTMLInputElement>) =>
-                        this.setState({author: e.currentTarget.value }/*prevState => {
-                            let addManga = Object.assign({}, prevState.addManga);
-                            addManga.author = e.currentTarget.value 
-                            return { addManga }
-                        }*/)}/>
-                    <label htmlFor="year">Year when manga was created:</label>
+                        this.setState({author: e.currentTarget.value })}/>
+                    <label htmlFor="year">Year when manga was started:</label>
                     <input type="number" min="1930" max="2020" name="year" onChange={
                         (e: React.FormEvent<HTMLInputElement>) =>
-                        this.setState({year: e.currentTarget.value }/*prevState => {
-                            let addManga = Object.assign({}, prevState.addManga);
-                            addManga.year = e.currentTarget.value 
-                            return { addManga }
-                        }*/)}/>
+                        this.setState({year: e.currentTarget.value })}/>
+                    <label htmlFor="ongoing">Is manga currently ongoing?</label>
+                    <input type="checkbox" checked={this.state.isMangaOngoing} onChange={this.switchOngoing} />
+                    {this.renderYearCompleted()}
                     <label htmlFor="descr">Add description:<br/>(max 1500 symbols)</label>
                     <textarea name="descr" maxLength={1500} rows={4} onChange={
                     (e: React.FormEvent<HTMLTextAreaElement>) =>
-                    this.setState({description: e.currentTarget.value }/*prevState => {
-                        let addManga = Object.assign({}, prevState.addManga);
-                        addManga.description = e.currentTarget.value 
-                        return { addManga }
-                    }*/)}/>
+                    this.setState({description: e.currentTarget.value })}/>
                     <label htmlFor="thumbnail">Upload thumbnail</label>
                     <input name="thumbnail" type="file" accept="image/*" onChange={
                         (e: any) => {
                             const uploaded = e.target.files[0];
                             if (uploaded.type.match("image/*"))
-                                this.setState({thumbnail: uploaded }/*prevState => {
-                                    let addManga = Object.assign({}, prevState.addManga)
-                                    addManga.thumbnail = uploaded 
-                                    return {addManga}
-                                }*/);
+                                this.setState({thumbnail: uploaded });
                             else {
                                 alert('You are attempting to submit not image for thumbnail!');
                             }
