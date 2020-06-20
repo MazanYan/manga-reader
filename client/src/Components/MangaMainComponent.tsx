@@ -66,13 +66,12 @@ export default class MangaMainComponent extends React.Component<MangaMainPagePro
     }
 
     async componentDidMount() {
-        const mangaId = {
-            toSearch: parseInt(this.props.match.params.id)
-            //toSearch: parseInt(this.props.match.params.id, 10)
-        };
+        const mangaId = parseInt(this.props.match.params.id)
         console.log(this.props.match.params.id);
-        const mangaData: MangaResponse = await (await axios.post(`http://localhost:3000/search/mangaId`, mangaId)).data.message[0];
-        const tableOfContents: Array<TableOfContentsResponse> = await (await axios.post(`http://localhost:3000/search/mangaId/toc`, mangaId)).data.message;
+        const mangaData: MangaResponse = await (await axios.get(`http://localhost:3000/search/mangaId/${mangaId}`)).data.message[0];
+        //const mangaData: MangaResponse = await (await axios.post(`http://localhost:3000/search/mangaId`, mangaId)).data.message[0];
+        const tableOfContents: Array<TableOfContentsResponse> = await (await axios.get(`http://localhost:3000/search/mangaId/${mangaId}/toc`)).data.message;
+        //const tableOfContents: Array<TableOfContentsResponse> = await (await axios.post(`http://localhost:3000/search/mangaId/toc`, mangaId)).data.message;
         this.setState({
             mangaData: mangaData,
             tableOfContents: tableOfContents ? tableOfContents : []

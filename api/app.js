@@ -79,10 +79,6 @@ app.post('/upload/thumb', uploadThumbnail.single('file'), function(req, res, nex
   
 });
 
-app.get('/upload/thumb', function(req, res, next) {
-  res.send("Manga pages uploading route");
-});
-
 app.post('/upload/manga_pages', uploadMangaPage.single('file'), function(req, res, next) {
   console.log("Some page file received");
 });

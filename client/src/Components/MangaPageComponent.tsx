@@ -19,8 +19,8 @@ interface MangaPageState {
     volume?: number,
     chapterName?: string, 
     mangaName?: string,
-    hasNextChapter?: boolean,
-    hasPrevChapter?: boolean,
+    nextChapter?: number,
+    prevChapter?: number,
     pagesCountChapter?: number
 };
 
@@ -34,32 +34,29 @@ export default class MangaPageComponent extends React.Component<MangaPageProps, 
     }
 
     async componentDidMount() {
-        const toSearch = {
-            manga: parseInt(this.props.match.params.id),
-            chapter: parseInt(this.props.match.params.ch),
-            page: parseInt(this.props.match.params.pg)
-        };
+        const manga = parseInt(this.props.match.params.id);
+        const chapter = parseInt(this.props.match.params.ch);
+        const page = parseInt(this.props.match.params.pg);
 
-        console.log(toSearch);
-
-        const result = await (await axios.post('http://localhost:3000/search/manga_page', {request: toSearch})).data.response;
+        const result = await (await axios.get(`http://localhost:3000/search/manga=${manga}/chapter=${chapter}/page=${page}`)).data.response;
         const gen = result.generalPageData[0];
-        console.log(result);
+        //console.log(result);
         this.setState({
             image: gen.image,
             volume: gen.volume,
             chapterName: gen.chapter_name,
             mangaName: gen.manga_name,
             pagesCountChapter: gen.pages_count,
-            hasPrevChapter: result.hasPrevChapter[0].count > 0,
-            hasNextChapter: result.hasNextChapter[0].count > 0
-        })
+            prevChapter: result.prevChapter,
+            nextChapter: result.nextChapter
+        });
+        console.log(this.state);
     }
 
     renderPrevChapterButton() {
-        if (this.state.hasPrevChapter)
+        if (this.state.prevChapter)
             return (
-                <a href={`/manga/${this.props.match.params.id}/chapter${parseInt(this.props.match.params.ch)-1}/page1`}>
+                <a href={`/manga/${this.props.match.params.id}/chapter${this.state.prevChapter}/page1`}>
                     <div id="prev-chapter" className="chapter-button">
                         <i className="fa fa-arrow-left"/><br/>
                         Previous chapter
@@ -76,9 +73,9 @@ export default class MangaPageComponent extends React.Component<MangaPageProps, 
     }
 
     renderNextChapterButton() {
-        if (this.state.hasNextChapter)
+        if (this.state.nextChapter)
             return (
-                <a href={`/manga/${this.props.match.params.id}/chapter${parseInt(this.props.match.params.ch)+1}/page1`}>
+                <a href={`/manga/${this.props.match.params.id}/chapter${this.state.nextChapter}/page1`}>
                     <div id="next-chapter" className="chapter-button">
                         <i className="fa fa-arrow-right"/><br/>
                         Next chapter

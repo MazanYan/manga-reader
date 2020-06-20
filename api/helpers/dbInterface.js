@@ -275,22 +275,20 @@ async function getPageComments(pageId) {
     );
 }
 
-async function hasPrevChapter(mangaId, chapterNum) {
+async function getPrevNextChapterNum(mangaId, chapterNum) {
+    console.log("Has prev/next chapter request");
     console.log(mangaId);
     console.log(chapterNum);
     return await performQuery(
-        'SELECT COUNT(*) FROM chapter WHERE manga_key=$1 AND chapter.number=$2;',
-        [mangaId, chapterNum-1]
-    );
-}
-
-async function hasNextChapter(mangaId, chapterNum) {
-    console.log(mangaId);
-    console.log(chapterNum);
-    return await performQuery(
-        'SELECT COUNT(*) FROM chapter WHERE manga_key=$1 AND chapter.number=$2;',
-        [mangaId, chapterNum+1]
-    );
+        `SELECT
+            (SELECT chapter.number
+                FROM chapter WHERE manga_key=$1 AND chapter.number<$2
+                ORDER BY number DESC LIMIT 1) AS ch_num_prev,
+            (SELECT chapter.number
+                FROM chapter WHERE manga_key=$1 AND chapter.number>$2
+                ORDER BY number ASC LIMIT 1) AS ch_num_next;`,
+        [mangaId, chapterNum]
+    )
 }
 
 /*
@@ -447,8 +445,7 @@ module.exports = {
     getTableOfContents: getTableOfContents,
     getMangaPageData: getMangaPageData,
     getPageComments: getPageComments,
-    hasPrevChapter: hasPrevChapter,
-    hasNextChapter: hasNextChapter,
+    getPrevNextChapterNum: getPrevNextChapterNum,
     //getPrevPage: getPrevPage,
     //getNextPage: getNextPage,
     //getMangaPageImage: getMangaPageImage,
