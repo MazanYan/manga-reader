@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import '../css/Navbar.css';
-import { Redirect, Link } from 'react-router-dom';
+import { Redirect, Link, Route } from 'react-router-dom';
 const addresses = require('../config');
 
 
@@ -59,12 +59,17 @@ export default class SearchComponent extends React.Component<SearchProps, Search
                 <div className="btn-group">
                     <input id="manga-name" type="text"></input>
                     <a id="link-submit" type="submit">
-                        <Link to={`/search/:${this.state.toSearch}`}>
+                        <a href={`http://${addresses.clientAddress}/search/:${this.state.toSearch}`}>
                             <i className="fa fa-search"></i>
-                        </Link>
+                        </a>
                     </a>
                 </div>
             </form> 
         );
     }
 }
+/*
+<Link to={`/search/:${this.state.toSearch}`}>
+    <i className="fa fa-search"></i>
+</Link>
+*/

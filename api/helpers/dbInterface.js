@@ -91,17 +91,19 @@ async function createAccount({name, email, passw, photo = null, descr = null}) {
     );
 }
 
-async function addManga({mangaName, author, descr, thumbnail, time = null}) {
+async function addManga({mangaName, author, descr, thumbnail, timeStart, status, timeEnd = null}) {
     return performQuery(
         'INSERT INTO manga(${this:name}) VALUES(${this:csv});',
         {
             name: mangaName,
             author: author,
             description: descr,
-            create_time: time ? time : 'NOW()',
+            create_time: timeStart,
             last_modify_time: 'NOW()',
             bookmarks_count: 0,
-            thumbnail: thumbnail
+            thumbnail: thumbnail,
+            manga_status: status,
+            time_completed: timeEnd
         }
     );
 }

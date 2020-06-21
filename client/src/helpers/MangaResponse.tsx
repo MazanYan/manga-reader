@@ -1,5 +1,5 @@
 export enum MangaStatus {
-    ongoing, finished
+    finished, ongoing
 }
 
 export interface MangaResponse {
