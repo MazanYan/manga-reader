@@ -1,9 +1,10 @@
 import React from 'react';
 import '../css/MainManga.css';
-import { RouteComponentProps, Route, Link, Router, Redirect, Switch } from 'react-router-dom';
+import { RouteComponentProps, Link } from 'react-router-dom';
 import { MangaResponse, TableOfContentsResponse } from '../helpers/MangaResponse';
 import axios from 'axios';
 import { postgresToDate } from '../helpers/ConvertTimestamp';
+const config = require('../config');
 
 interface TableOfContentsProps {
     chapters: Array<TableOfContentsResponse>,
@@ -68,10 +69,8 @@ export default class MangaMainComponent extends React.Component<MangaMainPagePro
     async componentDidMount() {
         const mangaId = parseInt(this.props.match.params.id)
         console.log(this.props.match.params.id);
-        const mangaData: MangaResponse = await (await axios.get(`http://localhost:3000/search/mangaId/${mangaId}`)).data.message[0];
-        //const mangaData: MangaResponse = await (await axios.post(`http://localhost:3000/search/mangaId`, mangaId)).data.message[0];
-        const tableOfContents: Array<TableOfContentsResponse> = await (await axios.get(`http://localhost:3000/search/mangaId/${mangaId}/toc`)).data.message;
-        //const tableOfContents: Array<TableOfContentsResponse> = await (await axios.post(`http://localhost:3000/search/mangaId/toc`, mangaId)).data.message;
+        const mangaData: MangaResponse = await (await axios.get(`http://${config.serverAddress}/search/mangaId/${mangaId}`)).data.message[0];
+        const tableOfContents: Array<TableOfContentsResponse> = await (await axios.get(`http://${config.serverAddress}/search/mangaId/${mangaId}/toc`)).data.message;
         this.setState({
             mangaData: mangaData,
             tableOfContents: tableOfContents ? tableOfContents : []
@@ -92,7 +91,7 @@ export default class MangaMainComponent extends React.Component<MangaMainPagePro
         return (
             <main>
                 <div id="mangaMainPage">
-                    <img id="imagePlaceholder" src={`http://localhost:3000/images/thumb/${toRender?.thumbnail}`}/>
+                    <img id="imagePlaceholder" src={`http://${config.serverAddress}/images/thumb/${toRender?.thumbnail}`}/>
                     <div id="description">
                         <strong>Name: </strong>{toRender?.name}<br/>
                         <strong>Author: </strong>{toRender?.author}<br/>

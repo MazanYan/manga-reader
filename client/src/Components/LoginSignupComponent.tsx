@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import CryptoJS from 'crypto-js';
 import axios from 'axios';
 
-const serverAddress = 'http://localhost:3000/login';
+const addresses = require('../config');
 
 type LoginSignupProps = {
 
@@ -25,7 +25,7 @@ export default class LoginSignupComponent extends Component<LoginSignupProps, Lo
     async handleSubmit(event: React.FormEvent<HTMLButtonElement>) {
         const encryptedLogin = CryptoJS.SHA256(this.state.name);
         const encryptedPassword = CryptoJS.SHA256(this.state.password);
-        const response = await axios.post(serverAddress, {email: encryptedLogin, password: encryptedPassword});
+        const response = await axios.post(addresses.serverAddress, {email: encryptedLogin, password: encryptedPassword});
         //alert(response);
 
         //fetch("http://localhost:3000/login").then(res => alert(res.text())).catch(err => alert(err));

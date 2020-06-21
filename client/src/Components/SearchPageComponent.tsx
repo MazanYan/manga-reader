@@ -3,6 +3,7 @@ import axios from 'axios';
 import { RouteComponentProps, Link } from 'react-router-dom';
 import { MangaResponse } from '../helpers/MangaResponse';
 import { postgresToDate } from '../helpers/ConvertTimestamp';
+const config = require('../config');
 
 type SearchPageState = {
     query: string,
@@ -28,7 +29,7 @@ export default class SearchPageComponent extends React.Component<Props, SearchPa
 
     async componentDidMount() {
         if (this.state.query) {
-            const response: Array<MangaResponse> = await (await axios.post(`http://localhost:3000/search`, {toSearch: this.state.query})).data.message;
+            const response: Array<MangaResponse> = await (await axios.post(`http://${config.serverAddress}/search`, {toSearch: this.state.query})).data.message;
             if (response.length)
                 this.setState({responseReceived: true});
             this.setState({response: response});

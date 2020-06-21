@@ -4,6 +4,7 @@ import { MangaResponse } from '../helpers/MangaResponse';
 import { postgresToDate, getYear } from '../helpers/ConvertTimestamp';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+const addresses = require('../config');
 
 interface MainPageState {
     popular?: Array<MangaResponse>,
@@ -15,7 +16,7 @@ function RenderMangaCard(props?: MangaResponse) {
     return (
         <Link to={`/manga/${props?.manga_key}`}>
             <div className="card main-page-card">
-                <img src={`http://localhost:3000/images/thumb/${props?.thumbnail}`}/>
+                <img src={`http://${addresses.serverAddress}/images/thumb/${props?.thumbnail}`}/>
                 <div className="container">
                     <div>
                         <h4><b>{props?.name}</b></h4>
@@ -50,7 +51,7 @@ export default class MainPageComponent extends React.Component<any, MainPageStat
         const request = {
             limit: 6
         };
-        const mangaData = await (await axios.post(`http://localhost:3000/search/main_page`, request)).data.response;
+        const mangaData = await (await axios.post(`http://${addresses.serverAddress}/search/main_page`, request)).data.response;
         this.setState({
             popular: mangaData.popular,
             recent: mangaData.recent,

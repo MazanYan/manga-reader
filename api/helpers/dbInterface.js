@@ -19,19 +19,18 @@ const databaseConfig = {
 
 const db = pgp(databaseConfig);
 
-function generateSalt() {
-    return Array(10).fill(null).map(_ => Math.ceil(Math.random() * Math.floor(9))).join('');
-}
-
-async function checkPassword(userId, password) {
-    const salt = await performQuery(
-        'SELECT salt from salts WHERE salt.id=$1', userId
-    );
-    const hashedPassword = crypt.SHA256(password + salt);
-    const correctPassword = await performQuery(
-        'SELECT password FROM account WHERE account.id=$1', userId
-    );
-    return hashedPassword === correctPassword;
+async function performQuery() {
+    try {
+        const result = await db.query(...arguments);
+        console.log('Query completed');
+        console.log(result);
+        return result;
+    }
+    catch (error) {
+        const myError = 'ERROR:' + (error.message || error);
+        console.log(myError);
+        return myError;
+    }
 }
 
 /*
@@ -50,18 +49,19 @@ db.connect()
 const result = db.any('SELECT * FROM manga').then(result => console.log(result));
 */
 
-async function performQuery() {
-    try {
-        const result = await db.query(...arguments);
-        console.log('Query completed');
-        console.log(result);
-        return result;
-    }
-    catch (error) {
-        const myError = 'ERROR:' + (error.message || error);
-        console.log(myError);
-        return myError;
-    }
+function generateSalt() {
+    return Array(10).fill(null).map(_ => Math.ceil(Math.random() * Math.floor(9))).join('');
+}
+
+async function checkPassword(userId, password) {
+    const salt = await performQuery(
+        'SELECT salt from salts WHERE salt.id=$1', userId
+    );
+    const hashedPassword = crypt.SHA256(password + salt);
+    const correctPassword = await performQuery(
+        'SELECT password FROM account WHERE account.id=$1', userId
+    );
+    return hashedPassword === correctPassword;
 }
 
 async function createAccount({name, email, passw, photo = null, descr = null}) {

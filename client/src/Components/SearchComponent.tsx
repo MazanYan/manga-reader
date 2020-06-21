@@ -2,6 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import '../css/Navbar.css';
 import { Redirect, Link } from 'react-router-dom';
+const addresses = require('../config');
 
 
 type SearchState = {
@@ -42,7 +43,7 @@ export default class SearchComponent extends React.Component<SearchProps, Search
             toSearch: this.state.toSearch
         };
         let response: Array<MangaResponse>;
-        axios.post(`http://localhost:3000/search`, data)
+        axios.post(`http://${addresses.serverAddress}/search`, data)
             .then(function (res) {
                 response = res.data.message;
             })

@@ -3,6 +3,8 @@ import '../css/MangaPage.css';
 import { RouteComponentProps, Link, Router } from 'react-router-dom';
 import axios from 'axios';
 
+const addresses = require('../config');
+
 interface MangaPageRouterProps {
     manga: string,
     id: string,
@@ -38,7 +40,9 @@ export default class MangaPageComponent extends React.Component<MangaPageProps, 
         const chapter = parseInt(this.props.match.params.ch);
         const page = parseInt(this.props.match.params.pg);
 
-        const result = await (await axios.get(`http://localhost:3000/search/manga=${manga}/chapter=${chapter}/page=${page}`)).data.response;
+        const result = await (
+                await axios.get(`http://${addresses.serverAddress}/search/manga=${manga}/chapter=${chapter}/page=${page}`)
+            ).data.response;
         const gen = result.generalPageData[0];
         //console.log(result);
         this.setState({
@@ -106,7 +110,7 @@ export default class MangaPageComponent extends React.Component<MangaPageProps, 
                     <div className="manga-page">
                         <div className="page-body">
                             <div className="square">
-                                <img className="page-image" src={`http://localhost:3000/images/manga_pages/${this.state.image}`}/>
+                                <img className="page-image" src={`http://${addresses.serverAddress}/images/manga_pages/${this.state.image}`}/>
                             </div>
                             <div className="pagination">
                                 {
@@ -119,7 +123,7 @@ export default class MangaPageComponent extends React.Component<MangaPageProps, 
                                                 )
                                             else
                                                 return (
-                                                    <a href={`http://localhost:3001/manga/${this.props.match.params.id}/chapter${this.props.match.params.ch}/page${i}`}>
+                                                    <a href={`http://${addresses.clientAddress}/manga/${this.props.match.params.id}/chapter${this.props.match.params.ch}/page${i}`}>
                                                         <div className="page-link">
                                                             {i}
                                                         </div>
