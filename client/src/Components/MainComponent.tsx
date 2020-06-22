@@ -9,6 +9,7 @@ import SearchPageComponent from './SearchPageComponent';
 import ContributionComponent from './ContributionComponent';
 import { CopyrightClaimComponent } from './CopyrightClaimComponent';
 import MangaComponent from './MangaComponent';
+import LoginSignupComponent from './LoginSignupComponent';
 
 export default function MainComponent() {
     return (
@@ -17,6 +18,7 @@ export default function MainComponent() {
             <Switch>
                 <Route exact path="/" component={MainPageComponent}/>
                 <Route path="/manga" component={MangaComponent}/>
+                <Route path="/auth" component={LoginSignupComponent}/>
                 <Route path="/user" component={UserPageComponent}/>
                 <Route path="/search/:query" component={SearchPageComponent}/>
                 <Route path="/contribute" component={ContributionComponent}/> 

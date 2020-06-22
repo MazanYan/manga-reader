@@ -1,5 +1,5 @@
 const express = require('express')
-const cryptoJS = require('crypto-js');
+const crypto = require('crypto-js');
 
 const passport = require('passport')
 const bodyParser = require('body-parser')
@@ -9,8 +9,8 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 
 const salt = "1234";
-const DATA = [{email: cryptoJS.SHA256("test@gmail.com"), password: cryptoJS.SHA256("1234")}]
-DATA.map(el => cryptoJS.SHA256(el + salt));
+const DATA = [{email: crypto.SHA256("test@gmail.com"), password: crypto.SHA256("1234")}]
+DATA.map(el => crypto.SHA256(el + salt));
 
 var opts = {}
 opts.jwtFromRequest = function(req) {
@@ -40,7 +40,7 @@ function CheckUser(input){
 
   for (var i in DATA) {
       //if(/*input.email==DATA[i].email && (input.password==DATA[i].password || DATA[i].provider==input.provider)*/)
-      if (cryptoJS.SHA256(input[i].email + salt) == DATA[i].email || cryptoJS.SHA256(input[i].password + salt)==DATA[i].password)
+      if (crypto.SHA256(input[i].email + salt) == DATA[i].email || cryptoJS.SHA256(input[i].password + salt)==DATA[i].password)
       {
           console.log('User found in DATA');
           return true;

@@ -6,7 +6,8 @@ const initOptions = {
         }
     }
 };
-const crypt = require('crypto-js');
+const crypto = require('crypto');   // generateRandomBytes
+const cryptoJS = require('crypto-js');  // other hashing algorithms
 const pgp = require('pg-promise')(initOptions);
 
 const databaseConfig = {
@@ -24,7 +25,7 @@ async function performQuery() {
         const result = await db.query(...arguments);
         console.log('Query completed');
         console.log(result);
-        return result;
+        return 'QUERY COMPLETED';
     }
     catch (error) {
         const myError = 'ERROR:' + (error.message || error);
@@ -49,10 +50,6 @@ db.connect()
 const result = db.any('SELECT * FROM manga').then(result => console.log(result));
 */
 
-function generateSalt() {
-    return Array(10).fill(null).map(_ => Math.ceil(Math.random() * Math.floor(9))).join('');
-}
-
 async function checkPassword(userId, password) {
     const salt = await performQuery(
         'SELECT salt from salts WHERE salt.id=$1', userId
@@ -64,12 +61,15 @@ async function checkPassword(userId, password) {
     return hashedPassword === correctPassword;
 }
 
-async function createAccount({name, email, passw, photo = null, descr = null}) {
-    const accId = crypt.MD5(email + name);
-    const salt = generateSalt();
-    const hashedPassw = crypt.SHA256(passw + salt);
-    console.log(`Name: ${name}`);
-    performQuery(
+async function createUser({name, email, passw, photo = null, descr = null}) {
+    const accId = cryptoJS.MD5(email + name).toString();
+    const salt = crypto.randomBytes(20).toString('hex');
+    const hashedPassw = cryptoJS.SHA256(passw + salt).toString();
+    const token = crypto.randomBytes(20).toString('hex');
+
+    const response = [];
+
+    const userAddResponse = await performQuery(
         'INSERT INTO public.account(${this:name}) VALUES (${this:csv});',
         {
             id: accId,
@@ -81,14 +81,28 @@ async function createAccount({name, email, passw, photo = null, descr = null}) {
             description: descr,
             passw_hashed: hashedPassw,
             type: 'user',
-            email: email
+            email: email,
+            confirmed: false
         }
-    )
-
-    performQuery(
-        'INSERT INTO salts(name, salt) VALUES ($1, $2)',
+    );
+    response.push(userAddResponse);    
+    const saltResponse = await performQuery(
+        'INSERT INTO salts(id, salt) VALUES ($1, $2)',
         [accId, hashedPassw]
     );
+    const confirmStatusResponse = await performQuery(
+        'INSERT INTO user_registration(${this:name}) VALUES(${this:csv})',
+        {
+            id: accId,
+            token: token,
+            token_create_time: 'NOW()'
+        }
+    );
+
+    response.push(saltResponse);
+    response.push(confirmStatusResponse);
+
+    return [response, token];
 }
 
 async function addManga({mangaName, author, descr, thumbnail, timeStart, status, timeEnd = null}) {
@@ -430,7 +444,7 @@ async function deleteNotification() {
 
 module.exports = {
     checkPassword: checkPassword,
-    createAccount: createAccount,
+    createUser: createUser,
     addManga: addManga,
     createBookmark: createBookmark,
     addComment: addComment,

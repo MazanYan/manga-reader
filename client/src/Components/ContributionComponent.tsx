@@ -9,8 +9,7 @@ interface ContributionProps {
 };
 
 interface ContributionState {
-    pageSelected: number,
-    responseReceived: boolean
+    pageSelected: number
 }
 
 function AddMangaComponent() {
@@ -255,8 +254,7 @@ export default class ContributionComponent extends React.Component<ContributionP
     constructor(props: ContributionProps) {
         super(props);
         this.state = {
-            pageSelected: 1,
-            responseReceived: false
+            pageSelected: 1
         };
     }
 

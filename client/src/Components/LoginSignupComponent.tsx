@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import CryptoJS from 'crypto-js';
 import axios from 'axios';
+import { Switch, Route } from 'react-router-dom';
 
 const addresses = require('../config');
 
@@ -9,68 +10,139 @@ type LoginSignupProps = {
 };
 
 type LoginSignupState = {
-    name: string,
-    password: string
+    pageSelected: number
 };
+
+function LogInComponent() {
+
+    const [user, setUser] = useState("");
+    const [passw, setPassw] = useState("");
+
+    const handleLogin = (event: any) => {
+        event?.preventDefault();
+        console.log({user, passw});
+    }
+
+    return (
+        <>
+        <style>{`
+            #forg-passw {
+                text-align: left;
+                color: burlywood;
+            }
+            
+            #forg-passw:hover {
+                text-decoration: underline;
+            }
+        `}</style>
+        <div className="card card-contrib">
+            <form onSubmit={handleLogin} className="form-contrib">
+                <label htmlFor="name">Username or email</label>
+                <input name="name" type="text" onChange={
+                    (event) => setUser(event.target.value)
+                }></input>
+                <label htmlFor="passwd">Password</label>
+                <input name="passwd" type="password" onChange={
+                    (event) => setPassw(event.target.value)
+                }>
+                </input>
+                <a id="forg-passw">Forgot Password?</a>
+                <button type="submit">Log in</button>
+            </form>
+        </div>
+        </>
+    );
+}
+
+function SignUpComponent() {
+
+    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
+    const [passw, setPassw] = useState("");
+    const [passwConf, setPasswConf] = useState("");
+
+    const handleSignUp = (event: any) => {
+        event.preventDefault();
+        console.log({username, email, passw, passwConf});
+        if (passw !== passwConf) {
+            alert('Password and confirmed password do not match');
+            return;
+        }
+        const passwordHashed = CryptoJS.SHA256(passw).toString();
+        const toSend = {
+            user: username,
+            email: email,
+            passw: passwordHashed
+        };
+
+        console.log(toSend);
+
+        const sendUserDataPromise = axios.post(`http://${addresses.serverAddress}/users/new`, toSend);
+
+        Promise.all([sendUserDataPromise])
+            .then(response => {
+                if (response[0].data.filter((message: string) => message.includes('ERROR')).length > 0) {
+                    alert("Failed to add new user. Probably this e-mail is already used");
+                }
+            })
+            .catch(error => console.log(error));
+
+    }
+
+    return (
+        <div className="card card-contrib">
+            <form className="form-contrib" onSubmit={handleSignUp}>
+                <label htmlFor="name">Username (50 characters max)</label>
+                <input name="name" type="text" maxLength={50} onChange={
+                    (event) => setUsername(event.target.value)
+                }></input>
+                <label htmlFor="mail">E-mail</label>
+                <input name="mail" type="email" onChange={
+                    (event) => setEmail(event.target.value)
+                }></input>
+                <label htmlFor="passwd">Password</label>
+                <input name="passwd" type="password" onChange={
+                    (event) => setPassw(event.target.value)
+                }></input>
+                <label htmlFor="passwdConf">Confirm password</label>
+                <input name="passwdConf" type="password" onChange={
+                    (event) => setPasswConf(event.target.value)
+                }></input>
+                <button type="submit">Sign up</button>
+            </form>
+        </div>
+    );
+}
 
 export default class LoginSignupComponent extends Component<LoginSignupProps, LoginSignupState> {
     constructor(props: LoginSignupProps) {
         super(props);
-        this.state = {name: "", password: ""};
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleLogin = this.handleLogin.bind(this);
-        this.handlePassword = this.handlePassword.bind(this);
+        this.state = {
+            pageSelected: 1
+        };
     }
 
-    async handleSubmit(event: React.FormEvent<HTMLButtonElement>) {
-        const encryptedLogin = CryptoJS.SHA256(this.state.name);
-        const encryptedPassword = CryptoJS.SHA256(this.state.password);
-        const response = await axios.post(addresses.serverAddress, {email: encryptedLogin, password: encryptedPassword});
-        //alert(response);
-
-        //fetch("http://localhost:3000/login").then(res => alert(res.text())).catch(err => alert(err));
-        /*const res = await fetch(serverAddress, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                user: {
-                    login: encryptedLogin,
-                    password: encryptedPassword
-                }
-            })
-        });
-        alert(res.text());*/
-        //alert(this.state.name);
-        
-        //event.preventDefault();
-    }
-    
-    handleLogin(event: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({name: event.target.value});
-        event.preventDefault();
-    }
-
-    handlePassword(event: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({password: event.target.value});
-        event.preventDefault();
+    RenderComponent() {
+        switch (this.state.pageSelected) {
+            case 1: return <LogInComponent />;
+            case 2: return <SignUpComponent />;
+        }
     }
 
     render() {
-        //fetch("http://localhost:3000/login").then(res => alert(res.text()));
         return (
-            <div className="dropdown-content">
-                <form className="dropdown-content">
-                    <label htmlFor="email">E-Mail</label>
-                    <input onChange={this.handleLogin} value={this.state.name} type="text" name="email"/>
-                    <label htmlFor="passwd">Password</label>
-                    <input onChange={this.handlePassword} value={this.state.password} type="password" name="passwd"/>
-                    <button onClick={this.handleSubmit}>Sign in</button>
-                    <label htmlFor="signup">Have no account?</label>
-                    <button>Sign up</button>
-                </form>
-            </div>
-            )
-    }
+            <>
+                {/*<div className="header">
+                    <p>Log In or Sign Up</p>
+                </div>*/}
+                <main className="contributions-main">
+                <div className="btn-group">
+                        <button className="btn-contrib" onClick={() => this.setState({pageSelected: 1})}>Log In</button>
+                        <button className="btn-contrib" onClick={() => this.setState({pageSelected: 2})}>Sign Up</button>
+                    </div>
+                    {this.RenderComponent()}
+                </main>
+            </>
+        )
+    }   
 }

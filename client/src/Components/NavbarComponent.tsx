@@ -7,35 +7,10 @@ interface NavbarProps {
     loggedIn: boolean,
     accName: string
 };
-
-interface NavbarState {
-    loginMenuOpened: boolean
-};
-
-type MangaResponse = {
-    name: string,
-    author: string,
-    description: string,
-    manga_key: string,
-    bookmarks_count: Number,
-    add_time: Date
-}
  
-export default class NavbarComponent extends React.Component<NavbarProps, NavbarState> {
+export default class NavbarComponent extends React.Component<NavbarProps> {
     constructor(props: NavbarProps) {
         super(props);
-
-        this.state = {
-            loginMenuOpened: false,
-        };
-    }
-
-    renderLoginMenu() {
-        if (this.state.loginMenuOpened) {
-            return (
-                <LoginSignupComponent/>
-            );
-        }
     }
 
     renderLoggedIn() {
@@ -50,11 +25,7 @@ export default class NavbarComponent extends React.Component<NavbarProps, Navbar
             );
         else
             return (
-                <div className="dropdown">
-                    <a className="dropbtn" rel="index.html" onMouseEnter={() => 
-                        this.setState({loginMenuOpened: !this.state.loginMenuOpened})}>Log In</a>
-                    {this.renderLoginMenu()}
-                </div>
+                <Link to="/auth">Log In/Sign Up</Link>
             );
     }
 
@@ -63,7 +34,7 @@ export default class NavbarComponent extends React.Component<NavbarProps, Navbar
             <nav className="navbar-component">
                 <a id="site-name"><Link to="/">Manga Reader</Link></a>
                 <div id="search"><SearchComponent/></div>
-                {/*<div id="login">{this.renderLoggedIn()}</div>*/}
+                <div id="login">{this.renderLoggedIn()}</div>
             </nav>
         );
     }
