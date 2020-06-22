@@ -1,7 +1,6 @@
 import React from 'react';
 import LoginSignupComponent from './LoginSignupComponent';
 import SearchComponent from './SearchComponent';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 interface NavbarProps {
@@ -61,10 +60,10 @@ export default class NavbarComponent extends React.Component<NavbarProps, Navbar
 
     render() {
         return (
-            <nav className="NavbarComponent">
+            <nav className="navbar-component">
                 <a id="site-name"><Link to="/">Manga Reader</Link></a>
                 <div id="search"><SearchComponent/></div>
-                <div id="login">{this.renderLoggedIn()}</div>
+                {/*<div id="login">{this.renderLoggedIn()}</div>*/}
             </nav>
         );
     }

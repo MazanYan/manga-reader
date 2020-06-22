@@ -1,4 +1,4 @@
-.NavbarComponent {
+.navbar-component {
     display: flex;
     flex-direction: row;
     height: 50px;
@@ -8,13 +8,13 @@
     color: white;
 }
 
-.NavbarComponent #search {
+/*#search {
     margin-left: auto;
-}
+}*/
 
-.NavbarComponent #login {
+/*#login {
     margin-left: 50px;
-}
+}*/
 
 nav a {
     color: white;
@@ -24,7 +24,7 @@ nav a {
     text-decoration: none;
 }
 
-.dropdown {
+/*.dropdown {
     overflow: hidden;
 }
 
@@ -52,13 +52,6 @@ nav a {
     display: block;
 }
 
-form {
-    padding: 10px;
-    display: grid;
-    grid-template-columns: 200px 1fr;
-    grid-gap: 16px;
-}
-
 #site-name {
     grid-column: 1 / 2;
 }
@@ -69,4 +62,4 @@ form {
 
 input, button {
     grid-column: 2 / 3;
-}
+}*/

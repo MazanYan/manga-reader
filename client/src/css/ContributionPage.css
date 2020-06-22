@@ -15,11 +15,6 @@
   padding: 10px;
 }
 
-.card-form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
 #images-order {
   grid-column: span 2;
   text-align: center;
@@ -41,4 +36,10 @@ button:hover {
 
 .btn-group {
   justify-content: initial;
+}
+
+.form-contrib {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 16px;
 }

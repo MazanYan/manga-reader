@@ -142,10 +142,14 @@ footer {
     grid-template-columns: 1fr 1fr;
 }
 
-footer > #descr, footer > #links {
+footer > * {
     text-align: center;
 }
 
 #links a:hover {
     color: #ffedd4
+}
+
+a:hover {
+    text-decoration: none;
 }

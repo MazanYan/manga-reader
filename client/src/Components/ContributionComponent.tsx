@@ -89,7 +89,7 @@ function AddMangaComponent() {
     return (
         <div className="card card-contrib">
             <h2>Add new manga:</h2>
-            <form onSubmit={handleSubmitManga}>
+            <form onSubmit={handleSubmitManga} className="form-contrib">
                 <label htmlFor="name">Add name:</label>
                 <input type="text" name="name" onChange={
                     (e: React.FormEvent<HTMLInputElement>) =>
@@ -202,7 +202,7 @@ function AddChapterComponent() {
     return (
         <div className="card card-contrib">
             <h2>Add new chapter:</h2>
-            <form onSubmit={handleSubmitChapter} className="card-form">
+            <form onSubmit={handleSubmitChapter}  className="form-contrib">
                 <label htmlFor="manga">For manga (by name):</label>
                 <input type="text" name="manga" onChange={
                     (e: any) => setMangaName(e.currentTarget.value)
@@ -242,7 +242,7 @@ function AddPagesComponent() {
     return (
         <div className="card card-contrib">
             <h2>Add/Edit/Delete pages of chapter:</h2>
-            <form> {/*onSubmit={this.handleSubmitManga}>*/}
+            <form className="form-contrib">{/*onSubmit={this.handleSubmitManga}>*/}
                 TBA
             </form>
         </div>
