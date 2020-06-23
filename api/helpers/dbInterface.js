@@ -25,7 +25,7 @@ async function performQuery() {
         const result = await db.query(...arguments);
         console.log('Query completed');
         console.log(result);
-        return 'QUERY COMPLETED';
+        return result;
     }
     catch (error) {
         const myError = 'ERROR:' + (error.message || error);
@@ -103,6 +103,20 @@ async function createUser({name, email, passw, photo = null, descr = null}) {
     response.push(confirmStatusResponse);
 
     return [response, token];
+}
+
+async function confirmUserByToken(token, timeToLive) {
+    const response = await performQuery(
+        `UPDATE account
+            SET confirmed=true 
+            WHERE id=(SELECT id FROM user_registration
+                WHERE (NOW() - token_create_time) < $1
+                AND token=$2);
+        DELETE FROM user_registration WHERE token=$2;`,
+        [timeToLive, token]
+    );
+    console.log(response);
+    return response;
 }
 
 async function addManga({mangaName, author, descr, thumbnail, timeStart, status, timeEnd = null}) {
@@ -445,6 +459,7 @@ async function deleteNotification() {
 module.exports = {
     checkPassword: checkPassword,
     createUser: createUser,
+    confirmUserByToken: confirmUserByToken,
     addManga: addManga,
     createBookmark: createBookmark,
     addComment: addComment,

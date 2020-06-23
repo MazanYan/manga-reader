@@ -38,14 +38,14 @@ router.post('/new', function(req, res, next) {
     passw: req.body.passw
   }).then(response => {
   const [resp, token] = response;
-  console.log(mailingData.password);
+  console.log(token);
 
   const mailOptions = {
     from: mailingData.email,
     to: req.body.email,
     subject: 'Registration',
     text: `You have registered on website 'manga-reader'.
-    To confirm your account follow the link http://${addresses.serverAddress}/confirm/${token}`
+    To confirm your account follow the link http://${addresses.serverAddress}/users/confirm/${token}`
   };
 
     transporter.sendMail(mailOptions, function(error, info){
@@ -59,5 +59,18 @@ router.post('/new', function(req, res, next) {
     res.send(resp);
   });
 });
+
+router.get('/confirm/:token', function(req, res, next) {
+  const token = req.params.token;
+  const timeToLive = '30:00.0';
+  console.log({token: token});
+  const confirmPromise = dbInterface.confirmUserByToken(token, timeToLive);
+
+  Promise.all([confirmPromise]).then(response => {
+    console.log("Account confirmed");
+    console.log(response);
+    res.send("Your account is confirmed!");
+  });
+})
 
 module.exports = router;
