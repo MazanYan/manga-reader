@@ -18,10 +18,21 @@ function LogInComponent() {
     const [user, setUser] = useState("");
     const [passw, setPassw] = useState("");
 
-    const handleLogin = (event: any) => {
+    const handleLogIn = (event: any) => {
         event?.preventDefault();
         console.log({user, passw});
-    }
+
+        const loginData = {
+            user: user,
+            passw: CryptoJS.SHA256(passw).toString()
+        }
+
+        const loginPromise = axios.post(`http://${addresses.serverAddress}/login`, loginData);
+
+        loginPromise.then((response: any) => {
+            window.localStorage.setItem('jwt-token', response.data.token);
+        });
+    };
 
     return (
         <>
@@ -36,7 +47,7 @@ function LogInComponent() {
             }
         `}</style>
         <div className="card card-contrib">
-            <form onSubmit={handleLogin} className="form-contrib">
+            <form onSubmit={handleLogIn} className="form-contrib">
                 <label htmlFor="name">Username or email</label>
                 <input name="name" type="text" onChange={
                     (event) => setUser(event.target.value)

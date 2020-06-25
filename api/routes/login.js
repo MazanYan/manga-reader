@@ -1,88 +1,52 @@
 const express = require('express')
 const crypto = require('crypto-js');
+const bodyParser = require('body-parser');
+const jwt = require('jsonwebtoken');
+const dbInterface = require('../helpers/dbInterface');
+const router = express.Router();
+require('dotenv').config();
 
-const passport = require('passport')
-const bodyParser = require('body-parser')
+const SECRET_KEY = process.env.SECRET_KEY;
 
-const jwt = require('jsonwebtoken')
-const JwtStrategy = require('passport-jwt').Strategy;
-const ExtractJwt = require('passport-jwt').ExtractJwt;
+/*function checkUser(userId, password) {
+  return dbInterface.checkPassword(userId, password);
+}*/
 
-const salt = "1234";
-const DATA = [{email: crypto.SHA256("test@gmail.com"), password: crypto.SHA256("1234")}]
-DATA.map(el => crypto.SHA256(el + salt));
-
-var opts = {}
-opts.jwtFromRequest = function(req) {
-    var token = null;
-    if (req && req.cookies)
-    {
-        token = req.cookies['jwt'];
+function verifyToken(token) {
+  jwt.verify(token, SECRET_KEY, (err, authorized) => {
+    if(err)
+      return;
+    else {
+      return authorized.user;
     }
-    return token;
-};
-opts.secretOrKey = 'secret';
-
-passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
-  console.log("JWT BASED VALIDATION GETTING CALLED")
-  console.log("JWT", jwt_payload)
-  if (CheckUser(jwt_payload.data)) {
-      return done(null, jwt_payload.data)
-  } else {
-      // user account doesnt exists in the DATA
-      return done(null, false);
-  }
-}));
-
-function CheckUser(input){
-  console.log(DATA)
-  console.log(input)
-
-  for (var i in DATA) {
-      //if(/*input.email==DATA[i].email && (input.password==DATA[i].password || DATA[i].provider==input.provider)*/)
-      if (crypto.SHA256(input[i].email + salt) == DATA[i].email || cryptoJS.SHA256(input[i].password + salt)==DATA[i].password)
-      {
-          console.log('User found in DATA');
-          return true;
-      }
-      else
-        continue;
-          //console.log('no match')
-    }
-  console.log('User not found in DATA');
-  return false;
+  });
 }
 
-/*passport.serializeUser(function(user, cb) {
-  console.log('I should have jack ');
-  cb(null, user);
-});
-
-passport.deserializeUser(function(obj, cb) {
-  console.log('I wont have jack shit');
-  cb(null, obj);
-});*/
-
-const router = express.Router();
-
 router.get('/', function(req, res, next) {
-  res.send("The connection between server and client is established");
-  //res.render('index', { title: 'Express' });
+  res.status(404).send("No login data is provided");
 });
 
 router.post('/', function(req, res, next) {
-  console.log(`Processing request ${req.body}`);
-  if(CheckUser(req.body)) {
-      console.log('Processing successful');
-      let token = jwt.sign({data: req.body}, 'secret', { expiresIn: '1h' });
-      res.cookie('jwt', token);
-      res.send(`Log in success ${req.body.email}`);
-  }
-  else {
-    console.log('Processing unsuccessful');
-    res.send('Invalid login credentials');
-  }
-    //res.render('index', { title: 'Express' });
+  console.log(`Processing request ${req.body.user}, ${req.body.passw}`);
+  const userIdPromise = dbInterface.getUserByEmailOrUsername(req.body.user);
+
+  let userId;
+  userIdPromise.then(response => {
+    if (response.length) {
+      userId = response[0].id;
+      return Promise.resolve(dbInterface.checkPassword(userId, req.body.passw));
+    }
+    else {
+      console.log('User not found!');
+      res.status(404).send("User not found");
+      return;
+    }
+  }).then(response => {
+    console.log(response ? 'Password correct' : 'Password incorrect');
+    const token = jwt.sign({ user: userId }, SECRET_KEY, { expiresIn: '1h' });
+    res.send({token: token});
+
   });
+});
 
 module.exports = router;

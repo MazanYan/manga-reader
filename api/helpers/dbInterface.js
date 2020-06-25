@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const initOptions = {
     error(error, e) {
         if (e.cn) {
@@ -11,11 +13,11 @@ const cryptoJS = require('crypto-js');  // other hashing algorithms
 const pgp = require('pg-promise')(initOptions);
 
 const databaseConfig = {
-    host: "localhost",
-    port: 5432,
-    database: "manga_reader",
-    user: "postgres",
-    //password: "passw"
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    database: process.env.DATABASE,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD
 };
 
 const db = pgp(databaseConfig);
@@ -25,12 +27,12 @@ async function performQuery() {
         const result = await db.query(...arguments);
         console.log('Query completed');
         console.log(result);
-        return result;
+        return Promise.resolve(result);
     }
     catch (error) {
         const myError = 'ERROR:' + (error.message || error);
         console.log(myError);
-        return myError;
+        return Promise.reject(myError);
     }
 }
 
@@ -50,14 +52,28 @@ db.connect()
 const result = db.any('SELECT * FROM manga').then(result => console.log(result));
 */
 
+async function getUserByEmailOrUsername(usernameEmail) {
+    console.log(`UsernameEmail ${usernameEmail}`);
+    return await performQuery(
+        `SELECT id FROM account 
+            WHERE name=$1 OR email=$1 LIMIT 1;`,
+        [usernameEmail]);
+}
+
 async function checkPassword(userId, password) {
-    const salt = await performQuery(
-        'SELECT salt from salts WHERE salt.id=$1', userId
-    );
-    const hashedPassword = crypt.SHA256(password + salt);
-    const correctPassword = await performQuery(
-        'SELECT password FROM account WHERE account.id=$1', userId
-    );
+    console.log(`Initial toSearch: ${userId} ${password}`);
+    const salt = (await performQuery(
+        'SELECT salt FROM salts WHERE salts.id=$1', userId
+    ))[0].salt;
+    const hashedPassword = cryptoJS.SHA256(password + salt).toString();
+    const correctPassword = (await performQuery(
+        'SELECT passw_hashed FROM account WHERE account.id=$1', userId
+    ))[0].passw_hashed;
+    
+    console.log(`Salt ${salt}`);
+    console.log(`Hashed passw ${hashedPassword}`);
+    console.log(`Correct passw ${correctPassword}`);
+    //console.log(hashedPassword === correctPassword);
     return hashedPassword === correctPassword;
 }
 
@@ -88,7 +104,7 @@ async function createUser({name, email, passw, photo = null, descr = null}) {
     response.push(userAddResponse);    
     const saltResponse = await performQuery(
         'INSERT INTO salts(id, salt) VALUES ($1, $2)',
-        [accId, hashedPassw]
+        [accId, salt]
     );
     const confirmStatusResponse = await performQuery(
         'INSERT INTO user_registration(${this:name}) VALUES(${this:csv})',
@@ -457,39 +473,40 @@ async function deleteNotification() {
 }
 
 module.exports = {
-    checkPassword: checkPassword,
-    createUser: createUser,
-    confirmUserByToken: confirmUserByToken,
-    addManga: addManga,
-    createBookmark: createBookmark,
-    addComment: addComment,
-    addChapter: addChapter,
-    createNotification: createNotification,
-    searchMangaByNameAuthor: searchMangaByNameAuthor,
-    searchMangaByName: searchMangaByName,
-    getMangaByIdImage: getMangaByIdImage,
-    getMangaById: getMangaById,
-    searchMangaByAuthor: searchMangaByAuthor,
-    searchPopularManga: searchPopularManga,
-    searchRecentManga: searchRecentManga,
-    searchRandomManga: searchRandomManga,
-    getTableOfContents: getTableOfContents,
-    getMangaPageData: getMangaPageData,
-    getPageComments: getPageComments,
-    getPrevNextChapterNum: getPrevNextChapterNum,
-    //getPrevPage: getPrevPage,
-    //getNextPage: getNextPage,
-    //getMangaPageImage: getMangaPageImage,
-    //changeProfilePhoto: changeProfilePhoto,
-    changePassword: changePassword,
-    changeDescription: changeDescription,
-    updateBookmark: updateBookmark,
-    updateComment: updateComment,
-    //updateChapter: updateChapter,
-    //updateMangaPage: updateMangaPage,
-    updateOnlineStatus: updateOnlineStatus,
-    deleteManga: deleteManga,
-    deleteChapter: deleteChapter,
-    deleteUser: deleteUser,
-    //deleteNotification : deleteNotification
+    getUserByEmailOrUsername,
+    checkPassword,
+    createUser,
+    confirmUserByToken,
+    addManga,
+    createBookmark,
+    addComment,
+    addChapter,
+    createNotification,
+    searchMangaByNameAuthor,
+    searchMangaByName,
+    getMangaByIdImage,
+    getMangaById,
+    searchMangaByAuthor,
+    searchPopularManga,
+    searchRecentManga,
+    searchRandomManga,
+    getTableOfContents,
+    getMangaPageData,
+    getPageComments,
+    getPrevNextChapterNum,
+    //getPrevPage,
+    //getNextPage,
+    //getMangaPageImage,
+    //changeProfilePhoto,
+    changePassword,
+    changeDescription,
+    updateBookmark,
+    updateComment,
+    //updateChapter,
+    //updateMangaPage,
+    updateOnlineStatus,
+    deleteManga,
+    deleteChapter,
+    deleteUser,
+    //deleteNotification
 };

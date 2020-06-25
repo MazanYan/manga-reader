@@ -2,32 +2,31 @@ const express = require('express');
 const router = express.Router();
 const dbInterface = require('../helpers/dbInterface');
 const nodemailer = require('nodemailer');
-const mailingData = require('../helpers/mailingData');
+//const mailingData = require('../helpers/mailingData');
 const addresses = require('../config');
+require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.ukr.net',
+  host: process.env.MAIL_HOST,
   secureConnection: true,
-  port: 465,
+  port: process.env.MAIL_PORT,
   auth: {
-    user: mailingData.email,
-    pass: mailingData.password.toString()
+    user: process.env.EMAIL,
+    pass: process.env.EMAIL_PASSWD
   }
 });
 
-//const { createUser } = require('../helpers/dbInterface');
-
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-  res.send("respond with a resource");
+  res.status(404).send("respond with a resource");
 });
 
 router.post('/', function(req, res, next) {
-  res.send("respond with a resource");
+  res.status(404).send("respond with a resource");
 });
 
 router.get('/new', function(req, res, next) {
-  res.send("Add new user here");
+  res.status(404).send("Add new user here");
 });
 
 router.post('/new', function(req, res, next) {

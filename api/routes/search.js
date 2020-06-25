@@ -4,7 +4,7 @@ const dbInterface = require('../helpers/dbInterface');
 
 /* GET manga by author/name search */
 router.get('/', function(req, res, next) {
-    res.send("Search query");
+    res.status(404).send("Search query");
 });
 
 /* GET all necessary data about page of manga */
@@ -89,7 +89,7 @@ router.get('/main_page&lim=:limit', function(req, res, next) {
 
 /* POST popular, recent and random manga for Main Page */
 router.post('/main_page', function(req, res, next) {
-    res.send("Search query for Main Page");
+    res.status(404).send("Search query for Main Page");
 });
 
 
@@ -107,7 +107,7 @@ router.get('/mangaId/:id', function(req, res, next) {
 
 /* POST general data about manga */
 router.post('/mangaId', function(req, res, next) {
-    res.send("GET request to this route is used to get general data about manga");
+    res.status(404).send("GET request to this route is used to get general data about manga");
 });
 
 /* GET table of contents of manga by id */
@@ -124,7 +124,7 @@ router.get('/mangaId/:id/toc', function(req, res, next) {
 
 /* POST table of contents of manga by id */
 router.post('/mangaId/toc', function(req, res, next) {
-    res.send("GET request to this route is used to get table of contents of a manga");
+    res.status(404).send("GET request to this route is used to get table of contents of a manga");
 });
 
 module.exports = router;
