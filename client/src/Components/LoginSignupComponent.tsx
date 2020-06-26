@@ -31,6 +31,7 @@ function LogInComponent() {
 
         loginPromise.then((response: any) => {
             window.localStorage.setItem('jwt-token', response.data.token);
+            window.localStorage.setItem('username', response.data.name);
         });
     };
 
@@ -143,9 +144,6 @@ export default class LoginSignupComponent extends Component<LoginSignupProps, Lo
     render() {
         return (
             <>
-                {/*<div className="header">
-                    <p>Log In or Sign Up</p>
-                </div>*/}
                 <main className="contributions-main">
                 <div className="btn-group">
                         <button className="btn-contrib" onClick={() => this.setState({pageSelected: 1})}>Log In</button>

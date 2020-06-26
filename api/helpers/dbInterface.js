@@ -22,9 +22,9 @@ const databaseConfig = {
 
 const db = pgp(databaseConfig);
 
-async function performQuery() {
+async function performQuery(query, ...data) {
     try {
-        const result = await db.query(...arguments);
+        const result = await db.query(query, ...data);
         console.log('Query completed');
         console.log(result);
         return Promise.resolve(result);
@@ -53,11 +53,17 @@ const result = db.any('SELECT * FROM manga').then(result => console.log(result))
 */
 
 async function getUserByEmailOrUsername(usernameEmail) {
-    console.log(`UsernameEmail ${usernameEmail}`);
     return await performQuery(
-        `SELECT id FROM account 
+        `SELECT id, name FROM account 
             WHERE name=$1 OR email=$1 LIMIT 1;`,
         [usernameEmail]);
+}
+
+async function getUserName(userId) {
+    return await performQuery(
+        `SELECT name FROM account 
+            WHERE id=$1 LIMIT 1;`,
+        [userId]);
 }
 
 async function checkPassword(userId, password) {
@@ -474,6 +480,7 @@ async function deleteNotification() {
 
 module.exports = {
     getUserByEmailOrUsername,
+    getUserName,
     checkPassword,
     createUser,
     confirmUserByToken,

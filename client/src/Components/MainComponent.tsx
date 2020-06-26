@@ -14,7 +14,7 @@ import LoginSignupComponent from './LoginSignupComponent';
 export default function MainComponent() {
     return (
         <React.Fragment>
-            <NavbarComponent loggedIn={false} accName=""/>
+            <NavbarComponent/>
             <Switch>
                 <Route exact path="/" component={MainPageComponent}/>
                 <Route path="/manga" component={MangaComponent}/>
