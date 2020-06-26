@@ -61,7 +61,7 @@ export default class NavbarComponent extends React.Component<{}, NavbarState> {
     render() {
         return (
             <nav className="navbar-component">
-                <a id="site-name"><Link to="/">Manga Reader</Link></a>
+                <div id="site-name"><Link to="/">Manga Reader</Link></div>
                 <div id="search"><SearchComponent/></div>
                 <div id="login">{this.renderLoggedIn()}</div>
             </nav>

@@ -32,6 +32,7 @@ function LogInComponent() {
         loginPromise.then((response: any) => {
             window.localStorage.setItem('jwt-token', response.data.token);
             window.localStorage.setItem('username', response.data.name);
+            window.location.reload(false);
         });
     };
 
