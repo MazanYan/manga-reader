@@ -1,9 +1,9 @@
 import React from 'react';
 import axios from 'axios';
 import { RouteComponentProps, Link } from 'react-router-dom';
-import { MangaResponse } from '../helpers/MangaResponse';
-import { postgresToDate } from '../helpers/ConvertTimestamp';
-const config = require('../config');
+import { MangaResponse } from '../../helpers/MangaResponse';
+import { postgresToDate } from '../../helpers/ConvertTimestamp';
+const config = require('../../config');
 
 type SearchPageState = {
     query: string,

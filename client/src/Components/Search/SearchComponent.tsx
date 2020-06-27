@@ -1,8 +1,7 @@
 import React from 'react';
 import axios from 'axios';
-import '../css/Navbar.css';
-import { Redirect, Link, Route } from 'react-router-dom';
-const addresses = require('../config');
+import '../../css/Navbar.css';
+const addresses = require('../../config');
 
 
 type SearchState = {

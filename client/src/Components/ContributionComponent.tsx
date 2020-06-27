@@ -231,7 +231,7 @@ function AddChapterComponent() {
                     }
                 }/>
                 {renderNamesUploadedImages()}
-                <input type="submit" value="Send"/>
+                <input className="btn" type="submit" value="Send"/>
             </form>
         </div>
     );

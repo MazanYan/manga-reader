@@ -18,14 +18,15 @@ main {
     max-width: 1080px;
 }
 
-button {
+.btn, button {
+    text-align: center;
     background-color: burlywood;
     border: solid;
     border-width: 1px;
     border-color: #c29e70;
 }
 
-button:hover {
+.btn:hover, button:hover {
     background-color: #c29e70;
 }
 

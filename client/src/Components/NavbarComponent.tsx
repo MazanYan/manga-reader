@@ -1,10 +1,7 @@
 import React from 'react';
-//import LoginSignupComponent from './LoginSignupComponent';
-import SearchComponent from './SearchComponent';
+import SearchComponent from './Search/SearchComponent';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
-
-const addresses = require('../config');
+import verifyToken from '../helpers/VerifyToken';
 
 interface NavbarState {
     loggedIn: boolean,
@@ -21,20 +18,9 @@ export default class NavbarComponent extends React.Component<{}, NavbarState> {
     }
 
     componentDidMount() {
-        const hasToken = window.localStorage.getItem('jwt-token');
-        if (!hasToken)
-            return;
-        const tokenVerify = {
-            token: window.localStorage.getItem('jwt-token')
-        };
-        console.log("User has token");
-        axios.post(`http://${addresses.serverAddress}/login/verify`, tokenVerify)
-            .then(res => {
-                if (res.status === 200) {
-                    console.log("Account confirmed");
-                    this.setState({ loggedIn: true, accName: res.data.name, accId: res.data.id });
-                }
-            });
+        verifyToken().then(res => {
+            this.setState({ loggedIn: true, accName: res?.accName, accId: res?.accId });
+        });
     }
 
     renderLoggedIn() {

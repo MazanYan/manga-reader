@@ -1,9 +1,13 @@
-#image-placeholder {
+#image {
     min-width: 1fr;
     max-height: 100%;
-    /*width: 300px;*/
+    width: 300px;
     object-fit: cover;
-    /*grid-row: span 2;*/
+}
+
+#image-and-edit {
+    display: grid;
+    grid-gap: 1rem;
 }
 
 #user-page {
@@ -37,7 +41,7 @@
     grid-column: auto;
 }
 
-/*@media only screen and (max-width: 480px) {
+@media only screen and (max-width: 480px) {
     #user-page {
         margin: 1rem;
         display: grid;
@@ -45,4 +49,4 @@
         grid-template-rows: 1fr;
         grid-template-columns: 1fr;
     }
-}*/
+}

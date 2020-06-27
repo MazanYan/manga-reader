@@ -1,9 +1,9 @@
 import React from 'react';
-import '../css/MangaPage.css';
+import '../../css/MangaPage.css';
 import { RouteComponentProps, Link, Router } from 'react-router-dom';
 import axios from 'axios';
 
-const addresses = require('../config');
+const addresses = require('../../config');
 
 interface MangaPageRouterProps {
     manga: string,

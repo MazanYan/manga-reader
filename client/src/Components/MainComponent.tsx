@@ -4,12 +4,12 @@ import '../css/Navbar.css';
 import '../css/DefaultClassesTags.css';
 import { Switch, Route, Link } from 'react-router-dom';
 import MainPageComponent from './MainPageComponent';
-import UserPageComponent from './UserPageComponent';
-import SearchPageComponent from './SearchPageComponent';
+import UserPageComponent from './User/UserPageComponent';
+import SearchPageComponent from './Search/SearchPageComponent';
 import ContributionComponent from './ContributionComponent';
 import { CopyrightClaimComponent } from './CopyrightClaimComponent';
-import MangaComponent from './MangaComponent';
-import LoginSignupComponent from './LoginSignupComponent';
+import MangaComponent from './Manga/MangaComponent';
+import LoginSignupComponent from './User/LoginSignupComponent';
 
 export default function MainComponent() {
     return (
@@ -19,7 +19,7 @@ export default function MainComponent() {
                 <Route exact path="/" component={MainPageComponent}/>
                 <Route path="/manga" component={MangaComponent}/>
                 <Route path="/auth" component={LoginSignupComponent}/>
-                <Route path="/user/:id" component={UserPageComponent}/>
+                <Route path="/user" component={UserPageComponent}/>
                 <Route path="/search/:query" component={SearchPageComponent}/>
                 <Route path="/contribute" component={ContributionComponent}/> 
                 <Route path="/right_holders" component={CopyrightClaimComponent}/>

@@ -28,8 +28,8 @@ router.get('/:id', function(req, res, next) {
         description: response[0].description
       };
       res.send(JSON.stringify(sendData));
-    });
-  //res.send("respond with a resource");
+    })
+    .catch(err => res.status(404).send("User not found"));
 });
 
 router.post('/', function(req, res, next) {
@@ -51,7 +51,7 @@ router.post('/new', function(req, res, next) {
   console.log(token);
 
   const mailOptions = {
-    from: mailingData.email,
+    from: process.env.EMAIL,
     to: req.body.email,
     subject: 'Registration',
     text: `You have registered on website 'manga-reader'.

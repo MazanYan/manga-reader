@@ -1,10 +1,10 @@
 import React from 'react';
-import '../css/MainManga.css';
+import '../../css/MainManga.css';
 import { RouteComponentProps, Link } from 'react-router-dom';
-import { MangaResponse, TableOfContentsResponse } from '../helpers/MangaResponse';
+import { MangaResponse, TableOfContentsResponse } from '../../helpers/MangaResponse';
 import axios from 'axios';
-import { postgresToDate } from '../helpers/ConvertTimestamp';
-const config = require('../config');
+import { postgresToDate } from '../../helpers/ConvertTimestamp';
+const config = require('../../config');
 
 interface TableOfContentsProps {
     chapters: Array<TableOfContentsResponse>,

@@ -1,6 +1,5 @@
 import React from 'react';
 import { RouteComponentProps, Switch, Route } from 'react-router-dom';
-import { render } from '@testing-library/react';
 import MangaMainComponent from './MangaMainComponent';
 import MangaPageComponent from './MangaPageComponent';
 

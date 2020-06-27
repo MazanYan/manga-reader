@@ -1,9 +1,8 @@
 import React, { Component, useState } from 'react';
 import CryptoJS from 'crypto-js';
-import axios, { AxiosResponse } from 'axios';
-import { Switch, Route } from 'react-router-dom';
+import axios from 'axios';
 
-const addresses = require('../config');
+const addresses = require('../../config');
 
 type LoginSignupProps = {
 
