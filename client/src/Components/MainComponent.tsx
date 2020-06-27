@@ -19,7 +19,7 @@ export default function MainComponent() {
                 <Route exact path="/" component={MainPageComponent}/>
                 <Route path="/manga" component={MangaComponent}/>
                 <Route path="/auth" component={LoginSignupComponent}/>
-                <Route path="/user" component={UserPageComponent}/>
+                <Route path="/user/:id" component={UserPageComponent}/>
                 <Route path="/search/:query" component={SearchPageComponent}/>
                 <Route path="/contribute" component={ContributionComponent}/> 
                 <Route path="/right_holders" component={CopyrightClaimComponent}/>

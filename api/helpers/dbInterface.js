@@ -62,7 +62,14 @@ async function getUserByEmailOrUsername(usernameEmail) {
 async function getUserName(userId) {
     return await performQuery(
         `SELECT name FROM account 
-            WHERE id=$1 LIMIT 1;`,
+            WHERE id=$1;`,
+        [userId]);
+}
+
+async function getUserPageData(userId) {
+    return await performQuery(
+        `SELECT name, is_online, photo, description FROM account
+            WHERE id=$1;`,
         [userId]);
 }
 
@@ -481,6 +488,7 @@ async function deleteNotification() {
 module.exports = {
     getUserByEmailOrUsername,
     getUserName,
+    getUserPageData,
     checkPassword,
     createUser,
     confirmUserByToken,

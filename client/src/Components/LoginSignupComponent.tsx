@@ -1,6 +1,6 @@
 import React, { Component, useState } from 'react';
 import CryptoJS from 'crypto-js';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { Switch, Route } from 'react-router-dom';
 
 const addresses = require('../config');
@@ -20,7 +20,7 @@ function LogInComponent() {
 
     const handleLogIn = (event: any) => {
         event?.preventDefault();
-        console.log({user, passw});
+        //console.log({user, passw});
 
         const loginData = {
             user: user,
@@ -30,9 +30,12 @@ function LogInComponent() {
         const loginPromise = axios.post(`http://${addresses.serverAddress}/login`, loginData);
 
         loginPromise.then((response: any) => {
+            console.log(response.status);
             window.localStorage.setItem('jwt-token', response.data.token);
-            window.localStorage.setItem('username', response.data.name);
             window.location.reload(false);
+        }).catch(error => {
+            alert(error.response.data.message);
+            //alert(response.data.message);
         });
     };
 

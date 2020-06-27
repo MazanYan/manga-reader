@@ -16,13 +16,24 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.status(404).send("respond with a resource");
+/* GET data about user by ID */
+router.get('/:id', function(req, res, next) {
+  console.log(req.params.id);
+  dbInterface.getUserPageData(req.params.id)
+    .then(response => {
+      const sendData = {
+        username: response[0].name,
+        online: response[0].is_online,
+        photo: response[0].photo ? response[0].photo : 'sample.jpg',
+        description: response[0].description
+      };
+      res.send(JSON.stringify(sendData));
+    });
+  //res.send("respond with a resource");
 });
 
 router.post('/', function(req, res, next) {
-  res.status(404).send("respond with a resource");
+  res.status(404).send("No user data to get is specified");
 });
 
 router.get('/new', function(req, res, next) {

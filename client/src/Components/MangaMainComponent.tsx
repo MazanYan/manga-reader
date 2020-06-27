@@ -90,8 +90,8 @@ export default class MangaMainComponent extends React.Component<MangaMainPagePro
         const toRender = this.state.mangaData;
         return (
             <main>
-                <div id="mangaMainPage">
-                    <img id="imagePlaceholder" src={`http://${config.serverAddress}/images/thumb/${toRender?.thumbnail}`}/>
+                <div id="manga-main-page">
+                    <img id="image-placeholder" src={`http://${config.serverAddress}/images/thumb/${toRender?.thumbnail}`}/>
                     <div id="description">
                         <strong>Name: </strong>{toRender?.name}<br/>
                         <strong>Author: </strong>{toRender?.author}<br/>
@@ -100,12 +100,12 @@ export default class MangaMainComponent extends React.Component<MangaMainPagePro
                                      postgresToDate(toRender?.time_completed)?.getFullYear() : "now"}<br/>
                         <strong>Description: </strong>{toRender?.description}<br/>
                     </div>
-                    <div id="otherInfo">
+                    <div id="other-info">
                         <p>{toRender?.bookmarks_count} people added this manga to bookmarks</p>
                         <p>Last updated at {toRender?.last_modify_time ? postgresToDate(toRender?.last_modify_time)?.toLocaleDateString() : "unknown time"}</p>
                     </div>
-                    <button id="openTableOfContents" onClick={() => this.setState({tableOfContentsOpened: !this.state.tableOfContentsOpened})}>Table of Contents</button>
-                    <div id="tableOfContents">{this.renderTableOfContents()}</div>
+                    <button id="open-table-of-contents" onClick={() => this.setState({tableOfContentsOpened: !this.state.tableOfContentsOpened})}>Table of Contents</button>
+                    <div id="table-of-contents">{this.renderTableOfContents()}</div>
                 </div>
             </main>
         );

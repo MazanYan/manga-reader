@@ -32,9 +32,12 @@ router.post('/', function(req, res, next) {
     }
   }).then(response => {
     console.log(response ? 'Password correct' : 'Password incorrect');
-    const token = jwt.sign({ user: userId }, SECRET_KEY, { expiresIn: '1h' });
-    res.send({token: token, name: userName});
-
+    if (response) {
+      const token = jwt.sign({ user: userId }, SECRET_KEY, { expiresIn: '1h' });
+      res.send({token: token, name: userName});
+    }
+    else
+      res.status(400).send({ message: "Unable to log in. Password is incorrect" });
   });
 });
 

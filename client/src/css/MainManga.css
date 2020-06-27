@@ -1,4 +1,4 @@
-#imagePlaceholder {
+#image-placeholder {
     min-width: 1fr;
     max-height: 100%;
     width: 300px;
@@ -7,7 +7,7 @@
 }
 
 @media (min-width: 480px) {
-    #mangaMainPage {
+    #manga-main-page {
         margin: 1rem;
         display: grid;
         grid-gap: 1rem;
@@ -19,7 +19,7 @@
         vertical-align: top;
     }
 
-    #otherInfo {
+    #other-info {
         vertical-align: bottom;
     }
 
@@ -35,24 +35,18 @@
         vertical-align: top;
     }*/
 
-    #openTableOfContents {
+    #open-table-of-contents {
         display: block;
         object-fit: cover;
     }
 
-    #tableOfContents {
+    #table-of-contents {
         grid-column: span 2;
     }
 }
 
-#openTableOfContents {
-    display: block;
-    object-fit: cover;
-    grid-column: auto;
-}
-
 @media only screen and (max-width: 480px) {
-    #mangaMainPage {
+    #manga-main-page {
         margin: 1rem;
         display: grid;
         grid-gap: 1rem;
