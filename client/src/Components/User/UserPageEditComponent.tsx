@@ -3,6 +3,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import verifyToken from '../../helpers/VerifyToken';
 import axios from 'axios';
 import { getProfilePhotoName } from '../../helpers/generateImageName';
+import CryptoJS from 'crypto-js';
 
 const addresses = require('../../config');
 
@@ -17,9 +18,10 @@ interface UserPageEditProps extends RouteComponentProps<UserPageEditRouter> {
 
 function EditGeneralUserData(props: UserPageEditProps) {
 
-    const [username, setUsername] = useState<string>();
-    const [descr, setDescr] = useState<string>();
+    const [username, setUsername] = useState("");
+    const [descr, setDescr] = useState("");
     const [photo, setPhoto] = useState<File>();
+    const [passwd, setPasswd] = useState("");
     
     const userId = props.match.params.id;
 
@@ -54,13 +56,17 @@ function EditGeneralUserData(props: UserPageEditProps) {
         const toSend = {
             username: username,
             photo: file?.name,
-            descr: descr
+            descr: descr,
+            passwd: CryptoJS.SHA256(passwd).toString()
         };
 
         console.log(toSend);
 
         axios.post(`http://${addresses.serverAddress}/users/${userId}/edit_general`, toSend)
-            .then(res => alert(res.data));
+            .then(res => alert(res.data))
+            .catch(err => {
+                alert(err.response.data.message);
+            })
     }
 
     return (
@@ -77,7 +83,6 @@ function EditGeneralUserData(props: UserPageEditProps) {
                         console.log(e.currentTarget.value);
                         setDescr(e.currentTarget.value);
                     }
-                        
                 }/>
                 <label htmlFor="photo">Upload new profile photo</label>
                 <input type="file" accept="image/*" onChange={
@@ -86,29 +91,60 @@ function EditGeneralUserData(props: UserPageEditProps) {
                             setPhoto(e.target.files[0]);
                 }}/>
                 <label htmlFor="passwd">Enter password</label>
-                <input type="password" name="passwd" />
+                <input type="password" name="passwd" onChange={
+                    (e: React.FormEvent<HTMLInputElement>) => 
+                        setPasswd(e.currentTarget.value)
+                }/>
                 <button type="submit">Submit changes</button>
             </form>
         </div>
     );
 }
 
+function EditUserPassword(props: UserPageEditProps) {
 
-function EditUserPassword() {
+    const [oldPasswd, setOldPasswd] = useState("");
+    const [newPasswd, setNewPasswd] = useState("");
+    const [newPasswdConfirm, setNewPasswdConfirm] = useState("");
 
     const handleSubmitPasswordChange = (event: React.FormEvent<HTMLFormElement>) => {
-
+        event.preventDefault();
+        if (newPasswd !== newPasswdConfirm) {
+            alert("Please retype confirmed password");
+        }
+        else if (newPasswd === "") {
+            alert("Please type new password");
+        }
+        else {
+            const toSend = {
+                oldPasswd: CryptoJS.SHA256(oldPasswd).toString(),
+                newPasswd: CryptoJS.SHA256(newPasswd).toString()
+            }
+    
+            axios.post(`http://${addresses.serverAddress}/users/${props.match.params.id}/edit_passwd`, toSend)
+                .then(_ => alert("Password successfully changed"))
+                .catch(err => alert(err.response.data));
+        }
     }
 
     return (
         <div className="card card-contrib">
             <form onSubmit={handleSubmitPasswordChange} className="form-contrib">
                 <label htmlFor="old-passwd">Type old password</label>
-                <input name="old-passwd" type="password"></input>
+                <input name="old-passwd" type="password" onChange={
+                    (e: React.FormEvent<HTMLInputElement>) =>
+                        setOldPasswd(e.currentTarget.value)
+                }></input>
                 <label htmlFor="new-passwd">Type new password</label>
-                <input name="new-passwd" type="password"></input>
+                <input name="new-passwd" type="password" onChange={
+                    (e: React.FormEvent<HTMLInputElement>) =>
+                        setNewPasswd(e.currentTarget.value)
+                }></input>
                 <label htmlFor="new-passwd-confirm">Repeat new password</label>
-                <input name="new-passwd-confirm" type="password"></input>
+                <input name="new-passwd-confirm" type="password" onChange={
+                    (e: React.FormEvent<HTMLInputElement>) =>
+                        setNewPasswdConfirm(e.currentTarget.value)
+                }></input>
                 <button type="submit">Change password</button>
             </form>
         </div>
@@ -133,7 +169,7 @@ export default function UserPageEditComponent(props: UserPageEditProps) {
     const selectPage = () => {
         switch (pageSelected) {
             case 1: return <EditGeneralUserData {...props}/>;
-            case 2: return <EditUserPassword />;
+            case 2: return <EditUserPassword {...props}/>;
         }
     }
 

@@ -31,7 +31,7 @@ router.get('/:id', function(req, res, next) {
     .catch(err => res.status(404).send("User not found"));
 });
 
-router.post('/:id/edit_general', function(req, res, next) {
+router.post('/:id/edit_general', async function(req, res, next) {
   const newData = {
     name: req.body.username,
     photo: req.body.photo,
@@ -40,7 +40,27 @@ router.post('/:id/edit_general', function(req, res, next) {
   const userId = req.params.id;
 
   console.log(newData, userId);
+
+  const password = req.body.passwd;
+  const passwdCorrect = await dbInterface.checkPassword(userId, password);
+  if (!passwdCorrect)
+    res.status(401).send("Password incorrect");
+  
   dbInterface.changeUserGeneralData(userId, newData)
+    .then(response => {
+      res.send(response);
+    });
+});
+
+router.post('/:id/edit_passwd', async function(req, res, next) {
+  const oldPassword = req.body.oldPasswd;
+  const newPassword = req.body.newPasswd;
+  const userId = req.params.id;
+  const passwdCorrect = await dbInterface.checkPassword(userId, oldPassword);
+  if (!passwdCorrect)
+    res.status(401).send("Old password incorrect");
+
+  dbInterface.changePassword(userId, newPassword)
     .then(response => {
       res.send(response);
     });
@@ -56,21 +76,21 @@ router.get('/new', function(req, res, next) {
 
 router.post('/new', function(req, res, next) {
   console.log(req.body);
-  const response = dbInterface.createUser({
+  dbInterface.createUser({
     name: req.body.user,
     email: req.body.email,
     passw: req.body.passw
   }).then(response => {
-  const [resp, token] = response;
-  console.log(token);
+    const [resp, token] = response;
+    console.log(token);
 
-  const mailOptions = {
-    from: process.env.EMAIL,
-    to: req.body.email,
-    subject: 'Registration',
-    text: `You have registered on website 'manga-reader'.
-    To confirm your account follow the link http://${addresses.serverAddress}/users/confirm/${token}`
-  };
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: req.body.email,
+      subject: 'Registration',
+      text: `You have registered on website 'manga-reader'.
+      To confirm your account follow the link http://${addresses.serverAddress}/users/confirm/${token}`
+    };
 
     transporter.sendMail(mailOptions, function(error, info){
       if (error) {

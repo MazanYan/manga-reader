@@ -36,6 +36,12 @@ async function performQuery(query, ...data) {
     }
 }
 
+function createPasswordSalt(passw) {
+    const salt = crypto.randomBytes(20).toString('hex');
+    const hashedPassw = cryptoJS.SHA256(passw + salt).toString();
+    return [salt, hashedPassw];
+}
+
 /*
 db.connect()
     .then(obj => {
@@ -86,14 +92,12 @@ async function checkPassword(userId, password) {
     console.log(`Salt ${salt}`);
     console.log(`Hashed passw ${hashedPassword}`);
     console.log(`Correct passw ${correctPassword}`);
-    //console.log(hashedPassword === correctPassword);
     return hashedPassword === correctPassword;
 }
 
 async function createUser({name, email, passw, photo = null, descr = null}) {
     const accId = cryptoJS.MD5(email + name).toString();
-    const salt = crypto.randomBytes(20).toString('hex');
-    const hashedPassw = cryptoJS.SHA256(passw + salt).toString();
+    const [salt, hashedPassw] = createPasswordSalt(passw);
     const token = crypto.randomBytes(20).toString('hex');
 
     const response = [];
@@ -408,8 +412,14 @@ function changeProfilePhoto() {
 }
 
 function changePassword(userId, newPassword) {
-    const newSalt=generateSalt();
-    const hashedPassw=crypt.SHA256(newPassword + newSalt);
+    const [newSalt, newPasswordHashed] = createPasswordSalt(newPassword);
+    return performQuery(
+        `UPDATE account
+            SET passw_hashed=$2 WHERE id=$1;
+        UPDATE salts
+            SET salt=$3 WHERE id=$1;`,
+        [userId, newPasswordHashed, newSalt]        
+    );
 }
 
 function changeUserGeneralData(userId, { name, photo, description }) {
@@ -433,9 +443,8 @@ function changeUserGeneralData(userId, { name, photo, description }) {
             [userId, description]
         );
     return Promise.all([photoPromise, namePromise, descriptionPromise])
-            .then(res => {
-                return "Data added";
-            })
+            .then(_ => "Data added")
+            .catch(_ => "Data not added");
 }
 
 function updateBookmark(accId, mangaKey, newChapter) {
