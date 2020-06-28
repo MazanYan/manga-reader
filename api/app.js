@@ -60,27 +60,33 @@ const storagePages = multer.diskStorage({
   filename: function(req, file, cb) {
     cb(null, file.originalname);
   }
-})
+});
+
+const storageProfilePhotos = multer.diskStorage({
+  destination: './public/images/profile_photos',
+  filename: function(req, file, cb) {
+    cb(null, file.originalname);
+  }
+});
 
 const uploadThumbnail = multer({ storage: storageThumb });
 const uploadMangaPage = multer({ storage: storagePages });
+const uploadProfilePhoto = multer({ storage: storageProfilePhotos });
 
-app.get('/upload/thumb', function(req, res, next) {
-  res.send("Manga thumbnail images uploading route");
+app.get('/upload', function(req, res, next) {
+  res.status(404).send("No images are specified to be uploaded");
 });
 
 app.post('/upload/thumb', uploadThumbnail.single('file'), function(req, res, next) {
-  //res.render('upload', {title: "Image uploaded"});
-  //res.render("Image uploaded");
-  //console.log(req.file);
-  //console.log(req.file.filename);
-  //console.log(req.files);
-  //const file = req.file;
-  
+  console.log("Thumbnail uploaded");  
 });
 
 app.post('/upload/manga_pages', uploadMangaPage.single('file'), function(req, res, next) {
-  console.log("Some page file received");
+  console.log("Manga page file uploaded");
 });
+
+app.post('/upload/profile_photo', uploadProfilePhoto.single('file'), function(req, res, next) {
+  console.log("Profile photo uploaded");
+})
 
 module.exports = app

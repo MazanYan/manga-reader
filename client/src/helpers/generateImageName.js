@@ -5,9 +5,9 @@ export function getMangaPageName(mangaName, volume = null, chapter, pageNum, fil
 
 export function getThumbnailName(mangaName, fileFormat) {
     const mangaNameProcessed = mangaName.replaceAll(' ', '_');
-    return `thumb_${mangaNameProcessed}_${new Date().getTime()}.${fileFormat}`;
+    return `thumb_${mangaNameProcessed}.${fileFormat}`;
 }
 
 export function getProfilePhotoName(userId, fileFormat) {
-    return `user_${userId}_${new Date().getTime()}.${fileFormat}`;
+    return `user_${userId}.${fileFormat}`;
 }

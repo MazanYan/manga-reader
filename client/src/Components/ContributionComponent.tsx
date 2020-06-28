@@ -62,7 +62,6 @@ function AddMangaComponent() {
                 return;
         }
         
-
         console.log(toSubmit);
         const data = new FormData();
         data.append('file', file);

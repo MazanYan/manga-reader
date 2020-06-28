@@ -412,12 +412,30 @@ function changePassword(userId, newPassword) {
     const hashedPassw=crypt.SHA256(newPassword + newSalt);
 }
 
-function changeDescription(userId, newDescription) {
-    return performQuery(
-        `UPDATE account
-            SET description=$1 WHERE account.id=$2`,
-        newDescription, userId
-    );
+function changeUserGeneralData(userId, { name, photo, description }) {
+    let photoPromise, namePromise, descriptionPromise;
+    if (photo)
+        photoPromise = performQuery(
+            `UPDATE account
+                SET photo=$2 WHERE account.id=$1`,
+            [userId, photo]
+        );
+    if (name) 
+        namePromise = performQuery(
+            `UPDATE account
+                SET name=$2 WHERE account.id=$1`,
+            [userId, name]
+        );
+    if (description)
+        descriptionPromise = performQuery(
+            `UPDATE account
+                SET description=$2 WHERE account.id=$1`,
+            [userId, description]
+        );
+    return Promise.all([photoPromise, namePromise, descriptionPromise])
+            .then(res => {
+                return "Data added";
+            })
 }
 
 function updateBookmark(accId, mangaKey, newChapter) {
@@ -431,7 +449,7 @@ function updateBookmark(accId, mangaKey, newChapter) {
 async function updateComment(commentId, newText) {
     return performQuery(
         `UPDATE comment
-            SET comment.text=$1 WHERE comment.comment_id=$2`, newText,commentId
+            SET comment.text=$1 WHERE comment.comment_id=$2`, newText, commentId
     );
 }
 
@@ -514,7 +532,7 @@ module.exports = {
     //getMangaPageImage,
     //changeProfilePhoto,
     changePassword,
-    changeDescription,
+    changeUserGeneralData,
     updateBookmark,
     updateComment,
     //updateChapter,

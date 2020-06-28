@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import verifyToken from '../../helpers/VerifyToken';
+import axios from 'axios';
+import { getProfilePhotoName } from '../../helpers/generateImageName';
+
+const addresses = require('../../config');
 
 interface UserPageEditRouter {
     id: string
@@ -10,9 +14,112 @@ interface UserPageEditProps extends RouteComponentProps<UserPageEditRouter> {
     
 }
 
+
+function EditGeneralUserData(props: UserPageEditProps) {
+
+    const [username, setUsername] = useState<string>();
+    const [descr, setDescr] = useState<string>();
+    const [photo, setPhoto] = useState<File>();
+    
+    const userId = props.match.params.id;
+
+    useEffect(() => {
+        axios.get(`http://${addresses.serverAddress}/users/${userId}`)
+            .then(response => {
+                console.log(response);
+                setUsername(response.data.username);
+                setDescr(response.data.description);
+            });
+    }, []);
+
+    const handleSubmitUserEdit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        
+        console.log("Description");
+        console.log(descr);
+
+        let file;
+        if (photo) {
+            // render new filename on client side
+            const newFileName = getProfilePhotoName(userId, photo?.type.slice(6));
+            file = new File([photo!], newFileName);
+
+            const data = new FormData();
+            data.append('file', file);
+            data.append('name', file.name);
+
+            axios.post(`http://${addresses.serverAddress}/upload/profile_photo`, data);
+        }
+
+        const toSend = {
+            username: username,
+            photo: file?.name,
+            descr: descr
+        };
+
+        console.log(toSend);
+
+        axios.post(`http://${addresses.serverAddress}/users/${userId}/edit_general`, toSend)
+            .then(res => alert(res.data));
+    }
+
+    return (
+        <div className="card card-contrib">
+            <form onSubmit={handleSubmitUserEdit} className="form-contrib">
+                <label htmlFor="username">Set new username</label>
+                <input defaultValue={username} type="textarea" name="username" onChange={
+                    (e: React.FormEvent<HTMLInputElement>) =>
+                        setUsername(e.currentTarget.value)
+                }/>
+                <label htmlFor="descr">Set new description</label>
+                <textarea defaultValue={descr} name="descr" onChange={
+                    (e: React.FormEvent<HTMLTextAreaElement>) => {
+                        console.log(e.currentTarget.value);
+                        setDescr(e.currentTarget.value);
+                    }
+                        
+                }/>
+                <label htmlFor="photo">Upload new profile photo</label>
+                <input type="file" accept="image/*" onChange={
+                    (e: any) => {
+                        if (e.target.files[0].type.match("image/*"))
+                            setPhoto(e.target.files[0]);
+                }}/>
+                <label htmlFor="passwd">Enter password</label>
+                <input type="password" name="passwd" />
+                <button type="submit">Submit changes</button>
+            </form>
+        </div>
+    );
+}
+
+
+function EditUserPassword() {
+
+    const handleSubmitPasswordChange = (event: React.FormEvent<HTMLFormElement>) => {
+
+    }
+
+    return (
+        <div className="card card-contrib">
+            <form onSubmit={handleSubmitPasswordChange} className="form-contrib">
+                <label htmlFor="old-passwd">Type old password</label>
+                <input name="old-passwd" type="password"></input>
+                <label htmlFor="new-passwd">Type new password</label>
+                <input name="new-passwd" type="password"></input>
+                <label htmlFor="new-passwd-confirm">Repeat new password</label>
+                <input name="new-passwd-confirm" type="password"></input>
+                <button type="submit">Change password</button>
+            </form>
+        </div>
+    )
+}
+
+
 export default function UserPageEditComponent(props: UserPageEditProps) {
 
     const [isAllowed, setIsAllowed] = useState(false);
+    const [pageSelected, setPageSelected] = useState(1);
 
     useEffect(() => {
         verifyToken().then(res => {
@@ -23,13 +130,29 @@ export default function UserPageEditComponent(props: UserPageEditProps) {
         })
     });
 
+    const selectPage = () => {
+        switch (pageSelected) {
+            case 1: return <EditGeneralUserData {...props}/>;
+            case 2: return <EditUserPassword />;
+        }
+    }
+
     if (isAllowed)
         return (
-            <main>
-                Change User Name<br/>
-                Change Profile Photo<br/>
-                Change User Description<br/>
-            </main>
+            <>
+                <div className="header">
+                    <p>A page where you can change your user data</p>
+                </div>
+                <main>
+                    <div className="contributions-main">
+                        <div className="btn-group">
+                            <button className="btn-contrib" onClick={() => setPageSelected(1)}>Edit general data</button>
+                            <button className="btn-contrib" onClick={() => setPageSelected(2)}>Change password</button>
+                        </div>
+                        {selectPage()}
+                    </div>
+                </main>
+            </>
         )
     else
         return (

@@ -18,7 +18,6 @@ const transporter = nodemailer.createTransport({
 
 /* GET data about user by ID */
 router.get('/:id', function(req, res, next) {
-  console.log(req.params.id);
   dbInterface.getUserPageData(req.params.id)
     .then(response => {
       const sendData = {
@@ -30,6 +29,21 @@ router.get('/:id', function(req, res, next) {
       res.send(JSON.stringify(sendData));
     })
     .catch(err => res.status(404).send("User not found"));
+});
+
+router.post('/:id/edit_general', function(req, res, next) {
+  const newData = {
+    name: req.body.username,
+    photo: req.body.photo,
+    description: req.body.descr
+  };
+  const userId = req.params.id;
+
+  console.log(newData, userId);
+  dbInterface.changeUserGeneralData(userId, newData)
+    .then(response => {
+      res.send(response);
+    });
 });
 
 router.post('/', function(req, res, next) {
