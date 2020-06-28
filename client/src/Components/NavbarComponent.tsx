@@ -1,39 +1,37 @@
-import React from 'react';
+import React, { useState, constructor, useEffect } from 'react';
 import SearchComponent from './Search/SearchComponent';
 import { Link } from 'react-router-dom';
 import verifyToken from '../helpers/VerifyToken';
-
-interface NavbarState {
-    loggedIn: boolean,
-    accName?: string,
-    accId?: string
-};
  
-export default class NavbarComponent extends React.Component<{}, NavbarState> {
-    constructor(props: any) {
-        super(props);
-        this.state = {
-            loggedIn: false
-        }
-    }
+export default function NavbarComponent() {
+    const [loggedIn, setLoggedIn] = useState(false);
+    const [accName, setAccName] = useState("");
+    const [accId, setAccId] = useState("");
 
-    componentDidMount() {
+    useEffect(() => {
         verifyToken().then(res => {
-            this.setState({ loggedIn: true, accName: res?.accName, accId: res?.accId });
-        });
-    }
+            if (res) {
+                setLoggedIn(true);
+                setAccName(res?.accName);
+                setAccId(res?.accId);
+            }
+        }).catch(err => alert(err));
+    });
 
-    renderLoggedIn() {
-        if (this.state.loggedIn)
+    const renderLoggedIn = () => {
+        if (loggedIn)
             return (
                 <React.Fragment>
-                    <Link to={`/user/${this.state.accId}`}>{this.state.accName}</Link>
+                    <Link to={`/user/${accId}`}>{accName}</Link>
                     <Link to="/boormarks">Bookmarks</Link>
                     <Link to="/notifications">Notifications</Link>
                     <a onClick={
                         () => {
                             window.localStorage.removeItem('jwt-token');
-                            this.setState({loggedIn: false, accName: undefined, accId: undefined});
+                            setLoggedIn(false);
+                            setAccName("");
+                            setAccId("");
+                            window.location.reload();
                         }
                     }>Log Out</a>
                 </React.Fragment>
@@ -44,13 +42,11 @@ export default class NavbarComponent extends React.Component<{}, NavbarState> {
             );
     }
 
-    render() {
-        return (
-            <nav className="navbar-component">
-                <div id="site-name"><Link to="/">Manga Reader</Link></div>
-                <div id="search"><SearchComponent/></div>
-                <div id="login">{this.renderLoggedIn()}</div>
-            </nav>
-        );
-    }
+    return (
+        <nav className="navbar-component">
+            <div id="site-name"><Link to="/">Manga Reader</Link></div>
+            <div id="search"><SearchComponent/></div>
+            <div id="login">{renderLoggedIn()}</div>
+        </nav>
+    );
 }

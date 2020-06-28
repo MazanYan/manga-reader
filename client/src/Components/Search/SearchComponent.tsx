@@ -58,7 +58,7 @@ export default class SearchComponent extends React.Component<SearchProps, Search
                 <div className="btn-group">
                     <input id="manga-name" type="text"></input>
                     <a id="link-submit" type="submit">
-                        <a href={`http://${addresses.clientAddress}/search/:${this.state.toSearch}`}>
+                        <a href={`http://${addresses.clientAddress}/search/${this.state.toSearch}`}>
                             <i className="fa fa-search"></i>
                         </a>
                     </a>
@@ -67,8 +67,3 @@ export default class SearchComponent extends React.Component<SearchProps, Search
         );
     }
 }
-/*
-<Link to={`/search/:${this.state.toSearch}`}>
-    <i className="fa fa-search"></i>
-</Link>
-*/

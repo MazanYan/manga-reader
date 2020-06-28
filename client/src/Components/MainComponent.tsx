@@ -7,7 +7,7 @@ import MainPageComponent from './MainPageComponent';
 import UserPageComponent from './User/UserPageComponent';
 import SearchPageComponent from './Search/SearchPageComponent';
 import ContributionComponent from './ContributionComponent';
-import { CopyrightClaimComponent } from './CopyrightClaimComponent';
+import CopyrightClaimComponent from './CopyrightClaimComponent';
 import MangaComponent from './Manga/MangaComponent';
 import LoginSignupComponent from './User/LoginSignupComponent';
 

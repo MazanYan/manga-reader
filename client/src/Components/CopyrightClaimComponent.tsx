@@ -5,7 +5,7 @@ interface CopyrightClaimProps {
 
 };
 
-export function CopyrightClaimComponent(props: CopyrightClaimProps) {
+export default function CopyrightClaimComponent(props: CopyrightClaimProps) {
     return (
         <>Andomer_LL</>
     )

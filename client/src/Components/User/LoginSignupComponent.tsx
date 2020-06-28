@@ -4,10 +4,6 @@ import axios from 'axios';
 
 const addresses = require('../../config');
 
-type LoginSignupProps = {
-
-};
-
 type LoginSignupState = {
     pageSelected: number
 };
@@ -19,7 +15,6 @@ function LogInComponent() {
 
     const handleLogIn = (event: any) => {
         event?.preventDefault();
-        //console.log({user, passw});
 
         const loginData = {
             user: user,
@@ -34,37 +29,36 @@ function LogInComponent() {
             window.location.reload(false);
         }).catch(error => {
             alert(error.response.data.message);
-            //alert(response.data.message);
         });
     };
 
     return (
         <>
-        <style>{`
-            #forg-passw {
-                text-align: left;
-                color: burlywood;
-            }
-            
-            #forg-passw:hover {
-                text-decoration: underline;
-            }
-        `}</style>
-        <div className="card card-contrib">
-            <form onSubmit={handleLogIn} className="form-contrib">
-                <label htmlFor="name">Username or email</label>
-                <input name="name" type="text" onChange={
-                    (event) => setUser(event.target.value)
-                }></input>
-                <label htmlFor="passwd">Password</label>
-                <input name="passwd" type="password" onChange={
-                    (event) => setPassw(event.target.value)
-                }>
-                </input>
-                <a id="forg-passw">Forgot Password?</a>
-                <button type="submit">Log in</button>
-            </form>
-        </div>
+            <style>{`
+                #forg-passw {
+                    text-align: left;
+                    color: burlywood;
+                }
+                
+                #forg-passw:hover {
+                    text-decoration: underline;
+                }
+            `}</style>
+            <div className="card card-contrib">
+                <form onSubmit={handleLogIn} className="form-contrib">
+                    <label htmlFor="name">Username or email</label>
+                    <input name="name" type="text" onChange={
+                        (event) => setUser(event.target.value)
+                    }></input>
+                    <label htmlFor="passwd">Password</label>
+                    <input name="passwd" type="password" onChange={
+                        (event) => setPassw(event.target.value)
+                    }>
+                    </input>
+                    <a id="forg-passw">Forgot Password?</a>
+                    <button type="submit">Log in</button>
+                </form>
+            </div>
         </>
     );
 }
@@ -129,32 +123,24 @@ function SignUpComponent() {
     );
 }
 
-export default class LoginSignupComponent extends Component<LoginSignupProps, LoginSignupState> {
-    constructor(props: LoginSignupProps) {
-        super(props);
-        this.state = {
-            pageSelected: 1
-        };
-    }
-
-    RenderComponent() {
-        switch (this.state.pageSelected) {
+export default function LoginSignupComponent() {
+    const [pageSelected, setPageSelected] = useState(1);
+    const RenderComponent = () => {
+        switch (pageSelected) {
             case 1: return <LogInComponent />;
             case 2: return <SignUpComponent />;
         }
     }
-
-    render() {
-        return (
-            <>
-                <main className="contributions-main">
+    
+    return (
+        <>
+            <main className="contributions-main">
                 <div className="btn-group">
-                        <button className="btn-contrib" onClick={() => this.setState({pageSelected: 1})}>Log In</button>
-                        <button className="btn-contrib" onClick={() => this.setState({pageSelected: 2})}>Sign Up</button>
-                    </div>
-                    {this.RenderComponent()}
-                </main>
-            </>
-        )
-    }   
+                    <button className="btn-contrib" onClick={() => setPageSelected(1)}>Log In</button>
+                    <button className="btn-contrib" onClick={() => setPageSelected(2)}>Sign Up</button>
+                </div>
+                {RenderComponent()}
+            </main>
+        </>
+    )
 }

@@ -2,15 +2,8 @@ import React, { useState, useEffect } from 'react';
 import '../css/ContributionPage.css';
 import { getThumbnailName, getMangaPageName } from '../helpers/generateImageName';
 import axios from 'axios';
+import verifyToken from '../helpers/VerifyToken';
 const config = require('../config');
-
-interface ContributionProps {
-
-};
-
-interface ContributionState {
-    pageSelected: number
-}
 
 function AddMangaComponent() {
 
@@ -241,32 +234,33 @@ function AddPagesComponent() {
     return (
         <div className="card card-contrib">
             <h2>Add/Edit/Delete pages of chapter:</h2>
-            <form className="form-contrib">{/*onSubmit={this.handleSubmitManga}>*/}
+            <form className="form-contrib">
                 TBA
             </form>
         </div>
     )
 }
 
+export default function ContributionComponent() {
+    const [pageSelected, setPageSelected] = useState(1);
+    const [authenticated, setAuthenticated] = useState(true);
 
-export default class ContributionComponent extends React.Component<ContributionProps, ContributionState> {
+    useEffect(() => {
+        verifyToken().then(res => {
+            if (!res)
+                setAuthenticated(false);
+        });
+    })
 
-    constructor(props: ContributionProps) {
-        super(props);
-        this.state = {
-            pageSelected: 1
-        };
-    }
-
-    RenderAddComponent() {
-        switch (this.state.pageSelected) {
+    const RenderComponent = () => {
+        switch (pageSelected) {
             case 1: return <AddMangaComponent />;
             case 2: return <AddChapterComponent />;
             case 3: return <AddPagesComponent />;
         }
     }
 
-    render() {
+    if (authenticated)
         return (
             <>
                 <div className="header">
@@ -274,13 +268,18 @@ export default class ContributionComponent extends React.Component<ContributionP
                 </div>
                 <main className="contributions-main">
                     <div className="btn-group">
-                        <button className="btn-contrib" onClick={() => this.setState({pageSelected: 1})}>Add manga</button>
-                        <button className="btn-contrib" onClick={() => this.setState({pageSelected: 2})}>Add chapter</button>
-                        <button className="btn-contrib" onClick={() => this.setState({pageSelected: 3})}>Add pages to chapter</button>
+                        <button className="btn-contrib" onClick={() => setPageSelected(1)}>Add manga</button>
+                        <button className="btn-contrib" onClick={() => setPageSelected(2)}>Add chapter</button>
+                        <button className="btn-contrib" onClick={() => setPageSelected(3)}>Add pages to chapter</button>
                     </div>
-                    {this.RenderAddComponent()}
+                    {RenderComponent()}
                 </main>
             </>
         )
-    }   
+    else
+        return (
+            <main>
+                <h1>You don't have permission to add new content on manga-reader</h1>
+            </main>
+        )
 }

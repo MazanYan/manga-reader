@@ -30,22 +30,12 @@ function RenderMangaCard(props?: MangaResponse) {
     );
 }
 
-export default class MainPageComponent extends React.Component<any, MainPageState> {
+export default class MainPageComponent extends React.Component<{}, MainPageState> {
 
     constructor(props: any) {
         super(props);
         this.state = {};
     }
-
-    /*async getLoginPage() {
-        const result = await fetch('http:/localhost:3000/login');
-        alert(result);
-        return (
-            <div>
-                {result.text}
-            </div>
-        )
-    }*/
 
     async componentDidMount() {
         const request = {
@@ -58,8 +48,7 @@ export default class MainPageComponent extends React.Component<any, MainPageStat
             random: mangaData.random
         });
     }
-
-
+    
     render() {
         const { popular, recent, random } = this.state;
         return (
