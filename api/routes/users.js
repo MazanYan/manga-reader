@@ -1,20 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const dbInterface = require('../helpers/dbInterface');
-const nodemailer = require('nodemailer');
 //const mailingData = require('../helpers/mailingData');
 const addresses = require('../config');
+const sendMail = require('../helpers/sendMail').sendMail;
 require('dotenv').config();
-
-const transporter = nodemailer.createTransport({
-  host: process.env.MAIL_HOST,
-  secureConnection: true,
-  port: process.env.MAIL_PORT,
-  auth: {
-    user: process.env.EMAIL,
-    pass: process.env.EMAIL_PASSWD
-  }
-});
 
 /* GET data about user by ID */
 router.get('/:id', function(req, res, next) {
@@ -29,6 +19,7 @@ router.get('/:id', function(req, res, next) {
       res.send(JSON.stringify(sendData));
     })
     .catch(err => res.status(404).send("User not found"));
+  //next();
 });
 
 router.post('/:id/edit_general', async function(req, res, next) {
@@ -50,6 +41,7 @@ router.post('/:id/edit_general', async function(req, res, next) {
     .then(response => {
       res.send(response);
     });
+  //next();
 });
 
 router.post('/:id/edit_passwd', async function(req, res, next) {
@@ -63,15 +55,30 @@ router.post('/:id/edit_passwd', async function(req, res, next) {
   dbInterface.changePassword(userId, newPassword)
     .then(response => {
       res.send(response);
+  });
+  //next();
+});
+
+router.post('/recover_passw/:token', function(req, res, next) {
+  const token = req.params.token;
+  const newPasswd = req.body.newPasswd;
+
+  console.log(token, newPasswd);
+
+  dbInterface.resetPassword(token, newPasswd)
+    .then(response => {
+      res.send("Passw reset");
     });
 });
 
 router.post('/', function(req, res, next) {
   res.status(404).send("No user data to get is specified");
+  //next();
 });
 
 router.get('/new', function(req, res, next) {
   res.status(404).send("Add new user here");
+  //next();
 });
 
 router.post('/new', function(req, res, next) {
@@ -85,23 +92,40 @@ router.post('/new', function(req, res, next) {
     console.log(token);
 
     const mailOptions = {
-      from: process.env.EMAIL,
       to: req.body.email,
       subject: 'Registration',
       text: `You have registered on website 'manga-reader'.
       To confirm your account follow the link http://${addresses.serverAddress}/users/confirm/${token}`
     };
 
-    transporter.sendMail(mailOptions, function(error, info){
-      if (error) {
-        console.log(error);
-      } else {
-        console.log('Email sent: ' + info.response);
-      }
-    });
-
+    sendMail(mailOptions);
     res.send(resp);
+    //next();
   });
+});
+
+router.post('/recover', function(req, res, next) {
+  const email = req.body.email;
+  console.log(email);
+  dbInterface.getUserByEmail(email)
+    .then(res => {
+      if (res.length) {
+        return dbInterface.createPasswordResetToken(res[0].id);
+      }
+    }).then(res => {
+      const token = res;
+      const mailOptions = {
+          to: email,
+          subject: 'Password recover',
+          text: `You have forgot your password on website 'manga-reader'.
+          To reset your password follow the link http://${addresses.clientAddress}/auth/reset_passwd/${token}`
+        };
+
+        sendMail(mailOptions);
+    });
+  res.send(email);
+
+  //next();
 });
 
 router.get('/confirm/:token', function(req, res, next) {
@@ -115,6 +139,8 @@ router.get('/confirm/:token', function(req, res, next) {
     console.log(response);
     res.send("Your account is confirmed!");
   });
+
+  //next();
 })
 
 module.exports = router;

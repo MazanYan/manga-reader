@@ -1,12 +1,9 @@
 import React, { Component, useState } from 'react';
 import CryptoJS from 'crypto-js';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 const addresses = require('../../config');
-
-type LoginSignupState = {
-    pageSelected: number
-};
 
 function LogInComponent() {
 
@@ -55,7 +52,7 @@ function LogInComponent() {
                         (event) => setPassw(event.target.value)
                     }>
                     </input>
-                    <a id="forg-passw">Forgot Password?</a>
+                    <Link id="forg-passw" to="/auth/recover">Forgot Password?</Link>
                     <button type="submit">Log in</button>
                 </form>
             </div>

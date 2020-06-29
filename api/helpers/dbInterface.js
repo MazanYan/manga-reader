@@ -42,27 +42,18 @@ function createPasswordSalt(passw) {
     return [salt, hashedPassw];
 }
 
-/*
-db.connect()
-    .then(obj => {
-        // Can check the server version here (pg-promise v10.1.0+):
-        const serverVersion = obj.client.serverVersion;
-        console.log(`Server Version ${serverVersion}`);
-        obj.done(); // success, release the connection;
-        console.log("Connection closed");
-    })
-    .catch(error => {
-        console.log('ERROR:', error.message || error);
-    });
-
-const result = db.any('SELECT * FROM manga').then(result => console.log(result));
-*/
-
 async function getUserByEmailOrUsername(usernameEmail) {
     return await performQuery(
         `SELECT id, name FROM account 
             WHERE name=$1 OR email=$1 LIMIT 1;`,
         [usernameEmail]);
+}
+
+async function getUserByEmail(email) {
+    return await performQuery(
+        `SELECT id, name FROM account 
+            WHERE email=$1 LIMIT 1;`,
+        [email]);
 }
 
 async function getUserName(userId) {
@@ -152,6 +143,32 @@ async function confirmUserByToken(token, timeToLive) {
     return response;
 }
 
+async function createPasswordResetToken(userId) {
+    const token = crypto.randomBytes(20).toString('hex');
+    const queryPromise = performQuery(
+        `INSERT INTO passw_change_tokens(id, token) VALUES($1, $2);`,
+        [userId, token]
+    );
+    return token;
+}
+
+async function resetPassword(token, newPassword) {
+    const userId = (await performQuery(
+        `SELECT id FROM passw_change_tokens WHERE token=$1;`, [token]
+    ))[0].id;
+    console.log("User");
+    console.log(userId);
+    const [salt, newPasswordHashed] = createPasswordSalt(newPassword);
+    return performQuery(
+        `UPDATE account
+            SET passw_hashed=$2 WHERE id=$1;
+        UPDATE salts
+            SET salt=$3 WHERE id=$1;
+        DELETE FROM passw_change_tokens WHERE id=$1;`,
+        [userId, newPasswordHashed, salt]
+    );
+}
+
 async function addManga({mangaName, author, descr, thumbnail, timeStart, status, timeEnd = null}) {
     return performQuery(
         'INSERT INTO manga(${this:name}) VALUES(${this:csv});',
@@ -207,10 +224,6 @@ async function addChapter({mangaName, chapterName, chapterNumber, chapterVolume 
     const arrToStrInts = (arr) => {
         return '[' + arr.join(', ') + ']';
     }
-
-    console.log(arrToStr(images));
-    console.log()
-    //const chapterKey = crypt.MD5(string(mangaKey) + number);
     return performQuery(
         'INSERT INTO chapter(manga_key, name, number, volume, pages_count, add_time)' +
             'VALUES ((SELECT manga_key FROM manga WHERE manga.name=${manga_name} LIMIT 1),' +
@@ -219,7 +232,6 @@ async function addChapter({mangaName, chapterName, chapterNumber, chapterVolume 
             'SELECT unnest(array' + arrToStr(images) + '), unnest(array' + arrToStrInts(pageNumbers) + '),' +
             '(SELECT chapter_key FROM chapter WHERE chapter.name=${name} LIMIT 1);',
         {
-            //chapter_key: chapterKey,
             manga_name: mangaName,
             name: chapterName,
             number: chapterNumber,
@@ -228,8 +240,6 @@ async function addChapter({mangaName, chapterName, chapterNumber, chapterVolume 
         }
     );
 }
-
-//console.log(addChapter({mangaName: 'Naruto', name: 'Sasuke Uchiha!', number: 5, volume: 1}));
 
 async function createNotification({acc, text, author}) {
     const notificationId = crypt.MD5(string(acc) + author + new Date().toLocaleString());
@@ -354,63 +364,6 @@ async function getPrevNextChapterNum(mangaId, chapterNum) {
     )
 }
 
-/*
-CREATE OR REPLACE FUNCTION prev_page(IN page integer, IN chapter_num bigint)
-  	RETURNS TABLE(f1 bigint, f2 integer, f3 bytea, f4 character varying)
-   	AS $$
-  	DECLARE chapter_pages_count int;
-   	BEGIN
-  		IF page=1 THEN
- 		BEGIN
- 			SELECT pages_count FROM chapter WHERE chapter_key=chapter_num LIMIT 1 INTO chapter_pages_count;
-   			RETURN QUERY SELECT * FROM manga_page WHERE chapter_key=chapter_num+1 AND page_number=1;
- 		END;
-   		ELSE
-   			RETURN QUERY SELECT * FROM manga_page WHERE chapter_key=chapter_num AND page_number=page+1;
-   		END IF;
-   	END; $$ LANGUAGE PLPGSQL;
-*/
-async function getPrevPage(pageNum, chapterKey) {
-    return await performQuery(
-        'SELECT prev_page($1, $2);', pageNum, chapterKey
-    );
-}
-
-/*
-CREATE OR REPLACE FUNCTION next_page(IN page integer, IN chapter_num bigint)
- 	RETURNS TABLE(f1 bigint, f2 integer, f3 bytea, f4 character varying)
-  	AS $$
- 	DECLARE chapter_pages_count int;
-  	BEGIN
- 		SELECT pages_count FROM chapter WHERE chapter_key=chapter_num LIMIT 1 INTO chapter_pages_count;
-  		IF chapter_pages_count=page THEN
-  			RETURN QUERY SELECT * FROM manga_page WHERE chapter_key=chapter_num+1 AND page_number=1;
-  		ELSE
-  			RETURN QUERY SELECT * FROM manga_page WHERE chapter_key=chapter_num AND page_number=page+1;
-  		END IF;
-  	END; $$ LANGUAGE PLPGSQL;
-*/
-async function getNextPage(pageNum, chapterKey) {
-    return await performQuery(
-        'SELECT prev_page($1, $2);', pageNum, chapterKey
-    );
-}
-
-async function getMangaPageImage(mangaName, mangaChapter, pageNumber) {
-    return performQuery(
-        `SELECT manga.name AS manga_name, chapter.number AS chapter_number, manga_page.page_number, manga_page.image FROM manga_page
-	        INNER JOIN chapter ON chapter.chapter_key=manga_page.chapter_key AND chapter.number=$2
-	        INNER JOIN manga ON manga.name='$1'
-	        WHERE manga_page.page_number=$3;`, mangaName, mangaChapter, pageNumber
-    )
-}
-
-function changeProfilePhoto() {
-    /*performQuery(
-        'UPDATE'
-    )*/
-}
-
 function changePassword(userId, newPassword) {
     const [newSalt, newPasswordHashed] = createPasswordSalt(newPassword);
     return performQuery(
@@ -514,11 +467,14 @@ async function deleteNotification() {
 
 module.exports = {
     getUserByEmailOrUsername,
+    getUserByEmail,
     getUserName,
     getUserPageData,
     checkPassword,
     createUser,
     confirmUserByToken,
+    createPasswordResetToken,
+    resetPassword,
     addManga,
     createBookmark,
     addComment,
@@ -536,10 +492,6 @@ module.exports = {
     getMangaPageData,
     getPageComments,
     getPrevNextChapterNum,
-    //getPrevPage,
-    //getNextPage,
-    //getMangaPageImage,
-    //changeProfilePhoto,
     changePassword,
     changeUserGeneralData,
     updateBookmark,
