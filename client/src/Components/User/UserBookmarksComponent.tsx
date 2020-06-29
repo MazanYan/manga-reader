@@ -80,7 +80,7 @@ function Favourite(props: BookmarkListProps) {
     )
 }
 
-export default function UserBookmarksComponent() {
+export default function UserBookmarksPage() {
     
     const [pageSelected, setPageSelected] = useState(1);
     const { id } = useParams();

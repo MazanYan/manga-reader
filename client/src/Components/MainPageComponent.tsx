@@ -30,7 +30,7 @@ function RenderMangaCard(props?: MangaResponse) {
     );
 }
 
-export default class MainPageComponent extends React.Component<{}, MainPageState> {
+export default class MainPage extends React.Component<{}, MainPageState> {
 
     constructor(props: any) {
         super(props);

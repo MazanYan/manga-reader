@@ -152,7 +152,7 @@ function EditUserPassword(props: UserPageEditProps) {
 }
 
 
-export default function UserPageEditComponent(props: UserPageEditProps) {
+export default function UserPageEdit(props: UserPageEditProps) {
 
     const [isAllowed, setIsAllowed] = useState(false);
     const [pageSelected, setPageSelected] = useState(1);

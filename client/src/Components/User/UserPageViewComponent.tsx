@@ -15,7 +15,7 @@ interface UserPageProps extends RouteComponentProps<UserPageRouter> {
 
 };
 
-export default function UserPageViewComponent(props: UserPageProps) {
+export default function UserPageView(props: UserPageProps) {
 
     const [userFound, setUserFound] = useState(true);
     const [profilePhoto, setProfilePhoto] = useState("");

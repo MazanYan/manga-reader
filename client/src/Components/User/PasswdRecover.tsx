@@ -5,7 +5,7 @@ import CryptoJS from 'crypto-js';
 
 const addresses = require('../../config');
 
-export function InputEmailPasswRecoverComponent() {
+export function InputEmailPasswRecover() {
 
     const [email, setEmail] = useState("");
 
@@ -47,7 +47,7 @@ interface SetNewPasswProps extends RouteComponentProps<SetNewPasswRouter> {
     
 }
 
-export function SetNewPasswRecoverComponent(props: SetNewPasswProps) {
+export function SetNewPasswRecover(props: SetNewPasswProps) {
 
     const [newPasswd, setNewPasswd] = useState("");
     const [newPasswdConfirm, setNewPasswdConfirm] = useState("");

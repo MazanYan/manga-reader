@@ -1,14 +1,14 @@
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
-import LoginSignupComponent from './LoginSignupComponent';
-import { InputEmailPasswRecoverComponent, SetNewPasswRecoverComponent } from './PasswdRecover';
+import LoginSignup from './LoginSignupComponent';
+import { InputEmailPasswRecover, SetNewPasswRecover } from './PasswdRecover';
 
-export default function LoginRouteComponent() {
+export default function LoginRoute() {
     return (
         <Switch>
-            <Route exact path="/auth" component={LoginSignupComponent} />
-            <Route exact path="/auth/recover" component={InputEmailPasswRecoverComponent} />
-            <Route exact path="/auth/reset_passwd/:token" component={SetNewPasswRecoverComponent} />
+            <Route exact path="/auth" component={LoginSignup} />
+            <Route exact path="/auth/recover" component={InputEmailPasswRecover} />
+            <Route exact path="/auth/reset_passwd/:token" component={SetNewPasswRecover} />
         </Switch>
     )
 }

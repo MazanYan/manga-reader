@@ -1,9 +1,9 @@
 import React, { useState, constructor, useEffect } from 'react';
-import SearchComponent from './Search/SearchComponent';
+import Search from './Search/SearchComponent';
 import { Link } from 'react-router-dom';
 import verifyToken from '../helpers/VerifyToken';
  
-export default function NavbarComponent() {
+export default function Navbar() {
     const [loggedIn, setLoggedIn] = useState(false);
     const [accName, setAccName] = useState("");
     const [accId, setAccId] = useState("");
@@ -45,7 +45,7 @@ export default function NavbarComponent() {
     return (
         <nav className="navbar-component">
             <div id="site-name"><Link to="/">Manga Reader</Link></div>
-            <div id="search"><SearchComponent/></div>
+            <div id="search"><Search/></div>
             <div id="login">{renderLoggedIn()}</div>
         </nav>
     );

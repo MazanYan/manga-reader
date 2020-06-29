@@ -11,7 +11,7 @@ type SearchPageRouter = {
 
 interface SearchPageProps extends RouteComponentProps<SearchPageRouter> {};
 
-export default function SearchPageComponent(props: SearchPageProps) {
+export default function SearchPage(props: SearchPageProps) {
     const [query, setQuery] = useState<string>();
     const [response, setResponse] = useState<Array<MangaResponse>>();
     const [responseReceived, setResponseReceived] = useState(false);

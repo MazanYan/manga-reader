@@ -5,7 +5,7 @@ import axios from 'axios';
 import verifyToken from '../helpers/VerifyToken';
 const config = require('../config');
 
-function AddMangaComponent() {
+function AddManga() {
 
     const [mangaName, setName] = useState("");
     const [author, setAuthor] = useState("");
@@ -121,7 +121,7 @@ function AddMangaComponent() {
     );
 }
 
-function AddChapterComponent() {
+function AddChapter() {
 
     const [mangaName, setMangaName] = useState("");
     const [chapterName, setChapterName] = useState("");
@@ -229,7 +229,7 @@ function AddChapterComponent() {
     );
 }
 
-function AddPagesComponent() {
+function AddPages() {
     return (
         <div className="card card-contrib">
             <h2>Add/Edit/Delete pages of chapter:</h2>
@@ -240,7 +240,7 @@ function AddPagesComponent() {
     )
 }
 
-export default function ContributionComponent() {
+export default function MakeContribution() {
     const [pageSelected, setPageSelected] = useState(1);
     const [authenticated, setAuthenticated] = useState(true);
 
@@ -253,9 +253,9 @@ export default function ContributionComponent() {
 
     const RenderComponent = () => {
         switch (pageSelected) {
-            case 1: return <AddMangaComponent />;
-            case 2: return <AddChapterComponent />;
-            case 3: return <AddPagesComponent />;
+            case 1: return <AddManga />;
+            case 2: return <AddChapter />;
+            case 3: return <AddPages />;
         }
     }
 

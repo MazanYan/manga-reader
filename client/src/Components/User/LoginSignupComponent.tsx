@@ -120,7 +120,7 @@ function SignUpComponent() {
     );
 }
 
-export default function LoginSignupComponent() {
+export default function LoginSignup() {
     const [pageSelected, setPageSelected] = useState(1);
     const RenderComponent = () => {
         switch (pageSelected) {

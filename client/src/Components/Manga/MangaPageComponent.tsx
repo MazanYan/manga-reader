@@ -26,7 +26,7 @@ interface MangaPageState {
     pagesCountChapter?: number
 };
 
-export default class MangaPageComponent extends React.Component<MangaPageProps, MangaPageState> {
+export default class MangaPage extends React.Component<MangaPageProps, MangaPageState> {
 
     constructor(props: MangaPageProps) {
         super(props);

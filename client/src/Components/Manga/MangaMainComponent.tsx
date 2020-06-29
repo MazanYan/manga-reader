@@ -55,7 +55,7 @@ function RenderTableOfContents(props: TableOfContentsProps) {
     else return (<p>This manga has no added chapters yet.</p>);
 }
 
-export default class MangaMainComponent extends React.Component<MangaMainPageProps, MangaMainPageState> {
+export default class MangaMain extends React.Component<MangaMainPageProps, MangaMainPageState> {
     
     constructor(props: MangaMainPageProps) {
         super(props);

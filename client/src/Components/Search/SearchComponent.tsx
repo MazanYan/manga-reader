@@ -21,7 +21,7 @@ type MangaResponse = {
     add_time: Date
 }
 
-export default class SearchComponent extends React.Component<SearchProps, SearchState> {
+export default class Search extends React.Component<SearchProps, SearchState> {
 
     constructor(props: SearchProps) {
         super(props);

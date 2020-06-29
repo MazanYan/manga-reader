@@ -1,28 +1,28 @@
 import React from 'react';
-import NavbarComponent from './NavbarComponent';
+import Navbar from './NavbarComponent';
 import '../css/Navbar.css';
 import '../css/DefaultClassesTags.css';
 import { Switch, Route, Link } from 'react-router-dom';
-import MainPageComponent from './MainPageComponent';
-import UserPageComponent from './User/UserPageComponent';
-import SearchPageComponent from './Search/SearchPageComponent';
-import ContributionComponent from './ContributionComponent';
-import CopyrightClaimComponent from './CopyrightClaimComponent';
-import MangaComponent from './Manga/MangaComponent';
-import LoginRouteComponent from './User/LoginRouteComponent';
+import MainPage from './MainPageComponent';
+import UserPage from './User/UserPageComponent';
+import SearchPage from './Search/SearchPageComponent';
+import MakeContribution from './ContributionComponent';
+import CopyrightClaimPage from './CopyrightClaimComponent';
+import Manga from './Manga/MangaComponent';
+import LoginRoute from './User/LoginRouteComponent';
 
 export default function MainComponent() {
     return (
         <React.Fragment>
-            <NavbarComponent/>
+            <Navbar/>
             <Switch>
-                <Route exact path="/" component={MainPageComponent}/>
-                <Route path="/manga" component={MangaComponent}/>
-                <Route path="/auth" component={LoginRouteComponent}/>
-                <Route path="/user" component={UserPageComponent}/>
-                <Route path="/search/:query" component={SearchPageComponent}/>
-                <Route path="/contribute" component={ContributionComponent}/> 
-                <Route path="/right_holders" component={CopyrightClaimComponent}/>
+                <Route exact path="/" component={MainPage}/>
+                <Route path="/manga" component={Manga}/>
+                <Route path="/auth" component={LoginRoute}/>
+                <Route path="/user" component={UserPage}/>
+                <Route path="/search/:query" component={SearchPage}/>
+                <Route path="/contribute" component={MakeContribution}/> 
+                <Route path="/right_holders" component={CopyrightClaimPage}/>
             </Switch>
             <footer>
                 <div id="descr">

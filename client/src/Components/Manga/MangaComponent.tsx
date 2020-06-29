@@ -3,7 +3,7 @@ import { RouteComponentProps, Switch, Route } from 'react-router-dom';
 import MangaMainComponent from './MangaMainComponent';
 import MangaPageComponent from './MangaPageComponent';
 
-export default function MangaComponent(props: RouteComponentProps) {
+export default function Manga(props: RouteComponentProps) {
     return (
         <Switch>
             <Route exact path="/manga/:id" component={MangaMainComponent}/>
