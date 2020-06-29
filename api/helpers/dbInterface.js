@@ -315,7 +315,20 @@ async function searchRandomManga(limit) {
 
 async function getTableOfContents(mangaId) {
     return await performQuery(
-        'SELECT volume, number, name FROM chapter WHERE manga_key=$1 ORDER BY number ASC;', mangaId
+        `SELECT volume, number, name FROM chapter 
+            WHERE manga_key=$1 
+            ORDER BY number ASC;`, mangaId
+    );
+}
+
+async function getUserBookmarks(userId, bookmarkType) {
+    console.log(userId, bookmarkType);
+
+    return await performQuery(
+        `SELECT * FROM bookmark
+            WHERE bookmark.account=$1 AND bookmark.type=$2
+            ORDER BY time_added ASC;`,
+        [userId, bookmarkType]
     );
 }
 
@@ -330,7 +343,7 @@ async function getMangaPageData(mangaId, chapterNum, pageNum) {
                 JOIN manga_page ON chapter.chapter_key=manga_page.chapter_key
                 JOIN manga ON chapter.manga_key=manga.manga_key
                     WHERE manga.manga_key=$1 AND chapter.number=$2 AND manga_page.page_number=$3;`,
-                    [mangaId, chapterNum, pageNum]);
+        [mangaId, chapterNum, pageNum]);
 }
 
 async function getPageComments(pageId) {
@@ -489,6 +502,7 @@ module.exports = {
     searchRecentManga,
     searchRandomManga,
     getTableOfContents,
+    getUserBookmarks,
     getMangaPageData,
     getPageComments,
     getPrevNextChapterNum,

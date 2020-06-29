@@ -104,7 +104,7 @@ export default class MangaMainComponent extends React.Component<MangaMainPagePro
                         <p>{toRender?.bookmarks_count} people added this manga to bookmarks</p>
                         <p>Last updated at {toRender?.last_modify_time ? postgresToDate(toRender?.last_modify_time)?.toLocaleDateString() : "unknown time"}</p>
                     </div>
-                    <button id="open-table-of-contents" onClick={() => this.setState({tableOfContentsOpened: !this.state.tableOfContentsOpened})}>Table of Contents</button>
+                    <button className="btn" id="open-table-of-contents" onClick={() => this.setState({tableOfContentsOpened: !this.state.tableOfContentsOpened})}>Table of Contents</button>
                     <div id="table-of-contents">{this.renderTableOfContents()}</div>
                 </div>
             </main>

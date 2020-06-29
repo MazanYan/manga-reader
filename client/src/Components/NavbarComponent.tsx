@@ -23,7 +23,7 @@ export default function NavbarComponent() {
             return (
                 <React.Fragment>
                     <Link to={`/user/${accId}`}>{accName}</Link>
-                    <Link to="/boormarks">Bookmarks</Link>
+                    <Link to={`/user/${accId}/bookmarks`}>Bookmarks</Link>
                     <Link to="/notifications">Notifications</Link>
                     <a onClick={
                         () => {

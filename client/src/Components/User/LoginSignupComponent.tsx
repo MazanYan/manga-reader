@@ -53,7 +53,7 @@ function LogInComponent() {
                     }>
                     </input>
                     <Link id="forg-passw" to="/auth/recover">Forgot Password?</Link>
-                    <button type="submit">Log in</button>
+                    <button className="btn" type="submit">Log in</button>
                 </form>
             </div>
         </>
@@ -114,7 +114,7 @@ function SignUpComponent() {
                 <input name="passwdConf" type="password" onChange={
                     (event) => setPasswConf(event.target.value)
                 }></input>
-                <button type="submit">Sign up</button>
+                <button className="btn" type="submit">Sign up</button>
             </form>
         </div>
     );
@@ -133,8 +133,8 @@ export default function LoginSignupComponent() {
         <>
             <main className="contributions-main">
                 <div className="btn-group">
-                    <button className="btn-contrib" onClick={() => setPageSelected(1)}>Log In</button>
-                    <button className="btn-contrib" onClick={() => setPageSelected(2)}>Sign Up</button>
+                    <button className="btn btn-contrib" onClick={() => setPageSelected(1)}>Log In</button>
+                    <button className="btn btn-contrib" onClick={() => setPageSelected(2)}>Sign Up</button>
                 </div>
                 {RenderComponent()}
             </main>

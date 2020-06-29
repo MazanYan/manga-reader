@@ -18,8 +18,9 @@ main {
     max-width: 1080px;
 }
 
-.btn, button {
+.btn/*, button*/ {
     text-align: center;
+    vertical-align: text-bottom;
     background-color: burlywood;
     border: solid;
     border-width: 1px;

@@ -1,0 +1,19 @@
+.bookmarks-selector {
+    display: grid;
+    justify-content: center;
+    grid-template-columns: repeat(auto-fit, 200px);
+    background-color: #ffecd4;
+    border-bottom: 1px solid #e2d0b6;
+}
+
+.btn-bookmark-type {
+    display: inline-block;
+    background-color: #ffecd4;
+    border: none;
+    height: 50px;
+    width: 200px;
+}
+
+.btn-bookmark-type:hover {
+    background-color: #e2d0b6;
+}

@@ -95,7 +95,7 @@ function EditGeneralUserData(props: UserPageEditProps) {
                     (e: React.FormEvent<HTMLInputElement>) => 
                         setPasswd(e.currentTarget.value)
                 }/>
-                <button type="submit">Submit changes</button>
+                <button className="btn" type="submit">Submit changes</button>
             </form>
         </div>
     );
@@ -145,7 +145,7 @@ function EditUserPassword(props: UserPageEditProps) {
                     (e: React.FormEvent<HTMLInputElement>) =>
                         setNewPasswdConfirm(e.currentTarget.value)
                 }></input>
-                <button type="submit">Change password</button>
+                <button className="btn" type="submit">Change password</button>
             </form>
         </div>
     )
@@ -182,8 +182,8 @@ export default function UserPageEditComponent(props: UserPageEditProps) {
                 <main>
                     <div className="contributions-main">
                         <div className="btn-group">
-                            <button className="btn-contrib" onClick={() => setPageSelected(1)}>Edit general data</button>
-                            <button className="btn-contrib" onClick={() => setPageSelected(2)}>Change password</button>
+                            <button className="btn btn-contrib" onClick={() => setPageSelected(1)}>Edit general data</button>
+                            <button className="btn btn-contrib" onClick={() => setPageSelected(2)}>Change password</button>
                         </div>
                         {selectPage()}
                     </div>

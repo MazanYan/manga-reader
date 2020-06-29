@@ -267,9 +267,9 @@ export default function ContributionComponent() {
                 </div>
                 <main className="contributions-main">
                     <div className="btn-group">
-                        <button className="btn-contrib" onClick={() => setPageSelected(1)}>Add manga</button>
-                        <button className="btn-contrib" onClick={() => setPageSelected(2)}>Add chapter</button>
-                        <button className="btn-contrib" onClick={() => setPageSelected(3)}>Add pages to chapter</button>
+                        <button className="btn btn-contrib" onClick={() => setPageSelected(1)}>Add manga</button>
+                        <button className="btn btn-contrib" onClick={() => setPageSelected(2)}>Add chapter</button>
+                        <button className="btn btn-contrib" onClick={() => setPageSelected(3)}>Add pages to chapter</button>
                     </div>
                     {RenderComponent()}
                 </main>
