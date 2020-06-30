@@ -322,14 +322,19 @@ async function getTableOfContents(mangaId) {
 }
 
 async function getUserBookmarks(userId, bookmarkType) {
-    console.log(userId, bookmarkType);
-
     return await performQuery(
         `SELECT * FROM bookmark
             WHERE bookmark.account=$1 AND bookmark.type=$2
             ORDER BY time_added ASC;`,
         [userId, bookmarkType]
     );
+}
+
+async function getUserMangaBookmarkStatus(userId, mangaId) {
+    return await performQuery(
+        `SELECT type FROM bookmark WHERE account=$1 AND manga_key=$2`,
+        [userId, mangaId]
+    )
 }
 
 async function getMangaPageData(mangaId, chapterNum, pageNum) {
@@ -399,13 +404,13 @@ function changeUserGeneralData(userId, { name, photo, description }) {
     if (name) 
         namePromise = performQuery(
             `UPDATE account
-                SET name=$2 WHERE account.id=$1`,
+                SET name=$2 WHERE account.id=$1;`,
             [userId, name]
         );
     if (description)
         descriptionPromise = performQuery(
             `UPDATE account
-                SET description=$2 WHERE account.id=$1`,
+                SET description=$2 WHERE account.id=$1;`,
             [userId, description]
         );
     return Promise.all([photoPromise, namePromise, descriptionPromise])
@@ -413,18 +418,22 @@ function changeUserGeneralData(userId, { name, photo, description }) {
             .catch(_ => "Data not added");
 }
 
-function updateBookmark(accId, mangaKey, newChapter) {
+function updateBookmark(accId, mangaKey, newStatus, newChapter=null, newPage=null) {
     return performQuery(
-        `UPDATE boormark
-            SET chapter=$1 WHERE account=$2 AND manga_key=$3`,
-        newChapter, accId, mangaKey
+        `UPDATE bookmark
+            SET time_added=NOW(), type=$3, chapter=$4, page=$5 
+            WHERE account=$1 AND manga_key=$2;
+        INSERT INTO bookmark(account, manga_key, chapter, page, type, time_added)
+            SELECT $1, $2, $4, $5, $3, NOW()
+            WHERE NOT EXISTS (SELECT 1 FROM bookmark WHERE account=$1 AND manga_key=$2);`,
+        [accId, mangaKey, newStatus, newChapter, newPage]
     );
 }
 
 async function updateComment(commentId, newText) {
     return performQuery(
         `UPDATE comment
-            SET comment.text=$1 WHERE comment.comment_id=$2`, newText, commentId
+            SET comment.text=$1 WHERE comment.comment_id=$2;`, newText, commentId
     );
 }
 
@@ -503,6 +512,7 @@ module.exports = {
     searchRandomManga,
     getTableOfContents,
     getUserBookmarks,
+    getUserMangaBookmarkStatus,
     getMangaPageData,
     getPageComments,
     getPrevNextChapterNum,

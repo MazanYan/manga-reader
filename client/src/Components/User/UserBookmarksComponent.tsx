@@ -35,7 +35,7 @@ function Bookmark(props: BookmarkProps) {
 function ReadLater(props: BookmarkListProps) {
 
     useEffect(() => {
-        axios.get(`http://${addresses.serverAddress}/bookmarks/${props.user}/${bookmarkQueries.rl}`)
+        axios.get(`http://${addresses.serverAddress}/bookmarks/user?user=${props.user}&type=${bookmarkQueries.rl}`) //?user=${props.user}&type=${bookmarkQueries.rl}
             .then(res => console.log(res));
     });
 

@@ -16,7 +16,7 @@ export default function Navbar() {
                 setAccId(res?.accId);
             }
         }).catch(err => alert(err));
-    });
+    }, [accName]);
 
     const renderLoggedIn = () => {
         if (loggedIn)

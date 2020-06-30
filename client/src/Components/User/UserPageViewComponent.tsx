@@ -43,7 +43,7 @@ export default function UserPageView(props: UserPageProps) {
             .then(res => {
                 setIsPageOfCurrentUser(res?.accId === props.match.params.id);
             });
-    });
+    }, [userName]);
 
     const renderUserDataChangeButton = () => {
         console.log(isPageOfCurrentUser);
