@@ -425,7 +425,10 @@ function updateBookmark(accId, mangaKey, newStatus, newChapter=null, newPage=nul
             WHERE account=$1 AND manga_key=$2;
         INSERT INTO bookmark(account, manga_key, chapter, page, type, time_added)
             SELECT $1, $2, $4, $5, $3, NOW()
-            WHERE NOT EXISTS (SELECT 1 FROM bookmark WHERE account=$1 AND manga_key=$2);`,
+            WHERE NOT EXISTS (SELECT 1 FROM bookmark WHERE account=$1 AND manga_key=$2);
+        UPDATE manga
+            SET bookmarks_count=(SELECT COUNT(*) FROM bookmark WHERE manga_key=$2 AND type!='not_added')
+            WHERE manga_key=$2;`,
         [accId, mangaKey, newStatus, newChapter, newPage]
     );
 }
