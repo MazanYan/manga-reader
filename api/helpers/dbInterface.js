@@ -323,7 +323,12 @@ async function getTableOfContents(mangaId) {
 
 async function getUserBookmarks(userId, bookmarkType) {
     return await performQuery(
-        `SELECT * FROM bookmark
+        `SELECT bookmark.manga_key, bookmark.chapter, bookmark.page, manga.name AS manga_name, chapter.name AS chapter_name
+            FROM bookmark
+            INNER JOIN manga USING(manga_key)
+            LEFT JOIN chapter 
+                ON bookmark.chapter=chapter.number 
+                AND bookmark.manga_key=chapter.manga_key
             WHERE bookmark.account=$1 AND bookmark.type=$2
             ORDER BY time_added ASC;`,
         [userId, bookmarkType]
@@ -334,7 +339,7 @@ async function getUserMangaBookmarkStatus(userId, mangaId) {
     return await performQuery(
         `SELECT type FROM bookmark WHERE account=$1 AND manga_key=$2`,
         [userId, mangaId]
-    )
+    );
 }
 
 async function getMangaPageData(mangaId, chapterNum, pageNum) {

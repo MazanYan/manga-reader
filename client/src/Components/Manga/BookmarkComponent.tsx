@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faStar as fasStar, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import {faStar as farStar } from '@fortawesome/free-regular-svg-icons';
+import BookmarkSelected from '../../helpers/bookmark';
 import '../../css/MainManga.css';
 import axios from 'axios';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
@@ -11,29 +12,6 @@ const addresses = require('../../config');
 interface BookmarkProps {
     mangaId: number,
     userId: string
-}
-
-const BookmarkSelected = {
-    na: {
-            type: "not_added",
-            message: "Not in bookmarks"
-     },
-    rl: {
-            type: "read_later",
-            message: "Read later"
-     },
-    nr: {
-            type: "reading",
-            message: "Now reading"
-     },
-    co: {
-            type: "completed",
-            message: "Completed"
-     },
-    fv: {
-            type: "favourite",
-            message: "Favourite"
-    }
 }
 
 export default function Bookmark(props: BookmarkProps) {

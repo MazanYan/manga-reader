@@ -1,83 +1,78 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useLocation, RouteComponentProps, Switch, Route, Link, useRouteMatch, useParams } from 'react-router-dom';
+import BookmarkSelected from '../../helpers/bookmark';
 import '../../css/BookmarksPage.css';
 
 const addresses = require('../../config');
 
 interface BookmarkProps {
     mangaName: string,
+    mangaKey: string,
     volume?: number,
     chapterNum?: number,
-    chapterName: string
+    chapterName?: string
     page?: string
 }
 
 interface BookmarkListProps {
-    user: string
+    user: string,
+    queryType: {type: string, message: string}
 }
 
-const bookmarkQueries = {
+/*const bookmarkQueries = {
     rl: "read_later",
     nr: "reading",
     co: "completed",
     fv: "favourite"
-}
+}*/
 
 function Bookmark(props: BookmarkProps) {
-    return (
-        <>
-            Bookmark
-        </>
-    )
+    if ([props.volume, props.chapterNum, props.chapterName, props.page].some(el => el === null))
+        return (
+            <Link to={`/manga/${props.mangaKey}`}>{props.mangaName}</Link>
+        )
+    else
+        return (
+            <>
+                <Link to={`/manga/${props.mangaKey}/chapter${props.chapterNum}/page${props.page}`}>{props.mangaName} - {props.volume}. Chapter {props.chapterNum} - {props.chapterName}, page {props.page}</Link>
+            </>
+        )
 }
 
-function ReadLater(props: BookmarkListProps) {
+function BookmarkList(props: BookmarkListProps) {
+
+    const [bookmarks, setBookmarks] = useState<Array<any>>();
 
     useEffect(() => {
-        axios.get(`http://${addresses.serverAddress}/bookmarks/user?user=${props.user}&type=${bookmarkQueries.rl}`) //?user=${props.user}&type=${bookmarkQueries.rl}
-            .then(res => console.log(res));
-    });
+        axios.get(`http://${addresses.serverAddress}/bookmarks/user?user=${props.user}&type=${props.queryType.type}`) //?user=${props.user}&type=${bookmarkQueries.rl}
+            .then(res => {
+                console.log(res);
+                setBookmarks(res.data);
+            });
+    }, [props.queryType]);
 
-    return (
-        <>RL</>
-    )
-}
-
-function NowReading(props: BookmarkListProps) {
-
-    useEffect(() => {
-        axios.get(`http://${addresses.serverAddress}/bookmarks/${props.user}/${bookmarkQueries.nr}`)
-            .then(res => console.log(res));
-    });
-
-    return (
-        <>NR</>
-    )
-}
-
-function Completed(props: BookmarkListProps) {
-
-    useEffect(() => {
-        axios.get(`http://${addresses.serverAddress}/bookmarks/${props.user}/${bookmarkQueries.co}`)
-            .then(res => console.log(res));
-    });
-
-    return (
-        <>CO</>
-    )
-}
-
-function Favourite(props: BookmarkListProps) {
-
-    useEffect(() => {
-        axios.get(`http://${addresses.serverAddress}/bookmarks/${props.user}/${bookmarkQueries.fv}`)
-            .then(res => console.log(res));
-    });
-
-    return (
-        <>FV</>
-    )
+    if (bookmarks?.length)
+        return (
+            <>
+            {
+                bookmarks?.map(bookm => (
+                    <>
+                        <Bookmark 
+                            mangaName={bookm.manga_name} 
+                            mangaKey={bookm.manga_key}
+                            chapterNum={bookm.chapter}
+                            chapterName={bookm.chapter_name} 
+                        />
+                        <br/>
+                    </>
+                ))
+            }
+            </>);
+    else
+        return (
+        <h3>This user has not added '{props.queryType.message}' bookmarks yet</h3>
+        );
 }
 
 export default function UserBookmarksPage() {
@@ -91,10 +86,10 @@ export default function UserBookmarksPage() {
     
     const renderPageSelected = () => {
         switch(pageSelected) {
-            case 1: return <ReadLater user={id}/>;
-            case 2: return <NowReading user={id}/>;
-            case 3: return <Completed user={id}/>;
-            case 4: return <Favourite user={id}/>;
+            case 1: return <BookmarkList user={id} queryType={BookmarkSelected.rl}/>;
+            case 2: return <BookmarkList user={id} queryType={BookmarkSelected.nr}/>;
+            case 3: return <BookmarkList user={id} queryType={BookmarkSelected.co}/>;
+            case 4: return <BookmarkList user={id} queryType={BookmarkSelected.fv}/>;
         }
     }
 

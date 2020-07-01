@@ -39,6 +39,7 @@ router.get('/manga', function(req, res, next) {
         });
 });
 
+/* POST update status of manga bookmark for specific user */
 router.post('/update', function(req, res, next) {
     console.log(req.body);
     const userId = req.body.userId;
