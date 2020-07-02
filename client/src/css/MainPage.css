@@ -1,4 +1,4 @@
-.card {
+.main-page-card {
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
     transition: 0.3s;
     border-radius: 5px;
@@ -6,16 +6,12 @@
     width: 200px;
 }
 
-.card img {
+.main-page-card img {
     max-width: 200px;
 }
 
-.card:hover {
+.main-page-card:hover {
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-}
-
-.container {
-    padding: 2px 16px;
 }
 
 #main-page {
@@ -23,6 +19,7 @@
     margin-right: 100px;
     padding-top: 50px;
     text-align: left;
+    max-width: 1280px;
 }
 
 .main-page-row {

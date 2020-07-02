@@ -1,0 +1,52 @@
+#image {
+    min-width: 1fr;
+    max-height: 100%;
+    width: 300px;
+    object-fit: cover;
+}
+
+#image-and-edit {
+    display: grid;
+    grid-gap: 1rem;
+}
+
+#user-page {
+    margin: 1rem;
+    grid-gap: 1rem;
+    /*grid-auto-rows: 1fr;*/
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+#description {
+    vertical-align: top;
+}
+
+#otherInfo {
+    vertical-align: bottom;
+}
+
+#openTableOfContents {
+    display: block;
+    object-fit: cover;
+}
+
+#tableOfContents {
+    grid-column: span 2;
+}
+
+#openTableOfContents {
+    display: block;
+    object-fit: cover;
+    grid-column: auto;
+}
+
+@media only screen and (max-width: 480px) {
+    #user-page {
+        margin: 1rem;
+        display: grid;
+        grid-gap: 1rem;
+        grid-template-rows: 1fr;
+        grid-template-columns: 1fr;
+    }
+}

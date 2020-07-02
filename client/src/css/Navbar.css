@@ -1,4 +1,4 @@
-.NavbarComponent {
+.navbar-component {
     display: flex;
     flex-direction: row;
     height: 50px;
@@ -8,20 +8,15 @@
     color: white;
 }
 
-.NavbarComponent #siteName {
-    /*align-items: flex-start;*/
-}
-
-.NavbarComponent #search {
+/*#search {
     margin-left: auto;
-}
+}*/
 
-.NavbarComponent #login {
+/*#login {
     margin-left: 50px;
-}
+}*/
 
-/* Links inside the navbar */
-nav a/*:link a:visited a:hover a:active*/ {
+nav a {
     color: white;
     float: left;
     text-align: center;
@@ -29,72 +24,42 @@ nav a/*:link a:visited a:hover a:active*/ {
     text-decoration: none;
 }
 
-/* The dropdown container */
-.dropdown {
-    /*float: left;*/
+/*.dropdown {
     overflow: hidden;
 }
 
-/* Dropdown button */
 .dropdown .dropbtn {
     font-size: 16px;
     color: white;
     background-color: burlywood;
-    /*padding: 14px 16px;*/
     background-color: inherit;
     font-family: inherit;
     margin: 0;
 }
 
-/* Dropdown content (hidden by default) */
 .dropdown-content {
-    /*padding: 10pt;*/
     margin-top: 18pt;
     right: 0;
     border-radius: 0pt 0pt 0pt 5pt;
-    /*padding-left: 10pt;
-    padding-right: 10pt;
-    padding-bottom: 10pt;*/
     display: grid;
     position: absolute;
     background-color: burlywood;
     min-width: 200px;
-    /*box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);*/
     z-index: 1;
 }
 
-/* Links inside the dropdown */
-/*.dropdown-content a {
-    float: none;
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: grid;
-    text-align: left;
-    margin: 10pt;
-}*/
-
-/* Add a grey background color to dropdown links on hover */
-/*.dropdown-content a:hover {
-    background-color: #ddd;
-}*/
-
-/* Show the dropdown menu on hover */
 .dropdown .dropdown-content {
     display: block;
 }
 
-form {
-    padding: 10px;
-    display: grid;
-    grid-template-columns: 200px 1fr;
-    grid-gap: 16px;
-}
-
-label {
+#site-name {
     grid-column: 1 / 2;
 }
- 
+
+#search > form {
+    max-width: 200px;
+}
+
 input, button {
     grid-column: 2 / 3;
-}
+}*/

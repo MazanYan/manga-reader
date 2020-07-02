@@ -30,6 +30,21 @@ CREATE TYPE public.account_type AS ENUM (
 ALTER TYPE public.account_type OWNER TO postgres;
 
 --
+-- Name: bookmark_type; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.bookmark_type AS ENUM (
+    'read_later',
+    'reading',
+    'completed',
+    'favourite',
+    'not_added'
+);
+
+
+ALTER TYPE public.bookmark_type OWNER TO postgres;
+
+--
 -- Name: manga_page_image_name; Type: TYPE; Schema: public; Owner: postgres
 --
 
@@ -41,6 +56,18 @@ CREATE TYPE public.manga_page_image_name AS (
 
 
 ALTER TYPE public.manga_page_image_name OWNER TO postgres;
+
+--
+-- Name: manga_status; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.manga_status AS ENUM (
+    'ongoing',
+    'finished'
+);
+
+
+ALTER TYPE public.manga_status OWNER TO postgres;
 
 --
 -- Name: bytea_import(text); Type: FUNCTION; Schema: public; Owner: postgres
@@ -132,15 +159,16 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.account (
     id character varying NOT NULL,
-    name character varying NOT NULL,
+    name character varying(50) NOT NULL,
     registration_time timestamp with time zone NOT NULL,
     is_online boolean,
     last_online timestamp with time zone,
-    photo bytea,
-    description character varying,
+    description character varying(150),
     passw_hashed character varying NOT NULL,
     type public.account_type NOT NULL,
-    email character varying NOT NULL
+    email character varying(150) NOT NULL,
+    confirmed boolean NOT NULL,
+    photo character varying
 );
 
 
@@ -155,7 +183,8 @@ CREATE TABLE public.bookmark (
     manga_key bigint NOT NULL,
     chapter integer,
     page integer,
-    first_bookmark boolean NOT NULL
+    type public.bookmark_type NOT NULL,
+    time_added timestamp with time zone NOT NULL
 );
 
 
@@ -168,7 +197,7 @@ ALTER TABLE public.bookmark OWNER TO postgres;
 CREATE TABLE public.chapter (
     chapter_key bigint NOT NULL,
     manga_key bigint NOT NULL,
-    name character varying,
+    name character varying(100) NOT NULL,
     number integer NOT NULL,
     volume integer,
     add_time timestamp with time zone NOT NULL,
@@ -177,6 +206,21 @@ CREATE TABLE public.chapter (
 
 
 ALTER TABLE public.chapter OWNER TO postgres;
+
+--
+-- Name: chapter_ch_key_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.chapter ALTER COLUMN chapter_key ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.chapter_ch_key_seq
+    START WITH 0
+    INCREMENT BY 1
+    MINVALUE 0
+    NO MAXVALUE
+    CACHE 1
+    CYCLE
+);
+
 
 --
 -- Name: chapter_manga_key_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -221,12 +265,16 @@ ALTER TABLE public.comment OWNER TO postgres;
 --
 
 CREATE TABLE public.manga (
-    name character varying NOT NULL,
-    author character varying NOT NULL,
-    description character varying NOT NULL,
+    name character varying(100) NOT NULL,
+    author character varying(100) NOT NULL,
+    description character varying(1500) NOT NULL,
     manga_key numeric NOT NULL,
     bookmarks_count bigint NOT NULL,
-    add_time timestamp with time zone NOT NULL
+    create_time date NOT NULL,
+    last_modify_time date,
+    thumbnail character varying(100),
+    time_completed date,
+    manga_status public.manga_status NOT NULL
 );
 
 
@@ -260,8 +308,7 @@ ALTER SEQUENCE public.manga_manga_key_seq OWNED BY public.manga.manga_key;
 CREATE TABLE public.manga_page (
     chapter_key bigint NOT NULL,
     page_number integer NOT NULL,
-    image bytea NOT NULL,
-    image_type character varying NOT NULL
+    image character varying(60) NOT NULL
 );
 
 
@@ -283,6 +330,31 @@ CREATE TABLE public.notification (
 ALTER TABLE public.notification OWNER TO postgres;
 
 --
+-- Name: passw_change_tokens; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.passw_change_tokens (
+    id character varying NOT NULL,
+    token character varying NOT NULL
+);
+
+
+ALTER TABLE public.passw_change_tokens OWNER TO postgres;
+
+--
+-- Name: profile_photos; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.profile_photos (
+    id character varying NOT NULL,
+    photo character varying(60),
+    file_format character varying(15)
+);
+
+
+ALTER TABLE public.profile_photos OWNER TO postgres;
+
+--
 -- Name: salts; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -293,6 +365,19 @@ CREATE TABLE public.salts (
 
 
 ALTER TABLE public.salts OWNER TO postgres;
+
+--
+-- Name: user_registration; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.user_registration (
+    id character varying NOT NULL,
+    token_create_time timestamp with time zone NOT NULL,
+    token character varying NOT NULL
+);
+
+
+ALTER TABLE public.user_registration OWNER TO postgres;
 
 --
 -- Name: chapter manga_key; Type: DEFAULT; Schema: public; Owner: postgres
@@ -341,6 +426,14 @@ ALTER TABLE ONLY public.bookmark
 
 
 --
+-- Name: chapter chapter_num; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.chapter
+    ADD CONSTRAINT chapter_num UNIQUE (manga_key, number);
+
+
+--
 -- Name: chapter chapter_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -373,6 +466,14 @@ ALTER TABLE ONLY public.manga
 
 
 --
+-- Name: manga name; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.manga
+    ADD CONSTRAINT name UNIQUE (name);
+
+
+--
 -- Name: notification notification_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -389,11 +490,27 @@ ALTER TABLE ONLY public.manga_page
 
 
 --
--- Name: salts account; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: passw_change_tokens passw_change_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.salts
-    ADD CONSTRAINT account FOREIGN KEY (id) REFERENCES public.account(id);
+ALTER TABLE ONLY public.passw_change_tokens
+    ADD CONSTRAINT passw_change_tokens_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: profile_photos profile_photos_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.profile_photos
+    ADD CONSTRAINT profile_photos_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: user_registration user_registration_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.user_registration
+    ADD CONSTRAINT user_registration_pkey PRIMARY KEY (id);
 
 
 --
@@ -433,7 +550,31 @@ ALTER TABLE ONLY public.notification
 --
 
 ALTER TABLE ONLY public.manga_page
-    ADD CONSTRAINT chapter_key FOREIGN KEY (chapter_key) REFERENCES public.chapter(chapter_key);
+    ADD CONSTRAINT chapter_key FOREIGN KEY (chapter_key) REFERENCES public.chapter(chapter_key) NOT VALID;
+
+
+--
+-- Name: user_registration id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.user_registration
+    ADD CONSTRAINT id FOREIGN KEY (id) REFERENCES public.account(id);
+
+
+--
+-- Name: salts id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.salts
+    ADD CONSTRAINT id FOREIGN KEY (id) REFERENCES public.account(id) ON DELETE CASCADE NOT VALID;
+
+
+--
+-- Name: passw_change_tokens id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.passw_change_tokens
+    ADD CONSTRAINT id FOREIGN KEY (id) REFERENCES public.account(id);
 
 
 --

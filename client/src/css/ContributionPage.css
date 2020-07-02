@@ -1,0 +1,45 @@
+#response-ok {
+  background-color: rgba(127, 255, 0, 100);
+  border-width: 1px;
+  border-color: green;
+}
+
+#response-bad {
+  background-color: rgba(255, 0, 0, 100);
+  border-width: 1px;
+  border-color: red;
+}
+
+.card-contrib {
+  border-radius: 0 5px 5px 5px;
+  padding: 10px;
+}
+
+#images-order {
+  grid-column: span 2;
+  text-align: center;
+}
+
+.btn-contrib {
+  background-color: #fff9e6;
+  border-color: rgb(255, 221, 176);
+  border-bottom-width: 0;
+}
+
+button:hover {
+  background-color: rgb(255, 221, 176);
+}
+
+.contributions-main {
+  margin-top: 5rem;
+}
+
+.btn-group {
+  justify-content: initial;
+}
+
+.form-contrib {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 16px;
+}

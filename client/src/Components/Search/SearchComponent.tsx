@@ -1,7 +1,7 @@
 import React from 'react';
-//import { serverPort } from '../../../config';
 import axios from 'axios';
-import { Redirect, Link } from 'react-router-dom';
+import '../../css/Navbar.css';
+const addresses = require('../../config');
 
 
 type SearchState = {
@@ -21,7 +21,7 @@ type MangaResponse = {
     add_time: Date
 }
 
-export default class SearchComponent extends React.Component<SearchProps, SearchState> {
+export default class Search extends React.Component<SearchProps, SearchState> {
 
     constructor(props: SearchProps) {
         super(props);
@@ -42,10 +42,9 @@ export default class SearchComponent extends React.Component<SearchProps, Search
             toSearch: this.state.toSearch
         };
         let response: Array<MangaResponse>;
-        axios.post(`http://localhost:3000/search`, data)
+        axios.post(`http://${addresses.serverAddress}/search`, data)
             .then(function (res) {
                 response = res.data.message;
-                //alert(response[0].author);
             })
             .catch(function (error) {
                 console.log(error);
@@ -57,11 +56,11 @@ export default class SearchComponent extends React.Component<SearchProps, Search
         return (
             <form onSubmit={this.handleSubmit} onChange={this.handleChange}>
                 <div className="btn-group">
-                    <input id="mangaName" type="text"></input>
-                    <a id="linkSubmit" type="submit">
-                        <Link to={`/search/:${this.state.toSearch}`}>
+                    <input id="manga-name" type="text"></input>
+                    <a id="link-submit" type="submit">
+                        <a href={`http://${addresses.clientAddress}/search/${this.state.toSearch}`}>
                             <i className="fa fa-search"></i>
-                        </Link>
+                        </a>
                     </a>
                 </div>
             </form> 

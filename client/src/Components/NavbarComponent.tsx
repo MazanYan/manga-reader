@@ -1,75 +1,52 @@
-import React from 'react';
-import LoginSignupComponent from './LoginSignupComponent';
-import SearchComponent from './SearchComponent';
-import axios from 'axios';
+import React, { useState, constructor, useEffect } from 'react';
+import Search from './Search/SearchComponent';
 import { Link } from 'react-router-dom';
-
-interface NavbarProps {
-    loggedIn: boolean,
-    accName: string
-};
-
-interface NavbarState {
-    loginMenuOpened: boolean
-    /*searchOpened: boolean
-    toSearch: string*/
-};
-
-type MangaResponse = {
-    name: string,
-    author: string,
-    description: string,
-    manga_key: string,
-    bookmarks_count: Number,
-    add_time: Date
-}
+import verifyToken from '../helpers/VerifyToken';
  
-export default class NavbarComponent extends React.Component<NavbarProps, NavbarState> {
-    constructor(props: NavbarProps) {
-        super(props);
+export default function Navbar() {
+    const [loggedIn, setLoggedIn] = useState(false);
+    const [accName, setAccName] = useState("");
+    const [accId, setAccId] = useState("");
 
-        this.state = {
-            loginMenuOpened: false,
-            //searchOpened: false,
-            //toSearch: ""
-        };
-    }
+    useEffect(() => {
+        verifyToken().then(res => {
+            if (res) {
+                setLoggedIn(true);
+                setAccName(res?.accName);
+                setAccId(res?.accId);
+            }
+        }).catch(err => alert(err));
+    }, [accName]);
 
-    renderLoginMenu() {
-        if (this.state.loginMenuOpened) {
-            return (
-                <LoginSignupComponent/>
-            );
-        }
-    }
-
-    renderLoggedIn() {
-        if (this.props.loggedIn)
+    const renderLoggedIn = () => {
+        if (loggedIn)
             return (
                 <React.Fragment>
-                    <a href="index.html">{this.props.accName}</a>
-                    <a href="index.html">Bookmarks</a>
-                    <a href="index.html">Notifications</a>
-                    <a href="index.html">Log Out</a>
+                    <Link to={`/user/${accId}`}>{accName}</Link>
+                    <Link to={`/user/${accId}/bookmarks`}>Bookmarks</Link>
+                    <Link to="/notifications">Notifications</Link>
+                    <a onClick={
+                        () => {
+                            window.localStorage.removeItem('jwt-token');
+                            setLoggedIn(false);
+                            setAccName("");
+                            setAccId("");
+                            window.location.reload();
+                        }
+                    }>Log Out</a>
                 </React.Fragment>
             );
         else
             return (
-                <div className="dropdown">
-                    <a className="dropbtn" rel="index.html" onMouseEnter={() => 
-                        this.setState({loginMenuOpened: !this.state.loginMenuOpened})}>Log In</a>
-                    {this.renderLoginMenu()}
-                </div>
+                <Link to="/auth">Log In/Sign Up</Link>
             );
     }
 
-    render() {
-        return (
-            <nav className="NavbarComponent">
-                <a id="siteName"><Link to="/">Manga Reader</Link></a>
-                <div id="search"><SearchComponent/></div>
-                <div id="login">{this.renderLoggedIn()}</div>
-            </nav>
-        );
-    }
+    return (
+        <nav className="navbar-component">
+            <div id="site-name"><Link to="/">Manga Reader</Link></div>
+            <div id="search"><Search/></div>
+            <div id="login">{renderLoggedIn()}</div>
+        </nav>
+    );
 }

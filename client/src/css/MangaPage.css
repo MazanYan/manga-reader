@@ -1,0 +1,115 @@
+.manga-page {
+    display: grid;
+    width: auto;
+    background: #fffcf2;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border-left: 1px solid #3d230030;
+    border-right: 1px solid #3d230030;
+    border-top: 1px solid #3d230030;
+    box-shadow: 0 8px 8px 0 rgba(0,0,0,0.1);
+    border-radius: 5px;
+    color: black;
+}
+
+.page-head {
+    text-align: center;
+    font-size: 25px;
+    padding-top: 30px;
+}
+
+.chapter-buttons {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    display: grid;
+    
+    margin-left: 10px;
+    margin-right: 10px;
+    grid-template-columns: 1fr 1fr;
+}
+
+.chapter-button {
+    background-color: #fffcf2;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    text-align: center;
+    border: 1px solid  #3d230030;
+    border-width: 1px;
+}
+
+.inactive {
+    background-color: #3d230030;
+    color: #46464630;
+}
+
+.chapter-button:hover {
+    background-color: #3d230030;
+    transition: 0.2s;
+}
+
+#prev-chapter {
+    border-right: 1px dashed #3d230030;
+}
+
+#next-chapter {
+    border-left: 1px dashed #3d230030;
+}
+
+.page-body {
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-rows: 1fr auto;
+}
+
+
+.page-image {
+    object-fit: cover;
+    max-width: 100%;
+    height: auto;
+}
+
+.pagination {
+    display: grid;
+    text-align: center;
+    align-items: center;
+    grid-row-gap: 5px;
+    padding-bottom: 5px;
+    grid-template-columns: repeat(auto-fill, 50px);
+    grid-template-rows: repeat(auto-fill, 50px);
+}
+
+.page-link {
+    text-align: center;
+    vertical-align: middle;
+    background-color: rgb(255, 240, 220, 0.7);
+    border-radius: 3px;
+    border: solid;
+    border-width: 1px;
+    border-color: rgb(222, 184, 135, 0.4);
+    box-shadow: 0 0 3px 0 rgba(0,0,0,0.1);
+    width: 40px;
+    line-height: 40px;
+    height: 40px;
+}
+
+.page-link:hover {
+    background-color: rgb(222, 184, 135);
+    transition: 0.2s;
+}
+
+.page-link.inactive {
+    background-color: rgb(222, 184, 135, 0.4);
+}
+
+.page-link.active {
+    background-color: rgb(222, 184, 135);
+}
+
+.comments {
+    padding-left: 10%;
+    padding-right: 10%;
+}

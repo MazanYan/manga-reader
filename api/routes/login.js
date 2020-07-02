@@ -1,88 +1,57 @@
 const express = require('express')
-const cryptoJS = require('crypto-js');
-
-const passport = require('passport')
-const bodyParser = require('body-parser')
-
-const jwt = require('jsonwebtoken')
-const JwtStrategy = require('passport-jwt').Strategy;
-const ExtractJwt = require('passport-jwt').ExtractJwt;
-
-const salt = "1234";
-const DATA = [{email: cryptoJS.SHA256("test@gmail.com"), password: cryptoJS.SHA256("1234")}]
-DATA.map(el => cryptoJS.SHA256(el + salt));
-
-var opts = {}
-opts.jwtFromRequest = function(req) {
-    var token = null;
-    if (req && req.cookies)
-    {
-        token = req.cookies['jwt'];
-    }
-    return token;
-};
-opts.secretOrKey = 'secret';
-
-passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
-  console.log("JWT BASED VALIDATION GETTING CALLED")
-  console.log("JWT", jwt_payload)
-  if (CheckUser(jwt_payload.data)) {
-      return done(null, jwt_payload.data)
-  } else {
-      // user account doesnt exists in the DATA
-      return done(null, false);
-  }
-}));
-
-function CheckUser(input){
-  console.log(DATA)
-  console.log(input)
-
-  for (var i in DATA) {
-      //if(/*input.email==DATA[i].email && (input.password==DATA[i].password || DATA[i].provider==input.provider)*/)
-      if (cryptoJS.SHA256(input[i].email + salt) == DATA[i].email || cryptoJS.SHA256(input[i].password + salt)==DATA[i].password)
-      {
-          console.log('User found in DATA');
-          return true;
-      }
-      else
-        continue;
-          //console.log('no match')
-    }
-  console.log('User not found in DATA');
-  return false;
-}
-
-/*passport.serializeUser(function(user, cb) {
-  console.log('I should have jack ');
-  cb(null, user);
-});
-
-passport.deserializeUser(function(obj, cb) {
-  console.log('I wont have jack shit');
-  cb(null, obj);
-});*/
-
+const crypto = require('crypto-js');
+const bodyParser = require('body-parser');
+const jwt = require('jsonwebtoken');
+const dbInterface = require('../helpers/dbInterface');
+const verifyToken = require('../helpers/verifyToken').verifyToken;
 const router = express.Router();
+require('dotenv').config();
+
+const SECRET_KEY = process.env.SECRET_KEY;
 
 router.get('/', function(req, res, next) {
-  res.send("The connection between server and client is established");
-  //res.render('index', { title: 'Express' });
+  res.status(404).send("No login data is provided");
 });
 
 router.post('/', function(req, res, next) {
-  console.log(`Processing request ${req.body}`);
-  if(CheckUser(req.body)) {
-      console.log('Processing successful');
-      let token = jwt.sign({data: req.body}, 'secret', { expiresIn: '1h' });
-      res.cookie('jwt', token);
-      res.send(`Log in success ${req.body.email}`);
+  console.log(`Processing request ${req.body.user}, ${req.body.passw}`);
+  const userIdPromise = dbInterface.getUserByEmailOrUsername(req.body.user);
+
+  let userId;
+  let userName;
+  userIdPromise.then(response => {
+    if (response.length) {
+      userId = response[0].id;
+      userName = response[0].name;
+      return Promise.resolve(dbInterface.checkPassword(userId, req.body.passw));
+    }
+    else {
+      console.log('User not found!');
+      res.status(404).send("User not found");
+      return;
+    }
+  }).then(response => {
+    console.log(response ? 'Password correct' : 'Password incorrect');
+    if (response) {
+      const token = jwt.sign({ user: userId }, SECRET_KEY, { expiresIn: '1h' });
+      res.send({token: token, name: userName});
+    }
+    else
+      res.status(400).send({ message: "Unable to log in. Password is incorrect" });
+  });
+});
+
+router.post('/verify', async function(req, res, next) {
+  const token = req.body.token;
+  const user = await verifyToken(token);
+  console.log("User after verification");
+  console.log(user);
+  if (user) {
+    res.send(user);
   }
   else {
-    console.log('Processing unsuccessful');
-    res.send('Invalid login credentials');
+    res.status(401).send("Your token expired");
   }
-    //res.render('index', { title: 'Express' });
-  });
+});
 
 module.exports = router;

@@ -12,22 +12,22 @@ body {
 }
 
 main {
-    /*padding-left: 20%;
-    padding-right: 20%;*/
-    margin-left: auto;/*minmax(20%, 100px);*/
-    margin-right: auto;/*minmax(20%, 100px);*/
+    margin-left: auto;
+    margin-right: auto;
     align-items: center;
     max-width: 1080px;
 }
 
-button {
+.btn/*, button*/ {
+    text-align: center;
+    vertical-align: text-bottom;
     background-color: burlywood;
     border: solid;
     border-width: 1px;
     border-color: #c29e70;
 }
 
-button:hover {
+.btn:hover, button:hover {
     background-color: #c29e70;
 }
 
@@ -39,12 +39,10 @@ button:hover {
 }
 
 .header {
-    /*padding-left: 60px;*/
     padding-top: 60px;
     padding-bottom: 60px;
     width: 100%;
     text-align: center;
-    /*background: #d4a76c;*/
     background: #fffcf2;
     border-bottom: 1px solid #3d230030;
     color: black;
@@ -57,28 +55,14 @@ button:hover {
     padding-left: 60px;
 }
 
-.btn-group button {
-    /*background-color: #4CAF50;
-    border: 1px solid green;
-    color: white;
-    cursor: pointer;
-    float: left;*/
-}
-
 .btn-group button:not(:last-child) {
     border-right: none;
 }
 
-/* Clear floats (clearfix hack) */
 .btn-group:after {
     content: "";
     clear: both;
     display: table;
-}
-
-/* Add a background color on hover */
-.btn-group button:hover {
-    /*background-color: #3e8e41;*/
 }
 
 table {
@@ -105,6 +89,21 @@ table tr:hover {
     background-color: #ffe7c9;
 }
 
+.card {
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+    border-radius: 5px;
+    max-width: 100%;
+}
+
+.card:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+.container {
+    padding: 2px 16px;
+}
+
 a {
     color: black;
     text-decoration: none;
@@ -121,10 +120,6 @@ table a {
     text-align: center;
     text-decoration: none;
 }
-
-/**, *:before, *:after {
-  box-sizing: inherit;
-}*/
 
 table th {
     padding-top: 12px;
@@ -149,10 +144,14 @@ footer {
     grid-template-columns: 1fr 1fr;
 }
 
-footer > #descr, footer > #links {
+footer > * {
     text-align: center;
 }
 
 #links a:hover {
     color: #ffedd4
+}
+
+a:hover {
+    text-decoration: none;
 }
