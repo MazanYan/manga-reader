@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useLocation, RouteComponentProps, Switch, Route, Link, useRouteMatch, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import BookmarkSelected from '../../helpers/bookmark';
 import '../../css/BookmarksPage.css';
 
@@ -20,23 +20,17 @@ interface BookmarkListProps {
     queryType: {type: string, message: string}
 }
 
-/*const bookmarkQueries = {
-    rl: "read_later",
-    nr: "reading",
-    co: "completed",
-    fv: "favourite"
-}*/
-
 function Bookmark(props: BookmarkProps) {
+    console.log(props);
     if ([props.volume, props.chapterNum, props.chapterName, props.page].some(el => el === null))
         return (
             <Link to={`/manga/${props.mangaKey}`}>{props.mangaName}</Link>
         )
     else
         return (
-            <>
-                <Link to={`/manga/${props.mangaKey}/chapter${props.chapterNum}/page${props.page}`}>{props.mangaName} - {props.volume}. Chapter {props.chapterNum} - {props.chapterName}, page {props.page}</Link>
-            </>
+            <Link to={`/manga/${props.mangaKey}/chapter${props.chapterNum}/page${props.page}`}>
+                {props.mangaName}. Volume {props.volume}. Chapter {props.chapterNum} - {props.chapterName}, page {props.page}
+            </Link>
         )
 }
 
@@ -45,7 +39,7 @@ function BookmarkList(props: BookmarkListProps) {
     const [bookmarks, setBookmarks] = useState<Array<any>>();
 
     useEffect(() => {
-        axios.get(`http://${addresses.serverAddress}/bookmarks/user?user=${props.user}&type=${props.queryType.type}`) //?user=${props.user}&type=${bookmarkQueries.rl}
+        axios.get(`http://${addresses.serverAddress}/bookmarks/user?user=${props.user}&type=${props.queryType.type}`)
             .then(res => {
                 console.log(res);
                 setBookmarks(res.data);
@@ -54,21 +48,23 @@ function BookmarkList(props: BookmarkListProps) {
 
     if (bookmarks?.length)
         return (
-            <>
+            <div id="bookmark-list">
+            <h3>{props.queryType.message}:</h3>
             {
                 bookmarks?.map(bookm => (
-                    <>
+                    <p className="bookmark">
                         <Bookmark 
                             mangaName={bookm.manga_name} 
                             mangaKey={bookm.manga_key}
+                            volume={bookm.volume}
                             chapterNum={bookm.chapter}
-                            chapterName={bookm.chapter_name} 
+                            chapterName={bookm.chapter_name}
+                            page={bookm.page}
                         />
-                        <br/>
-                    </>
+                    </p>
                 ))
             }
-            </>);
+            </div>);
     else
         return (
         <h3>This user has not added '{props.queryType.message}' bookmarks yet</h3>
@@ -110,27 +106,3 @@ export default function UserBookmarksPage() {
         </>
     );
 }
-
-/*
-<div className="bookmarks-selector">
-    <Link to={`${url}/rl`} className="btn btn-bookmark-type">Read Later</Link>
-    <Link to={`${url}/nr`} className="btn btn-bookmark-type">Currently reading</Link>
-    <Link to={`${url}/co`} className="btn btn-bookmark-type">Completed</Link>
-    <Link to={`${url}/fv`} className="btn btn-bookmark-type">Favourite</Link>
-</div>
-<main>
-<Switch>
-    <Route path={`${path}/:topicId`}>
-        <BookmarkPage />
-    </Route>
-</Switch>
-</main>
-*/
-
-
-/*
-<ReadLater />
-<NowReading />
-<Completed />
-<Favourite />
-*/

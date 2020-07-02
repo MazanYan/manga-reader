@@ -323,7 +323,7 @@ async function getTableOfContents(mangaId) {
 
 async function getUserBookmarks(userId, bookmarkType) {
     return await performQuery(
-        `SELECT bookmark.manga_key, bookmark.chapter, bookmark.page, manga.name AS manga_name, chapter.name AS chapter_name
+        `SELECT bookmark.manga_key, bookmark.chapter, bookmark.page, manga.name AS manga_name, chapter.volume AS volume, chapter.name AS chapter_name
             FROM bookmark
             INNER JOIN manga USING(manga_key)
             LEFT JOIN chapter 

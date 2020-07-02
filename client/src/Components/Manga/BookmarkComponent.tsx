@@ -11,7 +11,10 @@ const addresses = require('../../config');
 
 interface BookmarkProps {
     mangaId: number,
-    userId: string
+    userId: string,
+    volume?: number,
+    chapter?: number,
+    page?: number
 }
 
 export default function Bookmark(props: BookmarkProps) {
@@ -29,7 +32,7 @@ export default function Bookmark(props: BookmarkProps) {
                 else
                     setStarIcon(fasStar);
             });
-    }, []);
+    }, [props.userId]);
 
     const toggleBookmarkMenu = (e: any) => {
         setBookmarkMenuActive(!bookmarkMenuActive);
@@ -40,7 +43,10 @@ export default function Bookmark(props: BookmarkProps) {
         const toSend = {
             userId: props.userId,
             mangaId: props.mangaId,
-            newStatus: bookmarkStatus
+            newStatus: bookmarkStatus,
+            volume: props?.volume,
+            chapter: props?.chapter,
+            page: props?.page
         };
 
         axios.post(`http://${addresses.serverAddress}/bookmarks/update`, toSend)

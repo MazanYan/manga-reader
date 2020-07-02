@@ -17,3 +17,15 @@
 .btn-bookmark-type:hover {
     background-color: #e2d0b6;
 }
+
+#bookmark-list {
+    text-align: center;
+}
+
+.bookmark {
+    display: block;
+    min-width: fit-content;
+    border-bottom-style: solid;
+    border-color: #0000003d;
+    border-bottom-width: thin;
+}

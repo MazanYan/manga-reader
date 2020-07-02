@@ -20,7 +20,9 @@ router.get('/user', function(req, res, next) {
     else {
         dbInterface.getUserBookmarks(req.query.user, req.query.type)
             .then(response => {
-                res.send(JSON.stringify(response));
+                console.log("Bookmarks for specific user");
+                console.log(response);
+                res.send(response);
             }).catch(err => res.status(400).send(err));
     }
 });
@@ -45,7 +47,9 @@ router.post('/update', function(req, res, next) {
     const userId = req.body.userId;
     const mangaId = req.body.mangaId;
     const newStatus = req.body.newStatus;
-    dbInterface.updateBookmark(userId, mangaId, newStatus)
+    const newChapter = req.body.chapter;
+    const newPage = req.body.page;
+    dbInterface.updateBookmark(userId, mangaId, newStatus, newChapter, newPage)
         .then(response => {
             res.send(response);
         });
