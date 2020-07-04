@@ -200,7 +200,7 @@ async function createBookmark({accId, mangaKey, chapter = null, page = null}) {
 }
 
 async function addComment({author, page, text, answerOn = null}) {
-    const commentId = crypt.MD5(string(page) + new Date().toLocaleString());
+    const commentId = crypt.MD5(string(page) + new Date().toLocaleString()).toString();
     return performQuery(
         'INSERT INTO comment(${this:name}) VALUES(${this:csv});',
         {
@@ -356,25 +356,19 @@ async function getMangaPageData(mangaId, chapterNum, pageNum) {
         [mangaId, chapterNum, pageNum]);
 }
 
-async function getPageComments(pageId) {
+async function getPageComments(mangaKey, chapterNum, pageNum) {
     return await performQuery(
-        'SELECT (${columns:name}) FROM comment WHERE page_key=$2;',
-        [
-            'comment_id',
-            'author',
-            'text',
-            'rating',
-            'time_added',
-            'answer_on'
-        ],
-        pageId
+        `SELECT * FROM comment
+            WHERE chapter_key=(
+                SELECT chapter_key FROM chapter 
+                    WHERE manga_key=$1
+                    AND number=$2 LIMIT 1
+            ) AND page_num=$3;`,
+        [mangaKey, chapterNum, pageNum]
     );
 }
 
 async function getPrevNextChapterNum(mangaId, chapterNum) {
-    console.log("Has prev/next chapter request");
-    console.log(mangaId);
-    console.log(chapterNum);
     return await performQuery(
         `SELECT
             (SELECT chapter.number
