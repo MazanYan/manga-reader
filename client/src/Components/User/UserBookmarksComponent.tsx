@@ -22,7 +22,7 @@ interface BookmarkListProps {
 
 function Bookmark(props: BookmarkProps) {
     console.log(props);
-    if ([props.volume, props.chapterNum, props.chapterName, props.page].some(el => el === null))
+    if ([props.volume, props.chapterNum, props.chapterName, props.page].some(el => el === undefined))
         return (
             <Link to={`/manga/${props.mangaKey}`}>{props.mangaName}</Link>
         )
@@ -49,22 +49,36 @@ function BookmarkList(props: BookmarkListProps) {
     if (bookmarks?.length)
         return (
             <div id="bookmark-list">
-            <h3>{props.queryType.message}:</h3>
-            {
-                bookmarks?.map(bookm => (
-                    <p className="bookmark">
-                        <Bookmark 
-                            mangaName={bookm.manga_name} 
-                            mangaKey={bookm.manga_key}
-                            volume={bookm.volume}
-                            chapterNum={bookm.chapter}
-                            chapterName={bookm.chapter_name}
-                            page={bookm.page}
-                        />
-                    </p>
-                ))
-            }
-            </div>);
+                <h3>{props.queryType.message}:</h3>
+                {
+                    bookmarks?.map(bookm => {
+                        if (props.queryType === BookmarkSelected.nr)
+                            return (
+                                <p className="bookmark">
+                                    <Bookmark 
+                                        mangaName={bookm.manga_name} 
+                                        mangaKey={bookm.manga_key}
+                                        volume={bookm.volume}
+                                        chapterNum={bookm.chapter}
+                                        chapterName={bookm.chapter_name}
+                                        page={bookm.page}
+                                    />
+                                </p>
+                            );
+                        else
+                            return (
+                                <p className="bookmark">
+                                    <Bookmark 
+                                        mangaName={bookm.manga_name} 
+                                        mangaKey={bookm.manga_key}
+                                    />
+                                </p>
+                            )
+                        }
+                    )
+                }
+            </div>
+        );
     else
         return (
         <h3>This user has not added '{props.queryType.message}' bookmarks yet</h3>

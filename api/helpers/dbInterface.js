@@ -356,14 +356,78 @@ async function getMangaPageData(mangaId, chapterNum, pageNum) {
         [mangaId, chapterNum, pageNum]);
 }
 
+/*
+Recursive queries example: select oldest comment on page and all replies on it
+
+WITH RECURSIVE r AS (
+  	SELECT comment_id, author, time_added, rating FROM comment
+ 		WHERE time_added=(SELECT time_added FROM comment ORDER BY time_added ASC LIMIT 1)
+	
+	UNION
+	
+	SELECT comment.comment_id, comment.author, comment.time_added, comment.rating FROM comment
+		JOIN r
+			ON r.comment_id=comment.answer_on
+)
+
+SELECT * FROM r;
+
+
+
+
+------------------------ some other example
+
+-- SELECT * FROM manga_page;
+-- SELECT * FROM comment;
+
+-- INSERT INTO comment VALUES 
+--   	(1, 'Reno', 'Text', 0, NOW()-1000 * interval '1 second', null, 1, 17),
+--   	(2, 'Reno', 'Text2', -1, NOW()-800 * interval '1 second', 1, 1, 17),
+--   	(3, 'Reno', 'Text3', +2, NOW()-600 * interval '1 second', 1, 1, 17),
+--   	(4, 'Ror', 'Text4', 0, NOW()-400 * interval '1 second', null, 1, 17),
+--   	(5, 'Rium', 'Text5', 0, NOW()-200 * interval '1 second', 1, 1, 17),
+--   	(6, 'Reno', 'Text6', 0, NOW(), 4, 1, 17);
+
+WITH RECURSIVE r AS (
+  	SELECT comment_id, comment.text, author, time_added, rating FROM comment
+ 		WHERE answer_on IS NULL--time_added=(SELECT time_added FROM comment ORDER BY time_added ASC LIMIT 1)
+	
+	UNION
+	
+	SELECT comment.comment_id, comment.text, comment.author, comment.time_added, comment.rating FROM comment
+		JOIN r
+			ON r.comment_id=comment.answer_on
+)
+
+SELECT * FROM r;
+*/
 async function getPageComments(mangaKey, chapterNum, pageNum) {
     return await performQuery(
-        `SELECT * FROM comment
-            WHERE chapter_key=(
-                SELECT chapter_key FROM chapter 
-                    WHERE manga_key=$1
-                    AND number=$2 LIMIT 1
-            ) AND page_num=$3;`,
+        `WITH RECURSIVE r AS (
+            SELECT 	comment_id, 
+                    answer_on, text, 
+                    author, 
+                    (SELECT name FROM account WHERE id=author LIMIT 1) AS author_name,
+                    time_added, rating FROM comment
+                WHERE answer_on IS NULL 
+                    AND page_num=$3 AND chapter_key=(
+                        SELECT chapter_key FROM chapter 
+                            WHERE manga_key=$1 AND number=$2 LIMIT 1
+                )
+        
+        UNION
+    
+        SELECT 	comment.comment_id, 
+                comment.answer_on, 
+                comment.text, 
+                comment.author, 
+                (SELECT name FROM account WHERE id=comment.author LIMIT 1) AS author_name,
+                comment.time_added, comment.rating FROM comment
+            JOIN r
+                ON r.comment_id=comment.answer_on
+        )
+        
+        SELECT * FROM r;`,
         [mangaKey, chapterNum, pageNum]
     );
 }
