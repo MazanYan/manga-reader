@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import '../../css/MangaPage.css';
-import { RouteComponentProps, Link, Router } from 'react-router-dom';
+import { RouteComponentProps, Link } from 'react-router-dom';
 import axios from 'axios';
 import Bookmark from './BookmarkComponent';
-import CommentList, { BasicCommentProps, CommentProps } from './CommentComponent';
+import CommentList, { BasicCommentProps, CommentProps, NewComment } from './CommentComponent';
 import verifyToken from '../../helpers/VerifyToken';
 import { postgresToDate } from '../../helpers/ConvertTimestamp';
 
@@ -27,21 +27,6 @@ interface MangaPageState {
     pagesCountChapter?: number
 };
 
-/*
-interface BasicCommentProps {
-    commentId: string,
-    showReplyButton: boolean,
-    authorName: string,
-    authorId: string,
-    commentDate: Date,
-    commentText: string,
-    commentRating: number,
-
-    userReplyerId?: string
-    replies?: Array<CommentProps>
-}
-*/
-
 function rawCommentToComment(rawComment: any, showReply: boolean, replyer?: string) : CommentProps {
     const unpackedComment = new Map([
         ['commentId', rawComment.comment_id],
@@ -62,10 +47,7 @@ function rawCommentToComment(rawComment: any, showReply: boolean, replyer?: stri
 
 function serverResponseToComments(rawComments: any, showReply: boolean, replyer?: string) : Array<BasicCommentProps> {
     const commentsUnpacked: Array<any> = [];
-    rawComments.forEach((comment: any) => {
-        
-        commentsUnpacked.push(rawCommentToComment(comment, showReply, replyer));
-    });
+    rawComments.forEach( (comment: any) => commentsUnpacked.push(rawCommentToComment(comment, showReply, replyer)) );
     return commentsUnpacked;
 }
 
@@ -73,6 +55,7 @@ export default function MangaPage(props: MangaPageProps) {
 
     const [mangaPageData, setMangaPageData] = useState<MangaPageState>();
     const [commentsList, setCommentsList] = useState<Array<BasicCommentProps>>();
+    const [addCommentClicked, setAddCommentClicked] = useState(false);
     const [loggedIn, setLoggedIn] = useState(false);
     const [accId, setAccId] = useState("");
 
@@ -148,6 +131,20 @@ export default function MangaPage(props: MangaPageProps) {
             )
     };
 
+    const renderAddComment = () => {
+        if (addCommentClicked)
+            return (
+                <NewComment isReply={false} pageData={
+                    { 
+                        mangaKey: parseInt(props.match.params.id), 
+                        chapterNum: parseInt(props.match.params.ch),
+                        pageNum: parseInt(props.match.params.pg)
+                    }}/>
+            )
+        else 
+            return (<></>)
+    }
+
     const renderBookmark = () => {
         if (loggedIn)
             return (
@@ -205,28 +202,20 @@ export default function MangaPage(props: MangaPageProps) {
                 <div className="manga-page">
                     <div className="page-body comments">
                         Comments:<br/>
-                        {<CommentList showReply={loggedIn} comments={commentsList} />}
+                        <div className="btn btn-comment" onClick={() => setAddCommentClicked(!addCommentClicked)}>Add comment</div>
+                        <div className="btn-add-comment">
+                            {renderAddComment()}
+                        </div>
+                        {<CommentList pageData={
+                            { 
+                                mangaKey: parseInt(props.match.params.id), 
+                                chapterNum: parseInt(props.match.params.ch),
+                                pageNum: parseInt(props.match.params.pg)
+                            }
+                            } showReply={loggedIn} comments={commentsList} />}
                     </div>
                 </div>
             </main>
         </>
     );
 }
-
-/*
-<Comment commentId="1" showReplyButton={true} userName="Reno" userId="4312b6dc5fd597e097ca20fc0fbc57ee" commentDate={new Date().toLocaleDateString()} commentText="Hello!" />
-<div className="reply">                  
-    <Comment commentId="2"
-        showReplyButton={true} userName="Reno" 
-        userId="4312b6dc5fd597e097ca20fc0fbc57ee" commentDate={new Date().toLocaleDateString()}
-        commentText={`Я фанат Хантера:
-    Ґон Фрікс — головний герой. Ґон володіє неймовірно гострим слухом, зором і нюхом, які часто виручали його і його друзів в складних ситуаціях. Він дуже наївний, простодушний і добрий, що притягує до нього людей.
-
-    Кіллуа Золдік — найкращий друг Ґона. Кіллуа родом з сім'ї Золдік — потомствених найманих вбивць. Незважаючи на свій юний вік, він уже проявив себе як один з найкращих професіоналів і був призначений наступником свого батька.
-                                
-    Курапіка — єдиний виживший член клану Курта. Курапіка завжди здатний спокійно аналізувати ситуацію і швидко знаходити правильне рішення.
-                                
-    Леоріо Парадінайт — молодий чоловік, який подружився з Ґоном під час екзамену на Мисливця. Леоріо буває досить запальним і неврівноваженим. Але він добрий і завжди готовий допомогти своїм друзям в потрібну хвилину. `} 
-    />
-</div>
-*/

@@ -119,6 +119,11 @@
     width: inherit;
 }
 
+.btn-add-comment {
+    margin-bottom: 50px;
+    width: 30%;
+}
+
 .reply {
     margin-left: 20px;
 }

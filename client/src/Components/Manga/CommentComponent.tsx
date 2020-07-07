@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import verifyToken from '../../helpers/VerifyToken';
 import axios from 'axios';
-import { postgresToDate } from '../../helpers/ConvertTimestamp';
 const addresses = require('../../config');
 
 export interface CommentProps {
@@ -18,6 +17,7 @@ export interface CommentProps {
 }
 
 export interface BasicCommentProps extends CommentProps {
+    pageData: PageData,
     replies?: Array<CommentReplyProps>
 }
 
@@ -30,11 +30,19 @@ interface CommentRepliesProps {
 }
 
 interface NewCommentProps {
+    pageData: PageData,
     isReply: boolean,
     replyOn?: string
 }
 
+interface PageData {
+    mangaKey: number,
+    chapterNum: number,
+    pageNum: number
+}
+
 interface CommentListProps {
+    pageData: PageData,
     showReply: boolean,
     comments?: Array<BasicCommentProps>
 }
@@ -43,9 +51,9 @@ export default function CommentList(props: CommentListProps) {
 
     return (
         <>
-            {props.comments?.map((comment: BasicCommentProps) => 
+            {props.comments?.map((comment: any) => 
                 (
-                    <BasicComment {...comment}/>
+                    <BasicComment pageData={props.pageData} {...comment}/>
                 )
             )}
         </>
@@ -68,7 +76,12 @@ export function NewComment(props: NewCommentProps) {
     const sendComment = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
+        console.log(props);
+
         const toSend = {
+            mangaKey: props.pageData.mangaKey,
+            chapterNum: props.pageData.chapterNum,
+            pageNum: props.pageData.pageNum,
             author: authorId,
             text: commentText,
             isReply: props.isReply,
@@ -77,7 +90,9 @@ export function NewComment(props: NewCommentProps) {
 
         console.log(toSend);
 
-        axios.post(`http://${addresses.serverAddress}/add/comment`, toSend);
+        axios.post(`http://${addresses.serverAddress}/add/comment`, toSend)
+            .then(response => alert(response.data))
+            .catch(response => alert('Comment not added'));
     };
 
     return (
@@ -139,8 +154,15 @@ function BasicComment(props: BasicCommentProps) {
     };
 
     const renderReply = () => {
+
         if (replyBtnClicked)
-            return (<NewComment isReply={true} replyOn={props.commentId}/>)
+            return (
+                <NewComment 
+                    pageData={props.pageData}
+                    isReply={true} 
+                    replyOn={props.commentId} 
+                />
+            )
     };
 
     return (
