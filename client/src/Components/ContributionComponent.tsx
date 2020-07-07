@@ -3,7 +3,7 @@ import '../css/ContributionPage.css';
 import { getThumbnailName, getMangaPageName } from '../helpers/generateImageName';
 import axios from 'axios';
 import verifyToken from '../helpers/VerifyToken';
-const config = require('../config');
+const addresses = require('../config');
 
 function AddManga() {
 
@@ -67,8 +67,8 @@ function AddManga() {
         data.append('file', file);
         data.append('name', file.name);
         
-        const fileSendPromise = axios.post(`http://${config.serverAddress}/upload/thumb`, data);
-        const dataSendPromise = axios.post(`http://${config.serverAddress}/add/manga`, toSubmit);
+        const fileSendPromise = axios.post(`http://${addresses.serverAddress}/upload/thumb`, data);
+        const dataSendPromise = axios.post(`http://${addresses.serverAddress}/add/manga`, toSubmit);
         
         Promise.all([fileSendPromise, dataSendPromise])
             .then((response: any) => {
@@ -159,11 +159,11 @@ function AddChapter() {
             const data = new FormData();
             data.append('file', filesWithNewNames[i]);
             data.append('name', filesWithNewNames[i].name);
-            fileSendPromises.push(axios.post(`http://${config.serverAddress}/upload/manga_pages`, data));
+            fileSendPromises.push(axios.post(`http://${addresses.serverAddress}/upload/manga_pages`, data));
         }
         
         console.log(generalChapterData);
-        fileSendPromises.push(axios.post(`http://${config.serverAddress}/add/chapter`, generalChapterData));
+        fileSendPromises.push(axios.post(`http://${addresses.serverAddress}/add/chapter`, generalChapterData));
 
         Promise.all(fileSendPromises)
             .then((response: any) => {

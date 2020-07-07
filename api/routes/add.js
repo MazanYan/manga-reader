@@ -58,4 +58,9 @@ router.post('/chapter', function(req, res, next) {
     });
 });
 
+router.post('/comment', function(req, res, next) {
+    console.log(req.body);
+    res.send('Send your comment here');
+});
+
 module.exports = router;

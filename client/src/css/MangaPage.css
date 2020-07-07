@@ -110,6 +110,57 @@
 }
 
 .comments {
-    padding-left: 10%;
-    padding-right: 10%;
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+.comment {
+    min-width: 50%;
+    width: inherit;
+}
+
+.btn-add-comment {
+    margin-bottom: 50px;
+    width: 30%;
+}
+
+.reply {
+    margin-left: 20px;
+}
+
+.comment-head {
+    max-width: 50%;
+    display: flex;
+    flex-direction: row;
+    flex: 1 1 auto;
+    justify-content: left;
+    border-top: 1px solid rgba(222, 184, 135, 0.5);
+}
+
+.comment-head > * {
+    padding-right: 1rem;
+}
+
+.comment-body {
+    white-space: pre-wrap;
+    max-width: 1080px;
+    margin-top: 0.5rem;
+}
+
+.form-comment {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.btn-comment {
+    margin-top: 0.5rem;
+    width: 200px;
+}
+
+.page-main-content, .page-bottom-content {
+    margin-left: auto;
+    margin-right: auto;
+    align-items: center;
+    max-width: 100%;
 }

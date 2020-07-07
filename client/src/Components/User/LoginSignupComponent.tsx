@@ -32,14 +32,6 @@ function LogInComponent() {
     return (
         <>
             <style>{`
-                #forg-passw {
-                    text-align: left;
-                    color: burlywood;
-                }
-                
-                #forg-passw:hover {
-                    text-decoration: underline;
-                }
             `}</style>
             <div className="card card-contrib">
                 <form onSubmit={handleLogIn} className="form-contrib">
@@ -52,7 +44,7 @@ function LogInComponent() {
                         (event) => setPassw(event.target.value)
                     }>
                     </input>
-                    <Link id="forg-passw" to="/auth/recover">Forgot Password?</Link>
+                    <Link className="link-colored" id="forg-passw" to="/auth/recover">Forgot Password?</Link>
                     <button className="btn" type="submit">Log in</button>
                 </form>
             </div>

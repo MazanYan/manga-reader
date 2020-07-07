@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import '../../css/MangaPage.css';
-import { RouteComponentProps, Link, Router } from 'react-router-dom';
+import { RouteComponentProps, Link } from 'react-router-dom';
 import axios from 'axios';
 import Bookmark from './BookmarkComponent';
+import CommentList, { BasicCommentProps, CommentProps, NewComment } from './CommentComponent';
 import verifyToken from '../../helpers/VerifyToken';
+import { postgresToDate } from '../../helpers/ConvertTimestamp';
 
 const addresses = require('../../config');
 
 interface MangaPageRouterProps {
-    manga: string,
     id: string,
-    chapter: string,
     ch: string,
-    page: string,
     pg: string
 };
 
@@ -28,22 +27,49 @@ interface MangaPageState {
     pagesCountChapter?: number
 };
 
+function rawCommentToComment(rawComment: any, showReply: boolean, replyer?: string) : CommentProps {
+    const unpackedComment = new Map([
+        ['commentId', rawComment.comment_id],
+        ['showReplyButton', showReply],
+        ['answerOn', rawComment.answer_on],
+        ['commentText', rawComment.text],
+        ['authorId', rawComment.author],
+        ['authorName', rawComment.author_name],
+        ['commentDate', postgresToDate(rawComment.time_added)],
+        ['commentRating', rawComment.rating],
+
+        ['userReplyerId', replyer],
+        ['replies', rawComment.replies?.map((reply: any) => rawCommentToComment(reply, showReply, replyer))],
+        ['commentReplyId', rawComment.answer_on]
+    ]);
+    return Object.fromEntries(unpackedComment) as CommentProps;
+}
+
+function serverResponseToComments(rawComments: any, showReply: boolean, replyer?: string) : Array<BasicCommentProps> {
+    const commentsUnpacked: Array<any> = [];
+    rawComments.forEach( (comment: any) => commentsUnpacked.push(rawCommentToComment(comment, showReply, replyer)) );
+    return commentsUnpacked;
+}
+
 export default function MangaPage(props: MangaPageProps) {
 
     const [mangaPageData, setMangaPageData] = useState<MangaPageState>();
+    const [commentsList, setCommentsList] = useState<Array<BasicCommentProps>>();
+    const [addCommentClicked, setAddCommentClicked] = useState(false);
     const [loggedIn, setLoggedIn] = useState(false);
     const [accId, setAccId] = useState("");
 
+    // get general data and comments of manga page
     useEffect(() => {
         const manga = parseInt(props.match.params.id);
         const chapter = parseInt(props.match.params.ch);
         const page = parseInt(props.match.params.pg);
 
-        axios.get(`http://${addresses.serverAddress}/search/manga=${manga}/chapter=${chapter}/page=${page}`)
+        axios.get(`http://${addresses.serverAddress}/search/page?manga=${manga}&chapter=${chapter}&page=${page}`)
             .then(response => {
                 const result = response.data.response;
                 const gen = result.generalPageData[0];
-                //console.log(result);
+                console.log(response);
                 setMangaPageData({
                     image: gen.image,
                     volume: gen.volume,
@@ -53,16 +79,19 @@ export default function MangaPage(props: MangaPageProps) {
                     prevChapter: result.prevChapter,
                     nextChapter: result.nextChapter
                 });
-                console.log(mangaPageData);
+                return result.comments;
+            })
+            .then(comments => {
+                // verify that user is signed in
+                verifyToken().then(response => {
+                    if (response) {
+                        setLoggedIn(true);
+                        setAccId(response.accId);
+                    }
+                    setCommentsList(serverResponseToComments(comments, response?.accId, accId));
+                }).catch(err => alert(err));
             });
-        
-        verifyToken().then(response => {
-            if (response) {
-                setLoggedIn(true);
-                setAccId(response.accId);
-            }
-        }).catch(err => alert(err));
-    }, []);
+    }, [props]);
 
     const renderPrevChapterButton = () => {
         if (mangaPageData?.prevChapter)
@@ -102,6 +131,20 @@ export default function MangaPage(props: MangaPageProps) {
             )
     };
 
+    const renderAddComment = () => {
+        if (addCommentClicked)
+            return (
+                <NewComment isReply={false} pageData={
+                    { 
+                        mangaKey: parseInt(props.match.params.id), 
+                        chapterNum: parseInt(props.match.params.ch),
+                        pageNum: parseInt(props.match.params.pg)
+                    }}/>
+            )
+        else 
+            return (<></>)
+    }
+
     const renderBookmark = () => {
         if (loggedIn)
             return (
@@ -115,7 +158,6 @@ export default function MangaPage(props: MangaPageProps) {
         else
             return (<></>);
     };
-
     
     return (
         <>
@@ -155,10 +197,22 @@ export default function MangaPage(props: MangaPageProps) {
                         </div>
                     </div>
                 </div>
+                </main>
+                <main>
                 <div className="manga-page">
                     <div className="page-body comments">
                         Comments:<br/>
-                        <h1>TBA</h1>
+                        <div className="btn btn-comment" onClick={() => setAddCommentClicked(!addCommentClicked)}>Add comment</div>
+                        <div className="btn-add-comment">
+                            {renderAddComment()}
+                        </div>
+                        {<CommentList pageData={
+                            { 
+                                mangaKey: parseInt(props.match.params.id), 
+                                chapterNum: parseInt(props.match.params.ch),
+                                pageNum: parseInt(props.match.params.pg)
+                            }
+                            } showReply={loggedIn} comments={commentsList} />}
                     </div>
                 </div>
             </main>

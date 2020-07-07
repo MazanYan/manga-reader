@@ -155,3 +155,12 @@ footer > * {
 a:hover {
     text-decoration: none;
 }
+
+.link-colored {
+    text-align: left;
+    color: burlywood;
+}
+
+.link-colored:hover {
+    text-decoration: underline;
+}

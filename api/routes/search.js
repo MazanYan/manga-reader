@@ -8,16 +8,17 @@ router.get('/', function(req, res, next) {
 });
 
 /* GET all necessary data about page of manga */
-router.get('/manga=:mg/chapter=:ch/page=:pg', function(req, res, next) {
-    const manga = req.params.mg;
-    const chapter = req.params.ch;
-    const page = req.params.pg;
+router.get('/page', function(req, res, next) {
+    const manga = req.query.manga;
+    const chapter = req.query.chapter;
+    const page = req.query.page;
     console.log({manga, chapter, page});
     
     const answer = {
         generalPageData: null,
         prevChapter: null,
-        nextChapter: null
+        nextChapter: null,
+        comments: null
     };
     
     const generalDataPromise = dbInterface
@@ -36,7 +37,26 @@ router.get('/manga=:mg/chapter=:ch/page=:pg', function(req, res, next) {
             answer.nextChapter = response[0].ch_num_next;
         });
 
-    Promise.all([generalDataPromise, prevNextChapterPromise])
+    const commentsPromise = dbInterface
+        .getPageComments(manga, chapter, page)
+        .then(response => {
+            // make replies correspond to comments they reply on
+            const commentsOrdered = [];
+            for (let comment of response) {
+                if (comment.answer_on === null) {
+                    commentsOrdered.push({ ...comment, replies: [] });
+                }
+                else {
+                    const originalCommentIndex = commentsOrdered.findIndex( 
+                        origComment => origComment.comment_id === comment.answer_on 
+                    );
+                    commentsOrdered[originalCommentIndex].replies.push(comment);
+                }
+            }
+            answer.comments = commentsOrdered;
+        });
+
+    Promise.all([generalDataPromise, prevNextChapterPromise, commentsPromise])
         .then(() => {
             res.send(JSON.stringify({response: answer}));
         })
