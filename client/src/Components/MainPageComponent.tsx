@@ -1,7 +1,7 @@
 import React from 'react';
 import '../css/MainPage.css';
 import { MangaResponse } from '../helpers/MangaResponse';
-import { postgresToDate, getYear } from '../helpers/ConvertTimestamp';
+import { postgresToDate } from '../helpers/ConvertTimestamp';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 const addresses = require('../config');
@@ -16,7 +16,7 @@ function RenderMangaCard(props?: MangaResponse) {
     return (
         <Link to={`/manga/${props?.manga_key}`}>
             <div className="card main-page-card">
-                <img src={`http://${addresses.serverAddress}/images/thumb/${props?.thumbnail}`}/>
+                <img alt={props?.name} src={`http://${addresses.serverAddress}/images/thumb/${props?.thumbnail}`}/>
                 <div className="container">
                     <div>
                         <h4><b>{props?.name}</b></h4>

@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { useState } from 'react';
 import CryptoJS from 'crypto-js';
 import axios from 'axios';
 import { Link } from 'react-router-dom';

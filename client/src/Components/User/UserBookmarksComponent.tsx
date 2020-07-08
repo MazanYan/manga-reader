@@ -44,7 +44,7 @@ function BookmarkList(props: BookmarkListProps) {
                 console.log(res);
                 setBookmarks(res.data);
             });
-    }, [props.queryType]);
+    }, [props]);
 
     if (bookmarks?.length)
         return (
@@ -89,10 +89,6 @@ export default function UserBookmarksPage() {
     
     const [pageSelected, setPageSelected] = useState(1);
     const { id } = useParams();
-
-    useEffect(() => {
-        console.log(id);
-    });
     
     const renderPageSelected = () => {
         switch(pageSelected) {

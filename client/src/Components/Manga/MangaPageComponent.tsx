@@ -55,7 +55,6 @@ export default function MangaPage(props: MangaPageProps) {
 
     const [mangaPageData, setMangaPageData] = useState<MangaPageState>();
     const [commentsList, setCommentsList] = useState<Array<BasicCommentProps>>();
-    const [addCommentClicked, setAddCommentClicked] = useState(false);
     const [loggedIn, setLoggedIn] = useState(false);
     const [accId, setAccId] = useState("");
 
@@ -91,7 +90,7 @@ export default function MangaPage(props: MangaPageProps) {
                     setCommentsList(serverResponseToComments(comments, response?.accId, accId));
                 }).catch(err => alert(err));
             });
-    }, [props]);
+    }, [props, accId]);
 
     const renderPrevChapterButton = () => {
         if (mangaPageData?.prevChapter)
@@ -131,20 +130,6 @@ export default function MangaPage(props: MangaPageProps) {
             )
     };
 
-    const renderAddComment = () => {
-        if (addCommentClicked)
-            return (
-                <NewComment isReply={false} pageData={
-                    { 
-                        mangaKey: parseInt(props.match.params.id), 
-                        chapterNum: parseInt(props.match.params.ch),
-                        pageNum: parseInt(props.match.params.pg)
-                    }}/>
-            )
-        else 
-            return (<></>)
-    }
-
     const renderBookmark = () => {
         if (loggedIn)
             return (
@@ -155,14 +140,16 @@ export default function MangaPage(props: MangaPageProps) {
                     page={parseInt(props.match.params.pg)}
                 />
             );
-        else
-            return (<></>);
     };
     
     return (
         <>
             <div className="header page-head">
-                <h3><Link to={`/manga/${props.match.params.id}`}>{mangaPageData?.mangaName}</Link></h3>
+                <h3>
+                    <Link to={`/manga/${props.match.params.id}`}>
+                        {mangaPageData?.mangaName}
+                    </Link>
+                </h3>
                 <strong>Volume {mangaPageData?.volume}. Chapter {props.match.params.ch} - {mangaPageData?.chapterName}</strong>{renderBookmark()}
             </div>
             <main>
@@ -173,7 +160,7 @@ export default function MangaPage(props: MangaPageProps) {
                 <div className="manga-page">
                     <div className="page-body">
                         <div className="square">
-                            <img className="page-image" src={`http://${addresses.serverAddress}/images/manga_pages/${mangaPageData?.image}`}/>
+                            <img alt={mangaPageData?.chapterName} className="page-image" src={`http://${addresses.serverAddress}/images/manga_pages/${mangaPageData?.image}`}/>
                         </div>
                         <div className="pagination">
                             {
@@ -197,24 +184,15 @@ export default function MangaPage(props: MangaPageProps) {
                         </div>
                     </div>
                 </div>
-                </main>
-                <main>
-                <div className="manga-page">
-                    <div className="page-body comments">
-                        Comments:<br/>
-                        <div className="btn btn-comment" onClick={() => setAddCommentClicked(!addCommentClicked)}>Add comment</div>
-                        <div className="btn-add-comment">
-                            {renderAddComment()}
-                        </div>
-                        {<CommentList pageData={
-                            { 
-                                mangaKey: parseInt(props.match.params.id), 
-                                chapterNum: parseInt(props.match.params.ch),
-                                pageNum: parseInt(props.match.params.pg)
-                            }
-                            } showReply={loggedIn} comments={commentsList} />}
-                    </div>
-                </div>
+            </main>
+            <main>
+                <CommentList 
+                    pageData={{ 
+                        mangaKey: parseInt(props.match.params.id), 
+                        chapterNum: parseInt(props.match.params.ch),
+                        pageNum: parseInt(props.match.params.pg)
+                    }} loggedIn={loggedIn} userId={accId} comments={commentsList!}
+                />
             </main>
         </>
     );

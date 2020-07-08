@@ -27,7 +27,7 @@ export default function SearchPage(props: SearchPageProps) {
                     setResponse(response);
                 });
         }
-    });
+    }, [props, query]);
 
     if (responseReceived)
         return (

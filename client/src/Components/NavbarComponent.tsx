@@ -1,4 +1,4 @@
-import React, { useState, constructor, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Search from './Search/SearchComponent';
 import { Link } from 'react-router-dom';
 import verifyToken from '../helpers/VerifyToken';

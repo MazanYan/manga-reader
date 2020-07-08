@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faStar as fasStar, IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { faStar as fasStar } from '@fortawesome/free-solid-svg-icons';
 import {faStar as farStar } from '@fortawesome/free-regular-svg-icons';
 import BookmarkSelected from '../../helpers/bookmark';
 import '../../css/MainManga.css';
@@ -21,7 +21,7 @@ export default function Bookmark(props: BookmarkProps) {
 
     const [bookmarkMenuActive, setBookmarkMenuActive] = useState(false);
     const [bookmarkStatus, setBookmarkStatus] = useState<string>();
-    const [starIcon, setStarIcon] = useState<IconProp>();//props.isBookmarked ? fasStar : farStar;
+    const [starIcon, setStarIcon] = useState<IconProp>();
 
     useEffect(() => {
         axios.get(`http://${addresses.serverAddress}/bookmarks/manga?manga=${props.mangaId}&user=${props.userId}`)
@@ -32,7 +32,7 @@ export default function Bookmark(props: BookmarkProps) {
                 else
                     setStarIcon(fasStar);
             });
-    }, [props.userId]);
+    }, [props]);
 
     const toggleBookmarkMenu = (e: any) => {
         setBookmarkMenuActive(!bookmarkMenuActive);

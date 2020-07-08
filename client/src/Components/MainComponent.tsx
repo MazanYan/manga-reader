@@ -29,8 +29,8 @@ export default function MainComponent() {
                 Simple Manga-Reading Website<br/>Created by: Yan Mazan, Group (ukr) ІВ-71
                 </div>
                 <div id="links">
-                    <a><Link to="/contribute">Make a contribution</Link></a><br/>
-                    <a><Link to="/right_holders">For right holders</Link></a>
+                    <Link to="/contribute">Make a contribution</Link><br/>
+                    <Link to="/right_holders">For right holders</Link>
                 </div>
             </footer>
         </React.Fragment>

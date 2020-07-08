@@ -79,28 +79,28 @@ export default function MangaMain(props: MangaMainPageProps) {
                 const tableOfContents = res.data.message;
                 setTableOfContents(tableOfContents ? tableOfContents : []);
         });
-    }, []);
+    }, [props, mangaId]);
+
     useEffect(() => {
         verifyToken().then(res => {
             console.log(res);
             if (res)
                 setLoggedIn({ loggedIn: true, userId: res?.accId });
         });
-    }, [loggedIn?.userId]);
+    }, []);
 
     const renderTableOfContents = () => {
         if (tableOfContentsOpened) {
             return (
                 <RenderTableOfContents path={props.location.pathname} chapters={tableOfContents!} />
             );
-            
         }
     }
 
     return (
         <main>
             <div id="manga-main-page">
-                <img id="image-placeholder" src={`http://${config.serverAddress}/images/thumb/${mangaData?.thumbnail}`}/>
+                <img alt={mangaData?.name} id="image-placeholder" src={`http://${config.serverAddress}/images/thumb/${mangaData?.thumbnail}`}/>
                 <div id="description">
                     <strong>Name: </strong>{mangaData?.name}<br/>
                     <strong>Author: </strong>{mangaData?.author}<br/>

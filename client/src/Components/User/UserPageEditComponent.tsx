@@ -32,7 +32,7 @@ function EditGeneralUserData(props: UserPageEditProps) {
                 setUsername(response.data.username);
                 setDescr(response.data.description);
             });
-    }, []);
+    }, [userId]);
 
     const handleSubmitUserEdit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();

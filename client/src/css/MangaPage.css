@@ -147,6 +147,12 @@
     margin-top: 0.5rem;
 }
 
+.comments-first-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
 .form-comment {
     margin-top: 20px;
     display: flex;

@@ -23,18 +23,6 @@
         vertical-align: bottom;
     }
 
-    /*#namePlaceholder {
-        vertical-align: top;
-    }
-    
-    #authorPlaceholder {
-        vertical-align: top;
-    }
-    
-    #descriptionPlaceholder {
-        vertical-align: top;
-    }*/
-
     #open-table-of-contents {
         display: block;
         object-fit: cover;
@@ -59,36 +47,6 @@
     display: table-cell;
 }
 */
-
-.dropdown {
-    position: relative;
-    display: inline-block;
-  }
-  
-.dropdown-content {
-    display: block;
-    position: absolute;
-    background-color:  #fff9e6;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-}
-  
-/* Links inside the dropdown */
-.dropdown-content .bookm-type {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-}
-
-.bookm-type > * {
-    vertical-align: center;
-}
-
-.dropdown-content .bookm-type:hover {
-    background-color:  #eed7ba;
-}
 
 .icon {
     color: burlywood;
