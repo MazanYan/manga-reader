@@ -60,7 +60,13 @@ router.post('/chapter', function(req, res, next) {
 
 router.post('/comment', function(req, res, next) {
     console.log(req.body);
-    res.send('Send your comment here');
+    dbInterface.addComment(
+            req.body.author, req.body.mangaKey, 
+            req.body.chapterNum, req.body.pageNum, 
+            req.body.text, req.body.replyOn
+        ).then(response => {
+            res.send(`Comment added ${response}`);
+        })
 });
 
 module.exports = router;

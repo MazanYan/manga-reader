@@ -199,18 +199,23 @@ async function createBookmark({accId, mangaKey, chapter = null, page = null}) {
     );
 }
 
-async function addComment({author, page, text, answerOn = null}) {
-    const commentId = crypt.MD5(string(page) + new Date().toLocaleString()).toString();
-    return performQuery(
+async function addComment(author, mangaKey, chapterNum, pageNum, text, answerOn = null) {
+    const commentId = cryptoJS.MD5(mangaKey.toString() + chapterNum + pageNum + new Date().toLocaleString()).toString();
+    const chapterKey = (await performQuery(
+        `SELECT chapter_key FROM chapter WHERE manga_key=$1 AND number=$2;`,
+        [mangaKey, chapterNum]
+    ))[0].chapter_key;
+    return await performQuery(
         'INSERT INTO comment(${this:name}) VALUES(${this:csv});',
         {
             comment_id: commentId,
             author: author,
-            page_key: page,
             text: text,
             rating: 0,
             time_added: 'NOW()',
-            answer_on: andwerOn
+            answer_on: answerOn,
+            page_num: pageNum,
+            chapter_key: chapterKey
         }
     );
 }
@@ -357,50 +362,8 @@ async function getMangaPageData(mangaId, chapterNum, pageNum) {
 }
 
 /*
-Recursive queries example: select oldest comment on page and all replies on it
-
-WITH RECURSIVE r AS (
-  	SELECT comment_id, author, time_added, rating FROM comment
- 		WHERE time_added=(SELECT time_added FROM comment ORDER BY time_added ASC LIMIT 1)
-	
-	UNION
-	
-	SELECT comment.comment_id, comment.author, comment.time_added, comment.rating FROM comment
-		JOIN r
-			ON r.comment_id=comment.answer_on
-)
-
-SELECT * FROM r;
-
-
-
-
------------------------- some other example
-
--- SELECT * FROM manga_page;
--- SELECT * FROM comment;
-
--- INSERT INTO comment VALUES 
---   	(1, 'Reno', 'Text', 0, NOW()-1000 * interval '1 second', null, 1, 17),
---   	(2, 'Reno', 'Text2', -1, NOW()-800 * interval '1 second', 1, 1, 17),
---   	(3, 'Reno', 'Text3', +2, NOW()-600 * interval '1 second', 1, 1, 17),
---   	(4, 'Ror', 'Text4', 0, NOW()-400 * interval '1 second', null, 1, 17),
---   	(5, 'Rium', 'Text5', 0, NOW()-200 * interval '1 second', 1, 1, 17),
---   	(6, 'Reno', 'Text6', 0, NOW(), 4, 1, 17);
-
-WITH RECURSIVE r AS (
-  	SELECT comment_id, comment.text, author, time_added, rating FROM comment
- 		WHERE answer_on IS NULL--time_added=(SELECT time_added FROM comment ORDER BY time_added ASC LIMIT 1)
-	
-	UNION
-	
-	SELECT comment.comment_id, comment.text, comment.author, comment.time_added, comment.rating FROM comment
-		JOIN r
-			ON r.comment_id=comment.answer_on
-)
-
-SELECT * FROM r;
-*/
+ * Recursive query to select oldest comment on page and all replies on it
+ */
 async function getPageComments(mangaKey, chapterNum, pageNum) {
     return await performQuery(
         `WITH RECURSIVE r AS (
