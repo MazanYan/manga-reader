@@ -248,17 +248,31 @@ ALTER SEQUENCE public.chapter_manga_key_seq OWNED BY public.chapter.manga_key;
 --
 
 CREATE TABLE public.comment (
-    comment_id bigint NOT NULL,
     author character varying NOT NULL,
-    page_key bigint NOT NULL,
     text character varying(1000) NOT NULL,
     rating integer NOT NULL,
     time_added timestamp with time zone NOT NULL,
-    answer_on bigint
+    page_num integer NOT NULL,
+    chapter_key bigint NOT NULL,
+    comment_id character varying NOT NULL,
+    answer_on character varying
 );
 
 
 ALTER TABLE public.comment OWNER TO postgres;
+
+--
+-- Name: comment_vote; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.comment_vote (
+    comment_id character varying NOT NULL,
+    account_id character varying NOT NULL,
+    vote integer NOT NULL
+);
+
+
+ALTER TABLE public.comment_vote OWNER TO postgres;
 
 --
 -- Name: manga; Type: TABLE; Schema: public; Owner: postgres
@@ -269,12 +283,12 @@ CREATE TABLE public.manga (
     author character varying(100) NOT NULL,
     description character varying(1500) NOT NULL,
     manga_key numeric NOT NULL,
-    bookmarks_count bigint NOT NULL,
     create_time date NOT NULL,
     last_modify_time date,
     thumbnail character varying(100),
     time_completed date,
-    manga_status public.manga_status NOT NULL
+    manga_status public.manga_status NOT NULL,
+    bookmarks_count integer NOT NULL
 );
 
 
@@ -514,6 +528,22 @@ ALTER TABLE ONLY public.user_registration
 
 
 --
+-- Name: comment_vote vote_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.comment_vote
+    ADD CONSTRAINT vote_key PRIMARY KEY (comment_id, account_id);
+
+
+--
+-- Name: comment_vote acc; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.comment_vote
+    ADD CONSTRAINT acc FOREIGN KEY (account_id) REFERENCES public.account(id) NOT VALID;
+
+
+--
 -- Name: notification account; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -530,14 +560,6 @@ ALTER TABLE ONLY public.bookmark
 
 
 --
--- Name: comment answer_on; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.comment
-    ADD CONSTRAINT answer_on FOREIGN KEY (answer_on) REFERENCES public.comment(comment_id) NOT VALID;
-
-
---
 -- Name: notification author; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -551,6 +573,22 @@ ALTER TABLE ONLY public.notification
 
 ALTER TABLE ONLY public.manga_page
     ADD CONSTRAINT chapter_key FOREIGN KEY (chapter_key) REFERENCES public.chapter(chapter_key) NOT VALID;
+
+
+--
+-- Name: comment_vote comm; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.comment_vote
+    ADD CONSTRAINT comm FOREIGN KEY (comment_id) REFERENCES public.comment(comment_id) NOT VALID;
+
+
+--
+-- Name: comment comment_chapter_key_page_num_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.comment
+    ADD CONSTRAINT comment_chapter_key_page_num_fkey FOREIGN KEY (chapter_key, page_num) REFERENCES public.manga_page(chapter_key, page_number);
 
 
 --
@@ -591,6 +629,14 @@ ALTER TABLE ONLY public.chapter
 
 ALTER TABLE ONLY public.bookmark
     ADD CONSTRAINT manga_key FOREIGN KEY (manga_key) REFERENCES public.manga(manga_key) NOT VALID;
+
+
+--
+-- Name: comment reply; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.comment
+    ADD CONSTRAINT reply FOREIGN KEY (answer_on) REFERENCES public.comment(comment_id);
 
 
 --

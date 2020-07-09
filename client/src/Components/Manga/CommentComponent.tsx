@@ -3,23 +3,24 @@ import { Link } from 'react-router-dom';
 import verifyToken from '../../helpers/VerifyToken';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { faCaretDown, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
 const addresses = require('../../config');
 
 export interface CommentProps {
     commentId: string,
-    showReplyButton: boolean,
     authorName: string,
     authorId: string,
     commentDate: Date,
     commentText: string,
     commentRating: number,
 
-    userReplyerId?: string
+    pageData: PageData,
+    interactable: boolean,          // someone can vote or reply on comment
+    userInteractorId?: string
 }
 
 export interface BasicCommentProps extends CommentProps {
-    pageData: PageData,
+    //pageData: PageData,
     replies?: Array<CommentReplyProps>
 }
 
@@ -27,11 +28,20 @@ interface CommentReplyProps extends CommentProps {
     commentReplyId: string
 }
 
+interface VoteCommentProps {
+    commentId: string,
+
+    interactorId?: string,
+    previousInteractorVote?: number
+}
+
 interface CommentRepliesProps {
+    interactorId?: string,
     replies?: Array<CommentReplyProps>
 }
 
 interface NewCommentProps {
+    authorId: string,
     pageData: PageData,
     isReply: boolean,
     replyOn?: string
@@ -44,8 +54,8 @@ export interface PageData {
 }
 
 interface CommentListProps {
-    loggedIn: boolean,
-    userId: string,
+    interactable: boolean,
+    userInteractorId: string,
     pageData: PageData,
     comments: Array<BasicCommentProps>
 }
@@ -61,7 +71,10 @@ export default function CommentList(props: CommentListProps) {
                 <>
                     {commentsList?.map((comment: any) => 
                         (
-                            <BasicComment pageData={props.pageData} {...comment}/>
+                            <BasicComment 
+                                interactable={props.interactable} 
+                                userInteractorId={props.userInteractorId} 
+                                {...comment}/>
                         )
                     )}
                 </>
@@ -73,6 +86,7 @@ export default function CommentList(props: CommentListProps) {
     };
 
     useEffect(() => {
+        //console.log(props.interactable, props.userInteractorId);
         setCommentsList(props.comments);
         updateCommentsOrder();
     }, [commentsList, props]);
@@ -95,7 +109,7 @@ export default function CommentList(props: CommentListProps) {
     const renderAddComment = () => {
         if (addCommentClicked)
             return (
-                <NewComment isReply={false} pageData={props.pageData}/>
+                <NewComment authorId={props.userInteractorId} isReply={false} pageData={props.pageData}/>
             )
     }
     
@@ -116,7 +130,7 @@ export default function CommentList(props: CommentListProps) {
                     </div>
                 </div>
                 {
-                    props.loggedIn ? (
+                    props.interactable ? (
                         <div className="btn btn-comment" onClick={() => setAddCommentClicked(!addCommentClicked)}>
                             Add comment
                         </div>
@@ -134,25 +148,15 @@ export default function CommentList(props: CommentListProps) {
 
 export function NewComment(props: NewCommentProps) {
 
-    const [authorId, setAuthorId] = useState("");
     const [commentText, setCommentText] = useState("");
-
-    useEffect(() => {
-        verifyToken().then(response => {
-            if (response) {
-                setAuthorId(response.accId);
-            }
-        });
-    });
 
     const sendComment = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        //console.log(props);
 
         const toSend = {
-            mangaKey: props.pageData.mangaKey,
-            chapterNum: props.pageData.chapterNum,
-            pageNum: props.pageData.pageNum,
-            author: authorId,
+            ...props.pageData,
+            author: props.authorId,
             text: commentText,
             isReply: props.isReply,
             replyOn: props?.replyOn
@@ -176,13 +180,13 @@ export function NewComment(props: NewCommentProps) {
 }
 
 function CommentReply(props: CommentReplyProps) {
-
     return (
         <p className="comment">
             <div className="comment-head">
                 <Link className="username" to={`/user/${props.authorId}`}>{props.authorName}</Link>
                 <div className="comment-date">{props.commentDate.toLocaleDateString()}</div>
-                <div className="comment-rating">{props.commentRating ? props.commentRating : 0}</div>
+                <div className={`comment-rating ${props.commentRating >= 0 ? 'comment-good' : 'comment-bad'}`}>{props.commentRating ? props.commentRating : 0}</div>
+                {props.interactable ? <VoteComment commentId={props.commentId} interactorId={props.userInteractorId} /> : <></>}
             </div>
             <div className="comment-body">
                 {props.commentText}
@@ -196,20 +200,55 @@ function CommentReplies(props: CommentRepliesProps) {
         <div className="reply">
             {
                 props.replies?.map((reply: CommentReplyProps) => (
-                    <CommentReply {...reply} />
+                    <CommentReply userInteractorId={props.interactorId} {...reply} />
                 ))
             }
         </div>
     );
 }
 
+function VoteComment(props: VoteCommentProps) {
+
+    const [userVote, setUserVote] = useState(props.previousInteractorVote);
+
+    const vote = (userVote: number) => {
+        //setUserVote(userVote);
+
+        const toSend = {
+            voterId: props.interactorId,
+            vote: userVote,
+            commentId: props.commentId
+        }
+
+        axios.post(`http://${addresses.serverAddress}/update/vote`, toSend)
+            .then(response => {
+                //alert('You voted for a comment');
+                setUserVote(userVote);
+            })
+    }
+
+    return (
+        <div className="comment-vote btn-group">
+            <FontAwesomeIcon 
+                icon={faPlus} size="xs" 
+                className={`vote-plus ${userVote === 1 ? 'active' : ''}`} 
+                onClick={() => userVote === 1 ? vote(0) : vote(1)} 
+            />
+            <FontAwesomeIcon 
+                icon={faMinus} size="xs" 
+                className={`vote-minus ${userVote === -1 ? 'active' : ''}`} 
+                onClick={() => userVote === -1 ? vote(0) : vote(-1)} 
+            />
+        </div>
+    )
+}
+
 function BasicComment(props: BasicCommentProps) {
 
-    const [commentHovered, setCommentHovered] = useState(false);
     const [replyBtnClicked, setReplyBtnClicked] = useState(false);
     
     const renderReplyLink = () => {
-        if (props.showReplyButton && commentHovered)
+        if (props.interactable)
             return (
                 <div className="link-colored" onClick={() => setReplyBtnClicked(!replyBtnClicked)}>
                     Reply
@@ -222,7 +261,8 @@ function BasicComment(props: BasicCommentProps) {
         if (replyBtnClicked)
             return (
                 <NewComment 
-                    pageData={props.pageData}
+                    authorId={props.userInteractorId!}
+                    pageData={props.pageData!}
                     isReply={true} 
                     replyOn={props.commentId} 
                 />
@@ -230,17 +270,18 @@ function BasicComment(props: BasicCommentProps) {
     };
 
     return (
-        <p className="comment" onMouseEnter={() => setCommentHovered(true)} onMouseLeave={() => setCommentHovered(false)}>
+        <p className="comment">
             <div className="comment-head">
                 <Link className="username" to={`/user/${props.authorId}`}>{props.authorName}</Link>
                 <div className="comment-date">{props.commentDate.toLocaleDateString()}</div>
-                <div className="comment-rating">{props.commentRating ? props.commentRating : 0}</div>
+                <div className={`comment-rating ${props.commentRating >= 0 ? 'comment-good' : 'comment-bad'}`}>{props.commentRating ? props.commentRating : 0}</div>
+                {props.interactable ? <VoteComment commentId={props.commentId} interactorId={props.userInteractorId} /> : <></>}
             </div>
             <div className="comment-body">
                 {props.commentText}
                 {renderReplyLink()}
             </div>
-            {<CommentReplies replies={props?.replies}/>}
+            <CommentReplies interactorId={props.userInteractorId} replies={props?.replies}/>
             {renderReply()}
         </p>
     );

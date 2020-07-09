@@ -156,8 +156,6 @@ async function resetPassword(token, newPassword) {
     const userId = (await performQuery(
         `SELECT id FROM passw_change_tokens WHERE token=$1;`, [token]
     ))[0].id;
-    console.log("User");
-    console.log(userId);
     const [salt, newPasswordHashed] = createPasswordSalt(newPassword);
     return performQuery(
         `UPDATE account
@@ -367,16 +365,23 @@ async function getMangaPageData(mangaId, chapterNum, pageNum) {
 async function getPageComments(mangaKey, chapterNum, pageNum) {
     return await performQuery(
         `WITH RECURSIVE r AS (
-            SELECT 	comment_id, 
-                    answer_on, text, 
-                    author, 
+            SELECT 	comment.comment_id, 
+                    comment.answer_on, 
+                    comment.text, 
+                    comment.author, 
                     (SELECT name FROM account WHERE id=author LIMIT 1) AS author_name,
-                    time_added, rating FROM comment
+                    comment.time_added, 
+                    (
+                        SELECT SUM(vote) 
+                            FROM comment_vote 
+                            WHERE comment_id=comment.comment_id
+                    ) AS rating
+                FROM comment
                 WHERE answer_on IS NULL 
                     AND page_num=$3 AND chapter_key=(
                         SELECT chapter_key FROM chapter 
                             WHERE manga_key=$1 AND number=$2 LIMIT 1
-                )
+                    )
         
         UNION
     
@@ -385,7 +390,13 @@ async function getPageComments(mangaKey, chapterNum, pageNum) {
                 comment.text, 
                 comment.author, 
                 (SELECT name FROM account WHERE id=comment.author LIMIT 1) AS author_name,
-                comment.time_added, comment.rating FROM comment
+                comment.time_added, 
+                (
+                    SELECT SUM(vote)
+                        FROM comment_vote
+                        WHERE comment_id=comment.comment_id
+                ) AS rating 
+            FROM comment
             JOIN r
                 ON r.comment_id=comment.answer_on
         )
@@ -464,6 +475,24 @@ async function updateComment(commentId, newText) {
         `UPDATE comment
             SET comment.text=$1 WHERE comment.comment_id=$2;`, newText, commentId
     );
+}
+
+async function voteComment({ commentId, voterId, vote }) {
+    if (vote === 0) {
+        return performQuery(
+            `DELETE FROM comment_vote
+                WHERE comment_id=$2 AND account_id=$1;`,
+            [commentId, voterId]
+        );
+    }
+    else {
+        return performQuery(
+            `INSERT INTO comment_vote(comment_id, account_id, vote)
+                VALUES($1, $2, $3)
+                ON CONFLICT (comment_id, account_id) DO UPDATE SET vote=$3;`,
+            [commentId, voterId, vote]
+        );
+    }
 }
 
 async function updateChapter() {
@@ -549,6 +578,7 @@ module.exports = {
     changeUserGeneralData,
     updateBookmark,
     updateComment,
+    voteComment,
     //updateChapter,
     //updateMangaPage,
     updateOnlineStatus,

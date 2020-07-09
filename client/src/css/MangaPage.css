@@ -147,6 +147,47 @@
     margin-top: 0.5rem;
 }
 
+.comment-good {
+    color: rgba(0, 100, 0, 0.5);
+}
+
+.comment-bad {
+    color: rgba(220, 20, 60, 0.5);
+}
+
+.comment-vote {
+    display: flex;
+    /*background-color: white;*/
+    justify-content: right;
+}
+
+.comment-vote > * {
+    padding: 5px;
+    color: black;
+}
+
+.vote-plus {
+    color: rgba(0, 100, 0, 0.5);
+    border-radius: 0 0 3px 0;
+}
+
+.vote-plus:hover, .vote-plus.active {
+    color: darkgreen;
+    background-color: rgba(0, 100, 0, 0.1);
+    transition: 0.5s;
+}
+
+.vote-minus {
+    color: rgba(220, 20, 60, 0.5);
+    border-radius: 0 0 0 3px;
+}
+
+.vote-minus:hover, .vote-minus.active {
+    color: crimson;
+    background-color: rgba(220, 20, 60, 0.1);
+    transition: 0.5s;
+}
+
 .comments-first-row {
     display: flex;
     flex-direction: row;
