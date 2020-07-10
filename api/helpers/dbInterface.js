@@ -71,7 +71,6 @@ async function getUserPageData(userId) {
 }
 
 async function checkPassword(userId, password) {
-    console.log(`Initial toSearch: ${userId} ${password}`);
     const salt = (await performQuery(
         'SELECT salt FROM salts WHERE salts.id=$1', userId
     ))[0].salt;
@@ -80,9 +79,6 @@ async function checkPassword(userId, password) {
         'SELECT passw_hashed FROM account WHERE account.id=$1', userId
     ))[0].passw_hashed;
     
-    console.log(`Salt ${salt}`);
-    console.log(`Hashed passw ${hashedPassword}`);
-    console.log(`Correct passw ${correctPassword}`);
     return hashedPassword === correctPassword;
 }
 
@@ -130,7 +126,7 @@ async function createUser({name, email, passw, photo = null, descr = null}) {
 }
 
 async function confirmUserByToken(token, timeToLive) {
-    const response = await performQuery(
+    return performQuery(
         `UPDATE account
             SET confirmed=true 
             WHERE id=(SELECT id FROM user_registration
@@ -139,8 +135,6 @@ async function confirmUserByToken(token, timeToLive) {
         DELETE FROM user_registration WHERE token=$2;`,
         [timeToLive, token]
     );
-    console.log(response);
-    return response;
 }
 
 async function createPasswordResetToken(userId) {
@@ -362,20 +356,26 @@ async function getMangaPageData(mangaId, chapterNum, pageNum) {
 /*
  * Recursive query to select oldest comment on page and all replies on it
  */
-async function getPageComments(mangaKey, chapterNum, pageNum) {
+async function getPageComments(mangaKey, chapterNum, pageNum, voterId = null) {
     return await performQuery(
         `WITH RECURSIVE r AS (
             SELECT 	comment.comment_id, 
                     comment.answer_on, 
                     comment.text, 
                     comment.author, 
-                    (SELECT name FROM account WHERE id=author LIMIT 1) AS author_name,
+                    (SELECT name FROM account WHERE id=comment.author LIMIT 1) AS author_name,
                     comment.time_added, 
                     (
                         SELECT SUM(vote) 
                             FROM comment_vote 
                             WHERE comment_id=comment.comment_id
-                    ) AS rating
+                    ) AS rating,
+                    (
+                        SELECT vote 
+                            FROM comment_vote 
+                            WHERE comment_id=comment.comment_id 
+                            AND account_id=$4
+                    ) AS vote
                 FROM comment
                 WHERE answer_on IS NULL 
                     AND page_num=$3 AND chapter_key=(
@@ -395,14 +395,20 @@ async function getPageComments(mangaKey, chapterNum, pageNum) {
                     SELECT SUM(vote)
                         FROM comment_vote
                         WHERE comment_id=comment.comment_id
-                ) AS rating 
+                ) AS rating,
+                (
+                    SELECT vote 
+                        FROM comment_vote 
+                        WHERE comment_id=comment.comment_id 
+                        AND account_id=$4
+                ) AS vote
             FROM comment
             JOIN r
                 ON r.comment_id=comment.answer_on
         )
         
         SELECT * FROM r;`,
-        [mangaKey, chapterNum, pageNum]
+        [mangaKey, chapterNum, pageNum, voterId ? voterId : '']
     );
 }
 
@@ -479,9 +485,10 @@ async function updateComment(commentId, newText) {
 
 async function voteComment({ commentId, voterId, vote }) {
     if (vote === 0) {
+        console.log(`An attempt to delete some vote ${commentId} ${voterId}`);
         return performQuery(
             `DELETE FROM comment_vote
-                WHERE comment_id=$2 AND account_id=$1;`,
+                WHERE comment_id=$1 AND account_id=$2;`,
             [commentId, voterId]
         );
     }

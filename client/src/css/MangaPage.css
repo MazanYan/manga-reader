@@ -168,7 +168,7 @@
 
 .vote-plus {
     color: rgba(0, 100, 0, 0.5);
-    border-radius: 0 0 3px 0;
+    border-radius: 0 0 0 3px;
 }
 
 .vote-plus:hover, .vote-plus.active {
@@ -179,7 +179,7 @@
 
 .vote-minus {
     color: rgba(220, 20, 60, 0.5);
-    border-radius: 0 0 0 3px;
+    border-radius: 0 0 3px 0;
 }
 
 .vote-minus:hover, .vote-minus.active {

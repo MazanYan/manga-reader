@@ -16,7 +16,8 @@ export interface CommentProps {
 
     pageData: PageData,
     interactable: boolean,          // someone can vote or reply on comment
-    userInteractorId?: string
+    userInteractorId?: string,
+    originalUserVote: number
 }
 
 export interface BasicCommentProps extends CommentProps {
@@ -32,7 +33,7 @@ interface VoteCommentProps {
     commentId: string,
 
     interactorId?: string,
-    previousInteractorVote?: number
+    originalUserVote: number
 }
 
 interface CommentRepliesProps {
@@ -186,7 +187,7 @@ function CommentReply(props: CommentReplyProps) {
                 <Link className="username" to={`/user/${props.authorId}`}>{props.authorName}</Link>
                 <div className="comment-date">{props.commentDate.toLocaleDateString()}</div>
                 <div className={`comment-rating ${props.commentRating >= 0 ? 'comment-good' : 'comment-bad'}`}>{props.commentRating ? props.commentRating : 0}</div>
-                {props.interactable ? <VoteComment commentId={props.commentId} interactorId={props.userInteractorId} /> : <></>}
+                {props.interactable ? <VoteComment originalUserVote={props.originalUserVote} commentId={props.commentId} interactorId={props.userInteractorId} /> : <></>}
             </div>
             <div className="comment-body">
                 {props.commentText}
@@ -209,10 +210,12 @@ function CommentReplies(props: CommentRepliesProps) {
 
 function VoteComment(props: VoteCommentProps) {
 
-    const [userVote, setUserVote] = useState(props.previousInteractorVote);
+    const [userVote, setUserVote] = useState(props.originalUserVote);
 
     const vote = (userVote: number) => {
         //setUserVote(userVote);
+
+        console.log(`Voted for ${userVote}`);
 
         const toSend = {
             voterId: props.interactorId,
@@ -275,7 +278,12 @@ function BasicComment(props: BasicCommentProps) {
                 <Link className="username" to={`/user/${props.authorId}`}>{props.authorName}</Link>
                 <div className="comment-date">{props.commentDate.toLocaleDateString()}</div>
                 <div className={`comment-rating ${props.commentRating >= 0 ? 'comment-good' : 'comment-bad'}`}>{props.commentRating ? props.commentRating : 0}</div>
-                {props.interactable ? <VoteComment commentId={props.commentId} interactorId={props.userInteractorId} /> : <></>}
+                {props.interactable ? 
+                    <VoteComment 
+                        originalUserVote={props.originalUserVote} 
+                        commentId={props.commentId} 
+                        interactorId={props.userInteractorId} 
+                    /> : <></>}
             </div>
             <div className="comment-body">
                 {props.commentText}

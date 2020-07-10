@@ -12,6 +12,7 @@ router.get('/page', function(req, res, next) {
     const manga = req.query.manga;
     const chapter = req.query.chapter;
     const page = req.query.page;
+    const userVoterId = req.query.user;
     console.log({manga, chapter, page});
     
     const answer = {
@@ -38,7 +39,7 @@ router.get('/page', function(req, res, next) {
         });
 
     const commentsPromise = dbInterface
-        .getPageComments(manga, chapter, page)
+        .getPageComments(manga, chapter, page, userVoterId)
         .then(response => {
             // make replies correspond to comments they reply on
             const commentsOrdered = [];
