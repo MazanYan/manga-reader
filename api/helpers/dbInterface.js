@@ -254,29 +254,48 @@ async function createNotification({acc, text, author}) {
 
 async function searchMangaByName(name, limit) {
     return performQuery(
-        `SELECT DISTINCT * FROM manga WHERE UPPER(name) LIKE UPPER('%${name}%') ORDER BY bookmarks_count DESC LIMIT ${limit};`,
+        `SELECT *, (SELECT COUNT(*) FROM chapter WHERE manga_key=manga.manga_key) AS chapters_count
+            FROM manga 
+                WHERE UPPER(name) LIKE UPPER('%${name}%')
+                ORDER BY bookmarks_count DESC LIMIT ${limit};`,
     );
 }
 
 async function searchMangaByNameAuthor(name, limit) {
     return performQuery(
-        `SELECT DISTINCT * FROM manga 
-            WHERE UPPER(manga.name) LIKE UPPER('%${name}%') 
-            OR UPPER(manga.author) LIKE UPPER('%${name}%') 
-            ORDER BY bookmarks_count DESC LIMIT ${limit};`,
+        `SELECT *, (SELECT COUNT(*) FROM chapter WHERE manga_key=manga.manga_key) AS chapters_count 
+            FROM manga 
+                WHERE UPPER(manga.name) LIKE UPPER('%${name}%') 
+                OR UPPER(manga.author) LIKE UPPER('%${name}%') 
+                ORDER BY bookmarks_count DESC LIMIT ${limit};`,
     );
 }
 
-async function getMangaByIdImage(id) {
-    return await performQuery(
-        `SELECT DISTINCT * FROM manga
-            WHERE manga.manga_key=$1;`, id
+async function searchMangaAdvanced({ mangaName, authName, minLength, maxLength, status, startedLaterThan, orderBy, ascDesc }) {
+    const mangaStatusQuery = status !== 'any' ? 'AND manga_status=$5' : ''
+    return performQuery(
+        `SELECT *, (SELECT COUNT(*) FROM chapter WHERE manga_key=manga.manga_key) AS chapters_count
+            FROM manga 
+                WHERE UPPER(name) LIKE UPPER('%${mangaName}%') 
+                AND UPPER(author) LIKE UPPER('%${authName}%')
+                AND (SELECT COUNT(*) FROM chapter WHERE manga_key=manga.manga_key) BETWEEN $3 AND $4
+                ${mangaStatusQuery}
+                AND create_time > '$6-01-01'
+                ORDER BY ${orderBy} ${ascDesc};`,
+        [mangaName, authName, minLength, maxLength, status, startedLaterThan, orderBy, ascDesc]
     );
 }
+
+/*async function getMangaByIdImage(id) {
+    return await performQuery(
+        `SELECT * FROM manga
+            WHERE manga.manga_key=$1;`, id
+    );
+}*/
 
 async function getMangaById(id) {
     return await performQuery(
-        `SELECT DISTINCT * FROM manga
+        `SELECT * FROM manga
             WHERE manga_key=$1`, id
         );
 }
@@ -568,8 +587,9 @@ module.exports = {
     addChapter,
     createNotification,
     searchMangaByNameAuthor,
+    searchMangaAdvanced,
     searchMangaByName,
-    getMangaByIdImage,
+    /*getMangaByIdImage,*/
     getMangaById,
     searchMangaByAuthor,
     searchPopularManga,

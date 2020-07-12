@@ -41,7 +41,7 @@ export default class MainPage extends React.Component<{}, MainPageState> {
         const request = {
             limit: 6
         };
-        const mangaData = await (await axios.get(`http://${addresses.serverAddress}/search/main_page&lim=${request.limit}`)).data.response;
+        const mangaData = await (await axios.get(`http://${addresses.serverAddress}/search/main_page?lim=${request.limit}`)).data.response;
         this.setState({
             popular: mangaData.popular,
             recent: mangaData.recent,

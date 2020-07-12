@@ -180,22 +180,6 @@ export function NewComment(props: NewCommentProps) {
     );
 }
 
-function CommentReply(props: CommentReplyProps) {
-    return (
-        <p className="comment">
-            <div className="comment-head">
-                <Link className="username" to={`/user/${props.authorId}`}>{props.authorName}</Link>
-                <div className="comment-date">{props.commentDate.toLocaleDateString()}</div>
-                <div className={`comment-rating ${props.commentRating >= 0 ? 'comment-good' : 'comment-bad'}`}>{props.commentRating ? props.commentRating : 0}</div>
-                {props.interactable ? <VoteComment originalUserVote={props.originalUserVote} commentId={props.commentId} interactorId={props.userInteractorId} /> : <></>}
-            </div>
-            <div className="comment-body">
-                {props.commentText}
-            </div>
-        </p>
-    );
-}
-
 function CommentReplies(props: CommentRepliesProps) {
     return (
         <div className="reply">
@@ -246,6 +230,22 @@ function VoteComment(props: VoteCommentProps) {
     )
 }
 
+function CommentReply(props: CommentReplyProps) {
+    return (
+        <p className="comment">
+            <div className="comment-head">
+                <Link className="username" to={`/user/${props.authorId}`}>{props.authorName}</Link>
+                <div className="comment-date">{props.commentDate.toLocaleDateString()}</div>
+                <div className={`comment-rating ${props.commentRating >= 0 ? 'comment-good' : 'comment-bad'}`}>{props.commentRating ? props.commentRating : 0}</div>
+                {props.interactable ? <VoteComment originalUserVote={props.originalUserVote} commentId={props.commentId} interactorId={props.userInteractorId} /> : <></>}
+            </div>
+            <div className="comment-body">
+                {props.commentText}
+            </div>
+        </p>
+    );
+}
+
 function BasicComment(props: BasicCommentProps) {
 
     const [replyBtnClicked, setReplyBtnClicked] = useState(false);
@@ -290,7 +290,13 @@ function BasicComment(props: BasicCommentProps) {
                 {renderReplyLink()}
             </div>
             <CommentReplies interactorId={props.userInteractorId} replies={props?.replies}/>
-            {renderReply()}
+            {replyBtnClicked ?
+               <NewComment 
+                    authorId={props.userInteractorId!}
+                    pageData={props.pageData!}
+                    isReply={true} 
+                    replyOn={props.commentId} 
+                /> : <></> }
         </p>
     );
 }

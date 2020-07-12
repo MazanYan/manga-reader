@@ -3,9 +3,9 @@ const router = express.Router();
 const dbInterface = require('../helpers/dbInterface');
 
 /* GET manga by author/name search */
-router.get('/', function(req, res, next) {
+/*router.get('/', function(req, res, next) {
     res.status(404).send("Search query");
-});
+});*/
 
 /* GET all necessary data about page of manga */
 router.get('/page', function(req, res, next) {
@@ -64,9 +64,10 @@ router.get('/page', function(req, res, next) {
         .catch(err => console.log(err));
 });
 
-/* POST manga by author/name search */
-router.post('/', function(req, res, next) {
-    const searchRequest = req.body.toSearch;
+/* GET manga by author/name search */
+router.get('/', function(req, res, next) {
+    //const searchRequest = req.body.toSearch;
+    const searchRequest = req.query.nameauthor;
     console.log(searchRequest);
     dbInterface.searchMangaByNameAuthor(searchRequest, 100)
         .then(function(response) {
@@ -76,9 +77,38 @@ router.post('/', function(req, res, next) {
         .catch(err => {console.log(err); res.send(err);});
 });
 
+router.get('/advanced', function(req, res, next) {
+    const orderByOptions = {
+        auth: 'author',
+        nm: 'name',
+        pop: 'bookmarks_count'
+    };
+    const order = {
+        asc: 'ASC',
+        desc: 'DESC'
+    };
+
+    const query = {
+        mangaName: req.query.mgname,
+        authName: req.query.authname,
+        minLength: parseInt(req.query.minlen),
+        maxLength: parseInt(req.query.maxlen),
+        status: req.query.st,
+        startedLaterThan: parseInt(req.query.startyear),
+        orderBy: orderByOptions[req.query.orderby],
+        ascDesc: order[req.query.order]
+    };
+
+    console.log(query);
+
+    dbInterface.searchMangaAdvanced(query)
+        .then(response => res.send(response))
+        .catch(err => res.send(`Manga not found. ${err}`));
+});
+
 /* GET popular, recent and random manga for Main Page */
-router.get('/main_page&lim=:limit', function(req, res, next) {
-    const limit = req.params.limit;
+router.get('/main_page', function(req, res, next) {
+    const limit = req.query.lim;
 
     const answer = {
         popular: [],
@@ -100,7 +130,7 @@ router.get('/main_page&lim=:limit', function(req, res, next) {
     
     Promise.all([popularManga, recentManga, randomManga])
         .then(() => {
-            console.log(answer);
+            //console.log(answer);
             res.send(JSON.stringify({response: answer}));
         })
         .catch(err => console.log(err));
@@ -118,7 +148,7 @@ router.post('/main_page', function(req, res, next) {
 router.get('/mangaId/:id', function(req, res, next) {
     const mangaId = req.params.id;
     console.log('General data request for manga with id ', mangaId);
-    dbInterface.getMangaByIdImage(mangaId)
+    dbInterface.getMangaById(mangaId)
         .then(function(response) {
             const found = JSON.stringify({message: response});
             res.send(found);
