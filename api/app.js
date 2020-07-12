@@ -87,6 +87,7 @@ app.post('/upload/thumb', uploadThumbnail.single('file'), function(req, res, nex
 
 app.post('/upload/manga_pages', uploadMangaPage.single('file'), function(req, res, next) {
   console.log("Manga page file uploaded");
+  res.send("Manga page file uploaded");
 });
 
 app.post('/upload/profile_photo', uploadProfilePhoto.single('file'), function(req, res, next) {

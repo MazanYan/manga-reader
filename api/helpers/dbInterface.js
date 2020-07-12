@@ -221,6 +221,7 @@ async function addChapter({mangaName, chapterName, chapterNumber, chapterVolume 
     const arrToStrInts = (arr) => {
         return '[' + arr.join(', ') + ']';
     }
+    console.log({mangaName, chapterName, chapterNumber, chapterVolume, images});
     return performQuery(
         'INSERT INTO chapter(manga_key, name, number, volume, pages_count, add_time)' +
             'VALUES ((SELECT manga_key FROM manga WHERE manga.name=${manga_name} LIMIT 1),' +

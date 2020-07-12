@@ -4,13 +4,13 @@ const express = require('express');
 const router = express.Router();
 const dbInterface = require('../helpers/dbInterface');
 
-router.get('/', function(req, res, next) {
+/*router.get('/', function(req, res, next) {
 
 });
 
 router.post('/', function(req, res, next) {
 
-});
+});*/
 
 router.get('/manga', function(req, res, next) {
     res.send('Here you can upload data about manga');
@@ -41,18 +41,18 @@ router.get('/chapter', function(req, res, next) {
 
 /* {mangaKey, name, number, volume = null} */
 router.post('/chapter', function(req, res, next) {
+    /*console.log(`POST chapter ${req.ip}`);
+    res.send('Good');*/
     const request = req.body;
     console.log(request);
 
-    const response = dbInterface.addChapter({
+    dbInterface.addChapter({
         mangaName: request.mangaName,
         chapterName: request.chapterName,
         chapterNumber: request.chapterNumber,
         chapterVolume: request.chapterVolume,
         images: request.images
-    });
-
-    Promise.all([response]).then(resp => {
+    }).then(resp => {
         console.log(resp);
         res.send(JSON.stringify({result: resp}));
     });
@@ -66,7 +66,7 @@ router.post('/comment', function(req, res, next) {
             req.body.text, req.body.replyOn
         ).then(response => {
             res.send(`Comment added ${response}`);
-        })
+        });
 });
 
 module.exports = router;
