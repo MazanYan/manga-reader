@@ -12,7 +12,8 @@ export interface MangaResponse {
     last_modify_time: string,
     thumbnail: string,
     time_completed: string,
-    manga_status: MangaStatus
+    manga_status: MangaStatus,
+    chapters_count?: number
 };
 
 export interface TableOfContentsResponse {

@@ -124,6 +124,7 @@ export default function SearchPage(props: SearchPageProps) {
                 <th>Description</th>
                 <th>Time created</th>
                 <th>In bookmarks</th>
+                <th>Chapters</th>
             </tr>
             {response?.map(res => (
                 <tr>
@@ -132,6 +133,7 @@ export default function SearchPage(props: SearchPageProps) {
                     <td><Link to={`/manga/${res.manga_key}`}>{res.description}</Link></td>
                     <td><Link to={`/manga/${res.manga_key}`}>{postgresToDate(res.create_time)?.getFullYear()}</Link></td>
                     <td><Link to={`/manga/${res.manga_key}`}>{res.bookmarks_count}</Link></td>
+                    <td><Link to={`/manga/${res.manga_key}`}>{res.chapters_count}</Link></td>
                 </tr>
             ))}
         </table>
