@@ -499,7 +499,7 @@ function updateBookmark(accId, mangaKey, newStatus, newChapter=null, newPage=nul
 async function updateComment(commentId, newText) {
     return performQuery(
         `UPDATE comment
-            SET comment.text=$1 WHERE comment.comment_id=$2;`, newText, commentId
+            SET text=$1 WHERE comment_id=$2;`, [newText, commentId]
     );
 }
 
@@ -562,6 +562,18 @@ async function deleteChapter(mangaName, chapterNumber) {
     );
 }
 
+async function deleteComment(commentId) {
+    return performQuery(
+        `DELETE FROM comment_vote 
+            WHERE comment_id in (
+                SELECT comment_id FROM comment 
+                    WHERE comment_id=$1 OR answer_on=$1
+            );
+        DELETE FROM comment WHERE comment_id=$1 OR answer_on=$1;`,
+        commentId
+    );
+}
+
 async function deleteUser(userId) {
     return performQuery(
         'DELETE FROM account where id=$1', userId
@@ -612,6 +624,7 @@ module.exports = {
     updateOnlineStatus,
     deleteManga,
     deleteChapter,
+    deleteComment,
     deleteUser,
     //deleteNotification
 };

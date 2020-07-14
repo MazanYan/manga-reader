@@ -7,7 +7,6 @@ router.post('/', function(req, res, next) {
 });
 
 router.post('/vote', function(req, res, next) {
-    console.log(req.body);
     const voteComment = {
         voterId: req.body.voterId,
         commentId: req.body.commentId,
@@ -16,6 +15,12 @@ router.post('/vote', function(req, res, next) {
     dbInterface.voteComment(voteComment)
         .then( response => res.send(`Vote updated ${response}`) )
         .catch( err => res.send(`Comment not voted ${err}`) );
+});
+
+router.post('/comment', function(req, res, next) {
+    const [commId, newText] = [req.body.id, req.body.text];
+    dbInterface.updateComment(commId, newText)
+        .then(response => res.send("Comment updated"));
 });
 
 module.exports = router;

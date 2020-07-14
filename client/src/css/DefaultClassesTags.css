@@ -163,6 +163,7 @@ a:hover {
 
 .link-colored:hover {
     text-decoration: underline;
+    color: black;
 }
 
 .dropdown {
