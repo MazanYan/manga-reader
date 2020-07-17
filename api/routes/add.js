@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const dbInterface = require('../helpers/dbInterface');
-const notif = require('../helpers/notifications');
+//const notif = require('../helpers/notifications');
 const addresses = require('../config');
 
 router.get('/manga', function(req, res, next) {
@@ -51,7 +51,6 @@ router.post('/chapter', function(req, res, next) {
 });
 
 router.post('/comment', function(req, res, next) {
-    //console.log(req.body);
     const [
         author, manga,
         chapter, page,
@@ -71,8 +70,10 @@ router.post('/comment', function(req, res, next) {
     if (req.body.replyOn) {
         dbInterface.getAuthorOriginalComment(req.body.replyOn)
             .then(origCommentAuthor => {
-                const commentText = `You have a reply from ${origCommentAuthor} on your comment on page http://${addresses.clientAddress}/manga/${manga}/chapter${chapter}/page${page}`;
-                notif.createNotification(author, commentText, 'Manga Reader');
+                const commentLink = `http://${addresses.clientAddress}/manga/${manga}/chapter${chapter}/page${page}`;
+                const commentText = `You have a reply from ${origCommentAuthor} on your comment`;
+                dbInterface.createNotification(author, commentText, 'Manga Reader', commentLink);
+                //notif.createNotification(author, commentText, 'Manga Reader', commentLink);
             });
     }
 });

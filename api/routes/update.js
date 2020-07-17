@@ -23,4 +23,11 @@ router.post('/comment', function(req, res, next) {
         .then(response => res.send("Comment updated"));
 });
 
+router.post('/notification/:id', function(req, res, next) {
+    const notificationId = req.params.id;
+    dbInterface.readNotification(notificationId)
+        .then(response => res.send(`Notification ${notificationId} is marked as read`))
+        .catch(error => res.status(500).send('Unable to update comment'));
+});
+
 module.exports = router;

@@ -239,7 +239,7 @@ async function addChapter({mangaName, chapterName, chapterNumber, chapterVolume 
     );
 }
 
-async function createNotification(acc, text, author = null) {
+async function createNotification(acc, text, author = null, link) {
     const notificationId = cryptoJS.MD5(acc + new Date().getTime()).toString();
     return performQuery(
         'INSERT INTO notification(${this:name}) VALUES(${this:csv});',
@@ -248,7 +248,8 @@ async function createNotification(acc, text, author = null) {
             id: notificationId,
             text: text,
             readen: false,
-            author: author
+            author: author,
+            link: link
         }
     );
 }
@@ -352,9 +353,15 @@ async function getUserBookmarks(userId, bookmarkType) {
     );
 }
 
-async function getUserNotifications(userId) {
+async function getAllUserNotifications(userId) {
     return await performQuery(
         `SELECT * FROM notification WHERE account_id=$1;`, [userId]
+    );
+}
+
+async function getUnreadUserNotifications(userId) {
+    return await performQuery(
+        `SELECT * FROM notification WHERE account_id=$1 AND readen=false;`, [userId]
     );
 }
 
@@ -558,13 +565,20 @@ async function updateOnlineStatus(userId) {
     return performQuery(
         `UPDATE account
             SET is_online=NOT is_online, last_online=NOW()
-            WHERE account.id='$1';`, userId
+            WHERE account.id='$1';`, [userId]
+    );
+}
+
+async function readNotification(notifId) {
+    return performQuery(
+        `UPDATE notification
+            SET readen=true WHERE id=$1`, [notifId]
     );
 }
 
 async function deleteManga(mangaName) {
     return performQuery(
-        'DELETE FROM manga WHERE name=$1', mangaName
+        'DELETE FROM manga WHERE name=$1', [mangaName]
     );
 }
 
@@ -625,7 +639,8 @@ module.exports = {
     searchRandomManga,
     getTableOfContents,
     getUserBookmarks,
-    getUserNotifications,
+    getAllUserNotifications,
+    getUnreadUserNotifications,
     getUserMangaBookmarkStatus,
     getMangaPageData,
     getPageComments,
@@ -639,6 +654,7 @@ module.exports = {
     //updateChapter,
     //updateMangaPage,
     updateOnlineStatus,
+    readNotification,
     deleteManga,
     deleteChapter,
     deleteComment,

@@ -26,6 +26,6 @@
     display: block;
     min-width: fit-content;
     border-bottom-style: solid;
-    border-color: #0000003d;
+    border-color: rgba(0, 0, 0, 0.239);
     border-bottom-width: thin;
 }

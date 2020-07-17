@@ -19,7 +19,6 @@ router.get('/:id', function(req, res, next) {
       res.send(JSON.stringify(sendData));
     })
     .catch(err => res.status(404).send("User not found"));
-  //next();
 });
 
 router.post('/:id/edit_general', async function(req, res, next) {
@@ -41,7 +40,6 @@ router.post('/:id/edit_general', async function(req, res, next) {
     .then(response => {
       res.send(response);
     });
-  //next();
 });
 
 router.post('/:id/edit_passwd', async function(req, res, next) {
@@ -73,12 +71,10 @@ router.post('/recover_passw/:token', function(req, res, next) {
 
 router.post('/', function(req, res, next) {
   res.status(404).send("No user data to get is specified");
-  //next();
 });
 
 router.get('/new', function(req, res, next) {
   res.status(404).send("Add new user here");
-  //next();
 });
 
 router.post('/new', function(req, res, next) {
@@ -103,6 +99,9 @@ router.post('/new', function(req, res, next) {
   });
 });
 
+/*
+  Recover password of user
+*/
 router.post('/recover', function(req, res, next) {
   const email = req.body.email;
   console.log(email);
@@ -138,10 +137,22 @@ router.get('/confirm/:token', function(req, res, next) {
   });
 });
 
+/*
+  Get notifications of specific user
+  ?quantity=all - all notification (including read)
+  ?quantity=unread - only unread notifications
+*/
 router.get('/notifications/:userId', function(req, res, next) {
   const userId = req.params.userId;
-  dbInterface.getUserNotifications(userId)
-    .then( response => res.send(response) );
+  const notificationsType = req.query.quantity;
+  if (notificationsType === 'all')
+    dbInterface.getAllUserNotifications(userId)
+      .then( response => res.send(response) );
+  else if (notificationsType === 'unread')
+    dbInterface.getUnreadUserNotifications(userId)
+      .then( response => res.send(response) );
+  else
+    res.status(400).send('Invalid query parameters');
 });
 
 module.exports = router;

@@ -10,6 +10,7 @@ import MakeContribution from './ContributionComponent';
 import CopyrightClaimPage from './CopyrightClaimComponent';
 import Manga from './Manga/MangaComponent';
 import LoginRoute from './User/LoginRouteComponent';
+import NotificationPage from './User/NotificationsPageComponent';
 
 export default function MainComponent() {
     return (
@@ -20,6 +21,7 @@ export default function MainComponent() {
                 <Route path="/manga" component={Manga}/>
                 <Route path="/auth" component={LoginRoute}/>
                 <Route path="/user" component={UserPage}/>
+                <Route path="/notifications" component={NotificationPage}/>
                 <Route path="/search/:query" component={SearchPage}/>
                 <Route path="/contribute" component={MakeContribution}/> 
                 <Route path="/right_holders" component={CopyrightClaimPage}/>

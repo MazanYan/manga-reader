@@ -104,7 +104,7 @@ table tr:hover {
     padding: 2px 16px;
 }
 
-a {
+a, .link {
     color: black;
     text-decoration: none;
 }
@@ -163,7 +163,7 @@ a:hover {
 
 .link-colored:hover {
     text-decoration: underline;
-    color: black;
+    color: rgb(235, 195, 144);
 }
 
 .dropdown {
