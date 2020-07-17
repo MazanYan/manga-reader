@@ -3,6 +3,7 @@ const crypto = require('crypto-js');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const dbInterface = require('../helpers/dbInterface');
+const notif = require('../helpers/notifications');
 const verifyToken = require('../helpers/verifyToken').verifyToken;
 const router = express.Router();
 require('dotenv').config();
@@ -34,11 +35,16 @@ router.post('/', function(req, res, next) {
     console.log(response ? 'Password correct' : 'Password incorrect');
     if (response) {
       const token = jwt.sign({ user: userId }, SECRET_KEY, { expiresIn: '1h' });
-      res.send({token: token, name: userName});
+      res.send({ token: token, name: userName });
+      return { userId: userId, author: 'Manga Reader', text: 'You are logged in on website \'Manga Reader\'' };
     }
     else
       res.status(400).send({ message: "Unable to log in. Password is incorrect" });
-  });
+      throw Error('Unable to log in');
+  }).then(notificationData => {
+    notif.createNotification(notificationData.userId, notificationData.text, notificationData.author);
+  }).catch(err => console.log(err));
+
 });
 
 router.post('/verify', async function(req, res, next) {

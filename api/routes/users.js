@@ -100,7 +100,6 @@ router.post('/new', function(req, res, next) {
 
     sendMail(mailOptions);
     res.send(resp);
-    //next();
   });
 });
 
@@ -124,8 +123,6 @@ router.post('/recover', function(req, res, next) {
         sendMail(mailOptions);
     });
   res.send(email);
-
-  //next();
 });
 
 router.get('/confirm/:token', function(req, res, next) {
@@ -139,8 +136,12 @@ router.get('/confirm/:token', function(req, res, next) {
     console.log(response);
     res.send("Your account is confirmed!");
   });
+});
 
-  //next();
-})
+router.get('/notifications/:userId', function(req, res, next) {
+  const userId = req.params.userId;
+  dbInterface.getUserNotifications(userId)
+    .then( response => res.send(response) );
+});
 
 module.exports = router;

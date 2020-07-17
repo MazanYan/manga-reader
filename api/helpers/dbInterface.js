@@ -239,13 +239,13 @@ async function addChapter({mangaName, chapterName, chapterNumber, chapterVolume 
     );
 }
 
-async function createNotification({acc, text, author}) {
-    const notificationId = crypt.MD5(string(acc) + author + new Date().toLocaleString());
+async function createNotification(acc, text, author = null) {
+    const notificationId = cryptoJS.MD5(acc + new Date().getTime()).toString();
     return performQuery(
-        'INSERT INTO notification(${this:name} VALUES(${this:csv});',
+        'INSERT INTO notification(${this:name}) VALUES(${this:csv});',
         {
-            account: acc,
-            notification_id: notificationId,
+            account_id: acc,
+            id: notificationId,
             text: text,
             readen: false,
             author: author
@@ -352,6 +352,12 @@ async function getUserBookmarks(userId, bookmarkType) {
     );
 }
 
+async function getUserNotifications(userId) {
+    return await performQuery(
+        `SELECT * FROM notification WHERE account_id=$1;`, [userId]
+    );
+}
+
 async function getUserMangaBookmarkStatus(userId, mangaId) {
     return await performQuery(
         `SELECT type FROM bookmark WHERE account=$1 AND manga_key=$2`,
@@ -430,6 +436,15 @@ async function getPageComments(mangaKey, chapterNum, pageNum, voterId = null) {
         SELECT * FROM r;`,
         [mangaKey, chapterNum, pageNum, voterId ? voterId : '']
     );
+}
+
+/* get author of comment someone is replying on */
+async function getAuthorOriginalComment(replyOnId) {
+    return (await performQuery(
+        `SELECT name FROM account WHERE id=(
+            SELECT author FROM comment WHERE comment_id=$1 LIMIT 1
+        );`, [replyOnId]
+    ))[0].name;
 }
 
 async function getPrevNextChapterNum(mangaId, chapterNum) {
@@ -610,9 +625,11 @@ module.exports = {
     searchRandomManga,
     getTableOfContents,
     getUserBookmarks,
+    getUserNotifications,
     getUserMangaBookmarkStatus,
     getMangaPageData,
     getPageComments,
+    getAuthorOriginalComment,
     getPrevNextChapterNum,
     changePassword,
     changeUserGeneralData,

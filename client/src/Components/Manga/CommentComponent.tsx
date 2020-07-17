@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-//import verifyToken from '../../helpers/VerifyToken';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretDown, faPlus, faMinus, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -21,7 +20,6 @@ export interface CommentProps {
 }
 
 export interface BasicCommentProps extends CommentProps {
-    //pageData: PageData,
     replies?: Array<CommentReplyProps>
 }
 
