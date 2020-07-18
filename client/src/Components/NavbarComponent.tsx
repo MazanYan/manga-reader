@@ -55,12 +55,16 @@ function LoggedInNavbar(props: LoggedInNavbarProps) {
 
     const [notificationsVisible, setNotificationsVisible] = useState(false);
 
+    const notificationsCount = props.notifications?.length ? (
+        <span className="unread-count">{props.notifications!.length}</span>
+    ) : (<></>);
+
     return (
         <>
             <Link to={`/user/${props.userId}`}>{props.userName}</Link>
-            <Link to={`/user/${props.userId}/bookmarks`}>Bookmarks</Link>
+            <Link to={`/user/${props.userId}/bookmarks?page=1`}>Bookmarks</Link>
             <a className="dropdown" onClick={() => setNotificationsVisible(!notificationsVisible)}>
-                <span>Notifications</span>
+                <span>Notifications {notificationsCount}</span>
                 {notificationsVisible ? (
                     <div className="dropdown-content notifications">
                         <NotificationsDropdown userId={props.userId} notifications={props.notifications} />
@@ -102,7 +106,7 @@ export default function Navbar() {
                     console.log(response.data);
                     setNotifications(response.data);
                 });
-        }).catch(err => alert(err));
+        }).catch(err => console.log(err));
     }, [accName]);
 
     const renderLoggedIn = () => {

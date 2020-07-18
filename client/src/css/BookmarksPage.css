@@ -8,9 +8,10 @@
 
 .btn-bookmark-type {
     display: inline-block;
+    padding-top: 20px;
+    padding-bottom: 20px;
     background-color: #ffecd4;
     border: none;
-    height: 50px;
     width: 200px;
 }
 

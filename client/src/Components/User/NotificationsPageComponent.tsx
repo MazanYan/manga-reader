@@ -21,7 +21,14 @@ export default function NotificationPage(props: NotificationPageProps) {
 
     if (allowed)
         return (
-            <>Notifications Page</>
+            <>
+                <div className="header">
+                    <p>Notifications</p>
+                </div>
+                <main>
+                    
+                </main>
+            </>
         );
     else
         return (
