@@ -102,11 +102,11 @@ export default function Navbar() {
                 throw Error('Unable to log in');
             return res;
         }).then(res => {
-            axios.get(`http://${addresses.serverAddress}/users/notifications/${res!.accId}?quantity=unread`)
+            axios.get(`http://${addresses.serverAddress}/users/notifications/${res!.accId}?quantity=unread&select=true`)
                 .then(response => {
                     console.log('Notifications');
                     console.log(response.data);
-                    setNotifications(response.data);
+                    setNotifications(response.data.notificationsList);
                 });
         }).catch(err => console.log(err));
     }, [accName]);

@@ -10,6 +10,7 @@ const initOptions = {
 };
 const crypto = require('crypto');   // generateRandomBytes
 const cryptoJS = require('crypto-js');  // other hashing algorithms
+const { count } = require('console');
 const pgp = require('pg-promise')(initOptions);
 
 const databaseConfig = {
@@ -353,17 +354,47 @@ async function getUserBookmarks(userId, bookmarkType) {
     );
 }
 
-async function getAllUserNotifications(userId) {
+/*
+    type: 'read', 'unread', 'all'
+*/
+async function getUserNotifications(userId, type, start, end) {
+    let typeSelector;
+    console.log(`Type of user's notifications to get: ${type} start: ${start} end: ${end}`);
+    let countSelector;
+    switch (type) {
+        case 'read': typeSelector = 'AND readen=true'; break;
+        case 'unread': typeSelector = 'AND readen=false'; break;
+        case 'all': typeSelector = ''; break;
+    }
+    if (start !== undefined && end !== undefined)
+        countSelector='OFFSET $2 LIMIT $3';
+    else
+        countSelector='';
+    const response = await performQuery(
+        `SELECT * FROM notification WHERE account_id=$1 ${typeSelector} ${countSelector};`,
+        [userId, start, end]
+    );
+    console.log(typeSelector);
+    return response;
+}
+
+/*
+    type: 'read', 'unread', 'all'
+*/
+async function countUserNotifications(userId, type) {
+    let typeSelector;
+    console.log(`Type of user's notifications to count: ${type}`);
+    switch (type) {
+        case 'read': typeSelector = 'AND readen=true'; break;
+        case 'unread': typeSelector = 'AND readen=false'; break;
+        case 'all': typeSelector = ''; break;
+    }
     return await performQuery(
-        `SELECT * FROM notification WHERE account_id=$1 ORDER BY readen ASC;`, [userId]
+        `SELECT COUNT(*) FROM notification WHERE account_id=$1 ${typeSelector};`,
+        [userId]
     );
 }
 
-async function getUnreadUserNotifications(userId) {
-    return await performQuery(
-        `SELECT * FROM notification WHERE account_id=$1 AND readen=false;`, [userId]
-    );
-}
 
 async function getUserMangaBookmarkStatus(userId, mangaId) {
     return await performQuery(
@@ -639,8 +670,8 @@ module.exports = {
     searchRandomManga,
     getTableOfContents,
     getUserBookmarks,
-    getAllUserNotifications,
-    getUnreadUserNotifications,
+    getUserNotifications,
+    countUserNotifications,
     getUserMangaBookmarkStatus,
     getMangaPageData,
     getPageComments,

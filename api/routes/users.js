@@ -139,26 +139,60 @@ router.get('/confirm/:token', function(req, res, next) {
 
 /*
   Get notifications of specific user
-  ?quantity=all - all notification (including read)
+  ?quantity=all - all notifications
+  ?quantity=read - all read notifications
   ?quantity=unread - only unread notifications
+  &from=[number] - select read notification starting from [number]
+  &to=[number] - select read notification ending on [number]
+  &count={true | false} - count all notifications with specific type of specific user
+  &select={true | false} - select comments' body
 */
 router.get('/notifications/:userId', function(req, res, next) {
   const userId = req.params.userId;
   const notificationsType = req.query.quantity;
-  if (notificationsType === 'all')
-    dbInterface.getAllUserNotifications(userId)
-      .then(response => {
-        const notifications = {
-          read: response.filter(notif => notif.readen === true),
-          unread: response.filter(notif => notif.readen === false)
-        };
-        res.send(notifications);
+
+  const start = req.query.from;
+  const end = req.query.to;
+
+  let getNotificationsPromise;
+  let countNotificationsPromise;
+
+  const response = {
+    notificationsCount: null,
+    notificationsList: null
+  };
+
+  console.log('GET user\'s notifications');
+  console.log(req.query);
+
+  if (req.query.count === 'true') {
+    console.log("Count notifications");
+    countNotificationsPromise = dbInterface.countUserNotifications(userId, notificationsType)
+      .then(queryResult => {
+        response.notificationsCount = queryResult[0].count;
       });
-  else if (notificationsType === 'unread')
-    dbInterface.getUnreadUserNotifications(userId)
-      .then( response => res.send(response) );
-  else
-    res.status(400).send('Invalid query parameters');
+  }
+  if (req.query.select === 'true')
+    getNotificationsPromise = dbInterface.getUserNotifications(userId, notificationsType, start, end)
+      .then(queryResult => {
+        let notifications;
+        if (notificationsType === 'all')
+          notifications = {
+            read: queryResult.filter(notif => notif.readen === true),
+            unread: queryResult.filter(notif => notif.readen === false)
+          };
+        else 
+          notifications = queryResult;
+
+        response.notificationsList = notifications;
+      })/*.catch(err => res.status(400).send(`Invalid query parameters. ${err}`))*/;
+  
+  Promise.all([getNotificationsPromise, countNotificationsPromise])
+    .then(_ => {
+      console.log("Final Response");
+      console.log(response);
+      res.send(response);
+    });
 });
 
 module.exports = router;

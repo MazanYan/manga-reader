@@ -13,10 +13,30 @@ interface NotificationPageProps extends RouteComponentProps<any> {
 
 export default function NotificationPage(props: NotificationPageProps) {
 
+    const readCommentsPageLength = 5;
+
     const [allowed, setAllowed] = useState(false);
     const [newNotifications, setNewNotifications] = useState<Array<any>>();
     const [readNotifications, setReadNotifications] = useState<Array<any>>();
+    const [startReadNotification, setStartReadNotification] = useState(0);
+    const [endReadNotification, setEndReadNotification] = useState(readCommentsPageLength);
+    const [readNotificationsCount, setReadNotificationsCount] = useState(0);
+    const [currentPage, setCurrentPage] = useState(Math.floor(startReadNotification / readCommentsPageLength) + 1);
 
+    const pagesTotal = Math.ceil(readNotificationsCount / readCommentsPageLength);
+
+    // count read notifications
+    useEffect(() => {
+        const userId = QueryString.parse(props.location.search).user;
+        axios.get(`http://${addresses.serverAddress}/users/notifications/${userId}?quantity=read&count=true`)
+            .then(response => {
+                console.log("Count of read notifications");
+                console.log(response.data.notificationsCount);
+                setReadNotificationsCount(response.data.notificationsCount);
+            });
+    }, []);
+
+    // get body of all unread notifications and read notifications in range [startReadNotification, endReadNotification]
     useEffect(() => {
         const userId = QueryString.parse(props.location.search).user;
         verifyToken().then(response => {
@@ -27,19 +47,19 @@ export default function NotificationPage(props: NotificationPageProps) {
             return false;
         }).then(renderNotifications => {
             if (renderNotifications) {
-                axios.get(`http://${addresses.serverAddress}/users/notifications/${userId}?quantity=all`)
+                axios.get(`http://${addresses.serverAddress}/users/notifications/${userId}?quantity=all&from=${startReadNotification}&to=${endReadNotification}&select=true`)
                     .then(response => {
                         console.log(response);
-                        setNewNotifications(response.data.unread);
-                        setReadNotifications(response.data.read);
+                        setNewNotifications(response.data.notificationsList.unread);
+                        setReadNotifications(response.data.notificationsList.read);
                     });
             }
         });
-    }, []);
+    }, [startReadNotification, endReadNotification]);
 
     const renderNotifications = (notifications: Array<any>) => {
         return notifications.map(notif => (
-            <a href={notif.link}>
+            <a id={notif.id} href={notif.link}>
                 <div className="page-notification">
                     <div className="notification-page-from">
                         From: '{notif.author}'
@@ -76,6 +96,28 @@ export default function NotificationPage(props: NotificationPageProps) {
                                 renderNotifications(readNotifications) : (
                                     <p>You don't have any read notifications</p>
                                 )
+                            }
+                        </div>
+                        <div className="pagination">
+                            {
+                                Array.apply(null, Array(pagesTotal))
+                                    .map((_, i) => i + 1)
+                                    .map(i => {
+                                        if (i === currentPage)
+                                            return (
+                                                <div className="page-link inactive">{i}</div>
+                                            );
+                                        else 
+                                            return (
+                                                <div className="page-link" onClick={() => {
+                                                    setStartReadNotification((i - 1) * readCommentsPageLength);
+                                                    setEndReadNotification(i * readCommentsPageLength);
+                                                    setCurrentPage(i);
+                                                }}>
+                                                    {i}
+                                                </div>
+                                            );
+                                    })
                             }
                         </div>
                     </div>
