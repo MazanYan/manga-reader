@@ -56,7 +56,9 @@ function LoggedInNavbar(props: LoggedInNavbarProps) {
     const [notificationsVisible, setNotificationsVisible] = useState(false);
 
     const notificationsCount = props.notifications?.length ? (
-        <span className="unread-count">{props.notifications!.length}</span>
+        <span className="unread-count">
+            {props.notifications!.length < 100 ? props.notifications!.length : '99+'}
+        </span>
     ) : (<></>);
 
     return (
@@ -69,7 +71,7 @@ function LoggedInNavbar(props: LoggedInNavbarProps) {
                     <div className="dropdown-content notifications">
                         <NotificationsDropdown userId={props.userId} notifications={props.notifications} />
                     </div>
-                ) : <></>}
+                ) : (<></>)}
             </a>
             <a onClick={
                 () => {

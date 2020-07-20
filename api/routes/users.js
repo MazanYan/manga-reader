@@ -147,7 +147,13 @@ router.get('/notifications/:userId', function(req, res, next) {
   const notificationsType = req.query.quantity;
   if (notificationsType === 'all')
     dbInterface.getAllUserNotifications(userId)
-      .then( response => res.send(response) );
+      .then(response => {
+        const notifications = {
+          read: response.filter(notif => notif.readen === true),
+          unread: response.filter(notif => notif.readen === false)
+        };
+        res.send(notifications);
+      });
   else if (notificationsType === 'unread')
     dbInterface.getUnreadUserNotifications(userId)
       .then( response => res.send(response) );

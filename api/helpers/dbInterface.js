@@ -355,7 +355,7 @@ async function getUserBookmarks(userId, bookmarkType) {
 
 async function getAllUserNotifications(userId) {
     return await performQuery(
-        `SELECT * FROM notification WHERE account_id=$1;`, [userId]
+        `SELECT * FROM notification WHERE account_id=$1 ORDER BY readen ASC;`, [userId]
     );
 }
 
@@ -367,7 +367,7 @@ async function getUnreadUserNotifications(userId) {
 
 async function getUserMangaBookmarkStatus(userId, mangaId) {
     return await performQuery(
-        `SELECT type FROM bookmark WHERE account=$1 AND manga_key=$2`,
+        `SELECT type FROM bookmark WHERE account=$1 AND manga_key=$2;`,
         [userId, mangaId]
     );
 }
@@ -474,7 +474,7 @@ function changePassword(userId, newPassword) {
             SET passw_hashed=$2 WHERE id=$1;
         UPDATE salts
             SET salt=$3 WHERE id=$1;`,
-        [userId, newPasswordHashed, newSalt]        
+        [userId, newPasswordHashed, newSalt]
     );
 }
 

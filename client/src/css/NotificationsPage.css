@@ -1,0 +1,45 @@
+.notifications-page {
+    padding-bottom: 50px;
+}
+
+.notifications-type {
+    font-family: "Roboto", sans-serif;
+    margin-bottom: 0;
+    color: rgb(255, 255, 255);
+    background-color: burlywood;
+    padding: 10px;
+    border-radius: 5px 5px 0 0;
+    width: max-content;
+}
+
+.notifications-break {
+    margin-top: 0;
+    border: 1px solid burlywood;
+}
+
+.notifications {
+    max-width: 90vw;
+}
+
+.notifications a {
+    max-width: inherit;
+}
+
+.page-notification {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-left: 10px;
+    width: 900px;
+}
+
+.page-notification:hover {
+    background-color: rgba(235, 195, 144, 0.5);
+}
+
+.notification-page-from {
+    color: black;
+}
+
+.notification-page-message {
+    color: rgba(0, 0, 0, 0.5);
+}
