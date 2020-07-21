@@ -47,19 +47,29 @@ export default function NotificationPage(props: NotificationPageProps) {
             return false;
         }).then(renderNotifications => {
             if (renderNotifications) {
-                axios.get(`http://${addresses.serverAddress}/users/notifications/${userId}?quantity=all&from=${startReadNotification}&to=${endReadNotification}&select=true`)
+                axios.get(`http://${addresses.serverAddress}/users/notifications/${userId}?quantity=read&from=${startReadNotification}&to=${endReadNotification}&select=true`)
                     .then(response => {
+                        console.log("Notifications");
                         console.log(response);
-                        setNewNotifications(response.data.notificationsList.unread);
-                        setReadNotifications(response.data.notificationsList.read);
+                        setReadNotifications(response.data.notificationsList);
                     });
+                axios.get(`http://${addresses.serverAddress}/users/notifications/${userId}?quantity=unread&select=true`)
+                .then(response => {
+                    console.log("Notifications");
+                    console.log(response);
+                    setNewNotifications(response.data.notificationsList);
+                });
             }
         });
     }, [startReadNotification, endReadNotification]);
 
     const renderNotifications = (notifications: Array<any>) => {
         return notifications.map(notif => (
-            <a id={notif.id} href={notif.link}>
+            <a id={notif.id} href={notif.link} onClick={() => 
+                // mark notification as read
+                axios.post(`http://${addresses.serverAddress}/update/notification/${notif.id}`)
+                    .then(response => console.log('Comment is marked as read'))
+            }>
                 <div className="page-notification">
                     <div className="notification-page-from">
                         From: '{notif.author}'

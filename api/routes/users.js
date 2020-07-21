@@ -185,14 +185,11 @@ router.get('/notifications/:userId', function(req, res, next) {
           notifications = queryResult;
 
         response.notificationsList = notifications;
-      })/*.catch(err => res.status(400).send(`Invalid query parameters. ${err}`))*/;
+      });
   
   Promise.all([getNotificationsPromise, countNotificationsPromise])
-    .then(_ => {
-      console.log("Final Response");
-      console.log(response);
-      res.send(response);
-    });
+    .then(_ => res.send(response))
+    .catch(err => res.status(400).send(`Invalid query parameters. ${err}`));
 });
 
 module.exports = router;

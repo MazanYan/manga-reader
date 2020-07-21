@@ -355,12 +355,17 @@ async function getUserBookmarks(userId, bookmarkType) {
 }
 
 /*
-    type: 'read', 'unread', 'all'
+    type: ['read', 'unread']
 */
 async function getUserNotifications(userId, type, start, end) {
     let typeSelector;
     console.log(`Type of user's notifications to get: ${type} start: ${start} end: ${end}`);
     let countSelector;
+    if (start !== undefined && end !== undefined)
+        countSelector='OFFSET $2 LIMIT $3';
+    else
+        countSelector='';
+
     switch (type) {
         case 'read': typeSelector = 'AND readen=true'; break;
         case 'unread': typeSelector = 'AND readen=false'; break;
