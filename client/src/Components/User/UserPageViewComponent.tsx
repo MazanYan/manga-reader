@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RouteComponentProps, Link, Redirect } from 'react-router-dom';
+import { RouteComponentProps, Link } from 'react-router-dom';
 import verifyToken from '../../helpers/VerifyToken';
 import '../../css/UserPage.css';
 
@@ -43,7 +43,7 @@ export default function UserPageView(props: UserPageProps) {
             .then(res => {
                 setIsPageOfCurrentUser(res?.accId === props.match.params.id);
             });
-    }, [userName]);
+    }, [props, userName]);
 
     const renderUserDataChangeButton = () => {
         console.log(isPageOfCurrentUser);
@@ -66,7 +66,7 @@ export default function UserPageView(props: UserPageProps) {
         <main>
             <div id="user-page">
                 <div id="image-and-edit">
-                    <img id="image" src={`http://${addresses.serverAddress}/images/profile_photos/${profilePhoto}`}/>
+                    <img alt={userName} id="image" src={`http://${addresses.serverAddress}/images/profile_photos/${profilePhoto}`}/>
                     {renderUserDataChangeButton()}
                 </div>
                 <div id="user-data">

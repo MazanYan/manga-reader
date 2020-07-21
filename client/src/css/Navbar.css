@@ -8,14 +8,6 @@
     color: white;
 }
 
-/*#search {
-    margin-left: auto;
-}*/
-
-/*#login {
-    margin-left: 50px;
-}*/
-
 nav a {
     color: white;
     float: left;
@@ -24,42 +16,97 @@ nav a {
     text-decoration: none;
 }
 
-/*.dropdown {
-    overflow: hidden;
-}
-
-.dropdown .dropbtn {
-    font-size: 16px;
-    color: white;
+.dropdown-content.notifications {
     background-color: burlywood;
-    background-color: inherit;
-    font-family: inherit;
-    margin: 0;
-}
-
-.dropdown-content {
-    margin-top: 18pt;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-top: none;
+    box-shadow: none;
+    margin-top: 15px;
     right: 0;
-    border-radius: 0pt 0pt 0pt 5pt;
-    display: grid;
-    position: absolute;
+}
+
+.notifications-header {
+    width: 400px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notifications-header span {
+    color: white;
+}
+
+.notifications-header * {
+    padding: 20px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.notifications-list {
+    max-height: 400px;
     background-color: burlywood;
-    min-width: 200px;
-    z-index: 1;
+    border-top: none;
+    padding: 5px;
+    overflow-y: auto;
 }
 
-.dropdown .dropdown-content {
-    display: block;
+.notifications-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
-#site-name {
-    grid-column: 1 / 2;
+.notification {
+    padding-top: 5px;
+    padding-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    width: 100%;
 }
 
-#search > form {
-    max-width: 200px;
+.notification a {
+    padding-left: 25px;
+    text-align: left;
 }
 
-input, button {
-    grid-column: 2 / 3;
-}*/
+.notification:hover {
+    background-color: rgb(235, 195, 144);
+}
+
+.notification-author {
+    color: black;
+}
+
+.notification-message {
+    padding-left: 0;
+    color: rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* number of lines to show */
+    -webkit-box-orient: vertical;
+}
+
+.view-all {
+    color: rgb(255, 230, 197);
+}
+
+.view-all:hover {
+    text-decoration: underline rgb(255, 230, 197);
+}
+
+.unread-count {
+    position: absolute;
+    top: 12px;
+    font-size: 0.8rem;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    line-height: 25px;
+    background-color: rgb(165, 136, 97);
+}

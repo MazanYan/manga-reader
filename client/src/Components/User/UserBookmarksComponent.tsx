@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import QueryString from 'query-string';
 import { Link, useParams } from 'react-router-dom';
+
 import BookmarkSelected from '../../helpers/bookmark';
 import '../../css/BookmarksPage.css';
 
@@ -20,6 +22,9 @@ interface BookmarkListProps {
     queryType: {type: string, message: string}
 }
 
+/*
+    Single bookmark link on page of some user
+*/
 function Bookmark(props: BookmarkProps) {
     console.log(props);
     if ([props.volume, props.chapterNum, props.chapterName, props.page].some(el => el === undefined))
@@ -34,6 +39,9 @@ function Bookmark(props: BookmarkProps) {
         )
 }
 
+/*
+    Render list of bookmarks with specific status (read later, reading in progress, completed, favourite)
+*/
 function BookmarkList(props: BookmarkListProps) {
 
     const [bookmarks, setBookmarks] = useState<Array<any>>();
@@ -44,7 +52,7 @@ function BookmarkList(props: BookmarkListProps) {
                 console.log(res);
                 setBookmarks(res.data);
             });
-    }, [props.queryType]);
+    }, [props]);
 
     if (bookmarks?.length)
         return (
@@ -85,21 +93,20 @@ function BookmarkList(props: BookmarkListProps) {
         );
 }
 
+/*
+    Component for page of some user's bookmarks with boormarks selectors
+*/
 export default function UserBookmarksPage() {
     
-    const [pageSelected, setPageSelected] = useState(1);
     const { id } = useParams();
-
-    useEffect(() => {
-        console.log(id);
-    });
+    const page = QueryString.parse(window.location.search).page;
     
     const renderPageSelected = () => {
-        switch(pageSelected) {
-            case 1: return <BookmarkList user={id} queryType={BookmarkSelected.rl}/>;
-            case 2: return <BookmarkList user={id} queryType={BookmarkSelected.nr}/>;
-            case 3: return <BookmarkList user={id} queryType={BookmarkSelected.co}/>;
-            case 4: return <BookmarkList user={id} queryType={BookmarkSelected.fv}/>;
+        switch(page) {
+            case '1': return <BookmarkList user={id} queryType={BookmarkSelected.rl}/>;
+            case '2': return <BookmarkList user={id} queryType={BookmarkSelected.nr}/>;
+            case '3': return <BookmarkList user={id} queryType={BookmarkSelected.co}/>;
+            case '4': return <BookmarkList user={id} queryType={BookmarkSelected.fv}/>;
         }
     }
 
@@ -109,10 +116,10 @@ export default function UserBookmarksPage() {
                 <p>Bookmarks</p>
             </div>
             <div className="bookmarks-selector">
-                <button className="btn btn-bookmark-type" onClick={(e) => setPageSelected(1)}>Read Later</button>
-                <button className="btn btn-bookmark-type" onClick={(e) => setPageSelected(2)}>Currently reading</button>
-                <button className="btn btn-bookmark-type" onClick={(e) => setPageSelected(3)}>Completed</button>
-                <button className="btn btn-bookmark-type" onClick={(e) => setPageSelected(4)}>Favourite</button>
+                <Link className="btn btn-bookmark-type" to={`/user/${id}/bookmarks?page=1`}>Read Later</Link>
+                <Link className="btn btn-bookmark-type" to={`/user/${id}/bookmarks?page=2`}>Currently reading</Link>
+                <Link className="btn btn-bookmark-type" to={`/user/${id}/bookmarks?page=3`}>Completed</Link>
+                <Link className="btn btn-bookmark-type" to={`/user/${id}/bookmarks?page=4`}>Favourite</Link>
             </div>
             <main>
                 {renderPageSelected()}

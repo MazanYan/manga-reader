@@ -10,6 +10,7 @@ const initOptions = {
 };
 const crypto = require('crypto');   // generateRandomBytes
 const cryptoJS = require('crypto-js');  // other hashing algorithms
+const { count } = require('console');
 const pgp = require('pg-promise')(initOptions);
 
 const databaseConfig = {
@@ -71,7 +72,6 @@ async function getUserPageData(userId) {
 }
 
 async function checkPassword(userId, password) {
-    console.log(`Initial toSearch: ${userId} ${password}`);
     const salt = (await performQuery(
         'SELECT salt FROM salts WHERE salts.id=$1', userId
     ))[0].salt;
@@ -80,9 +80,6 @@ async function checkPassword(userId, password) {
         'SELECT passw_hashed FROM account WHERE account.id=$1', userId
     ))[0].passw_hashed;
     
-    console.log(`Salt ${salt}`);
-    console.log(`Hashed passw ${hashedPassword}`);
-    console.log(`Correct passw ${correctPassword}`);
     return hashedPassword === correctPassword;
 }
 
@@ -130,7 +127,7 @@ async function createUser({name, email, passw, photo = null, descr = null}) {
 }
 
 async function confirmUserByToken(token, timeToLive) {
-    const response = await performQuery(
+    return performQuery(
         `UPDATE account
             SET confirmed=true 
             WHERE id=(SELECT id FROM user_registration
@@ -139,8 +136,6 @@ async function confirmUserByToken(token, timeToLive) {
         DELETE FROM user_registration WHERE token=$2;`,
         [timeToLive, token]
     );
-    console.log(response);
-    return response;
 }
 
 async function createPasswordResetToken(userId) {
@@ -156,8 +151,6 @@ async function resetPassword(token, newPassword) {
     const userId = (await performQuery(
         `SELECT id FROM passw_change_tokens WHERE token=$1;`, [token]
     ))[0].id;
-    console.log("User");
-    console.log(userId);
     const [salt, newPasswordHashed] = createPasswordSalt(newPassword);
     return performQuery(
         `UPDATE account
@@ -199,18 +192,23 @@ async function createBookmark({accId, mangaKey, chapter = null, page = null}) {
     );
 }
 
-async function addComment({author, page, text, answerOn = null}) {
-    const commentId = crypt.MD5(string(page) + new Date().toLocaleString()).toString();
-    return performQuery(
+async function addComment(author, mangaKey, chapterNum, pageNum, text, answerOn = null) {
+    const commentId = cryptoJS.MD5(mangaKey.toString() + chapterNum + pageNum + new Date().toLocaleString()).toString();
+    const chapterKey = (await performQuery(
+        `SELECT chapter_key FROM chapter WHERE manga_key=$1 AND number=$2;`,
+        [mangaKey, chapterNum]
+    ))[0].chapter_key;
+    return await performQuery(
         'INSERT INTO comment(${this:name}) VALUES(${this:csv});',
         {
             comment_id: commentId,
             author: author,
-            page_key: page,
             text: text,
             rating: 0,
             time_added: 'NOW()',
-            answer_on: andwerOn
+            answer_on: answerOn,
+            page_num: pageNum,
+            chapter_key: chapterKey
         }
     );
 }
@@ -224,6 +222,7 @@ async function addChapter({mangaName, chapterName, chapterNumber, chapterVolume 
     const arrToStrInts = (arr) => {
         return '[' + arr.join(', ') + ']';
     }
+    console.log({mangaName, chapterName, chapterNumber, chapterVolume, images});
     return performQuery(
         'INSERT INTO chapter(manga_key, name, number, volume, pages_count, add_time)' +
             'VALUES ((SELECT manga_key FROM manga WHERE manga.name=${manga_name} LIMIT 1),' +
@@ -241,45 +240,65 @@ async function addChapter({mangaName, chapterName, chapterNumber, chapterVolume 
     );
 }
 
-async function createNotification({acc, text, author}) {
-    const notificationId = crypt.MD5(string(acc) + author + new Date().toLocaleString());
+async function createNotification(acc, text, author = null, link) {
+    const notificationId = cryptoJS.MD5(acc + new Date().getTime()).toString();
     return performQuery(
-        'INSERT INTO notification(${this:name} VALUES(${this:csv});',
+        'INSERT INTO notification(${this:name}) VALUES(${this:csv});',
         {
-            account: acc,
-            notification_id: notificationId,
+            account_id: acc,
+            id: notificationId,
             text: text,
             readen: false,
-            author: author
+            author: author,
+            link: link
         }
     );
 }
 
 async function searchMangaByName(name, limit) {
     return performQuery(
-        `SELECT DISTINCT * FROM manga WHERE UPPER(name) LIKE UPPER('%${name}%') ORDER BY bookmarks_count DESC LIMIT ${limit};`,
+        `SELECT *, (SELECT COUNT(*) FROM chapter WHERE manga_key=manga.manga_key) AS chapters_count
+            FROM manga 
+                WHERE UPPER(name) LIKE UPPER('%${name}%')
+                ORDER BY bookmarks_count DESC LIMIT ${limit};`,
     );
 }
 
 async function searchMangaByNameAuthor(name, limit) {
     return performQuery(
-        `SELECT DISTINCT * FROM manga 
-            WHERE UPPER(manga.name) LIKE UPPER('%${name}%') 
-            OR UPPER(manga.author) LIKE UPPER('%${name}%') 
-            ORDER BY bookmarks_count DESC LIMIT ${limit};`,
+        `SELECT *, (SELECT COUNT(*) FROM chapter WHERE manga_key=manga.manga_key) AS chapters_count 
+            FROM manga 
+                WHERE UPPER(manga.name) LIKE UPPER('%${name}%') 
+                OR UPPER(manga.author) LIKE UPPER('%${name}%') 
+                ORDER BY bookmarks_count DESC LIMIT ${limit};`,
     );
 }
 
-async function getMangaByIdImage(id) {
-    return await performQuery(
-        `SELECT DISTINCT * FROM manga
-            WHERE manga.manga_key=$1;`, id
+async function searchMangaAdvanced({ mangaName, authName, minLength, maxLength, status, startedLaterThan, orderBy, ascDesc }) {
+    const mangaStatusQuery = status !== 'any' ? 'AND manga_status=$5' : ''
+    return performQuery(
+        `SELECT *, (SELECT COUNT(*) FROM chapter WHERE manga_key=manga.manga_key) AS chapters_count
+            FROM manga 
+                WHERE UPPER(name) LIKE UPPER('%${mangaName}%') 
+                AND UPPER(author) LIKE UPPER('%${authName}%')
+                AND (SELECT COUNT(*) FROM chapter WHERE manga_key=manga.manga_key) BETWEEN $3 AND $4
+                ${mangaStatusQuery}
+                AND create_time > '$6-01-01'
+                ORDER BY ${orderBy} ${ascDesc};`,
+        [mangaName, authName, minLength, maxLength, status, startedLaterThan, orderBy, ascDesc]
     );
 }
+
+/*async function getMangaByIdImage(id) {
+    return await performQuery(
+        `SELECT * FROM manga
+            WHERE manga.manga_key=$1;`, id
+    );
+}*/
 
 async function getMangaById(id) {
     return await performQuery(
-        `SELECT DISTINCT * FROM manga
+        `SELECT * FROM manga
             WHERE manga_key=$1`, id
         );
 }
@@ -335,9 +354,56 @@ async function getUserBookmarks(userId, bookmarkType) {
     );
 }
 
+/*
+    type: ['read', 'unread']
+*/
+async function getUserNotifications(userId, type, start, end) {
+    let typeSelector;
+    console.log(`Type of user's notifications to get: ${type} start: ${start} end: ${end}`);
+    let countSelector;
+    if (start !== undefined && end !== undefined)
+        countSelector='OFFSET $2 LIMIT $3';
+    else
+        countSelector='';
+
+    switch (type) {
+        case 'read': typeSelector = 'AND readen=true'; break;
+        case 'unread': typeSelector = 'AND readen=false'; break;
+        case 'all': typeSelector = ''; break;
+    }
+    if (start !== undefined && end !== undefined)
+        countSelector='OFFSET $2 LIMIT $3';
+    else
+        countSelector='';
+    const response = await performQuery(
+        `SELECT * FROM notification WHERE account_id=$1 ${typeSelector} ${countSelector};`,
+        [userId, start, end]
+    );
+    console.log(typeSelector);
+    return response;
+}
+
+/*
+    type: 'read', 'unread', 'all'
+*/
+async function countUserNotifications(userId, type) {
+    let typeSelector;
+    console.log(`Type of user's notifications to count: ${type}`);
+    switch (type) {
+        case 'read': typeSelector = 'AND readen=true'; break;
+        case 'unread': typeSelector = 'AND readen=false'; break;
+        case 'all': typeSelector = ''; break;
+    }
+    return await performQuery(
+        `SELECT COUNT(*) FROM notification WHERE account_id=$1 ${typeSelector};`,
+        [userId]
+    );
+}
+
+
 async function getUserMangaBookmarkStatus(userId, mangaId) {
     return await performQuery(
-        `SELECT type FROM bookmark WHERE account=$1 AND manga_key=$2`,
+        `SELECT type FROM bookmark WHERE account=$1 AND manga_key=$2;`,
         [userId, mangaId]
     );
 }
@@ -357,63 +423,34 @@ async function getMangaPageData(mangaId, chapterNum, pageNum) {
 }
 
 /*
-Recursive queries example: select oldest comment on page and all replies on it
-
-WITH RECURSIVE r AS (
-  	SELECT comment_id, author, time_added, rating FROM comment
- 		WHERE time_added=(SELECT time_added FROM comment ORDER BY time_added ASC LIMIT 1)
-	
-	UNION
-	
-	SELECT comment.comment_id, comment.author, comment.time_added, comment.rating FROM comment
-		JOIN r
-			ON r.comment_id=comment.answer_on
-)
-
-SELECT * FROM r;
-
-
-
-
------------------------- some other example
-
--- SELECT * FROM manga_page;
--- SELECT * FROM comment;
-
--- INSERT INTO comment VALUES 
---   	(1, 'Reno', 'Text', 0, NOW()-1000 * interval '1 second', null, 1, 17),
---   	(2, 'Reno', 'Text2', -1, NOW()-800 * interval '1 second', 1, 1, 17),
---   	(3, 'Reno', 'Text3', +2, NOW()-600 * interval '1 second', 1, 1, 17),
---   	(4, 'Ror', 'Text4', 0, NOW()-400 * interval '1 second', null, 1, 17),
---   	(5, 'Rium', 'Text5', 0, NOW()-200 * interval '1 second', 1, 1, 17),
---   	(6, 'Reno', 'Text6', 0, NOW(), 4, 1, 17);
-
-WITH RECURSIVE r AS (
-  	SELECT comment_id, comment.text, author, time_added, rating FROM comment
- 		WHERE answer_on IS NULL--time_added=(SELECT time_added FROM comment ORDER BY time_added ASC LIMIT 1)
-	
-	UNION
-	
-	SELECT comment.comment_id, comment.text, comment.author, comment.time_added, comment.rating FROM comment
-		JOIN r
-			ON r.comment_id=comment.answer_on
-)
-
-SELECT * FROM r;
-*/
-async function getPageComments(mangaKey, chapterNum, pageNum) {
+ * Recursive query to select oldest comment on page and all replies on it
+ */
+async function getPageComments(mangaKey, chapterNum, pageNum, voterId = null) {
     return await performQuery(
         `WITH RECURSIVE r AS (
-            SELECT 	comment_id, 
-                    answer_on, text, 
-                    author, 
-                    (SELECT name FROM account WHERE id=author LIMIT 1) AS author_name,
-                    time_added, rating FROM comment
+            SELECT 	comment.comment_id, 
+                    comment.answer_on, 
+                    comment.text, 
+                    comment.author, 
+                    (SELECT name FROM account WHERE id=comment.author LIMIT 1) AS author_name,
+                    comment.time_added, 
+                    (
+                        SELECT SUM(vote) 
+                            FROM comment_vote 
+                            WHERE comment_id=comment.comment_id
+                    ) AS rating,
+                    (
+                        SELECT vote 
+                            FROM comment_vote 
+                            WHERE comment_id=comment.comment_id 
+                            AND account_id=$4
+                    ) AS vote
+                FROM comment
                 WHERE answer_on IS NULL 
                     AND page_num=$3 AND chapter_key=(
                         SELECT chapter_key FROM chapter 
                             WHERE manga_key=$1 AND number=$2 LIMIT 1
-                )
+                    )
         
         UNION
     
@@ -422,14 +459,35 @@ async function getPageComments(mangaKey, chapterNum, pageNum) {
                 comment.text, 
                 comment.author, 
                 (SELECT name FROM account WHERE id=comment.author LIMIT 1) AS author_name,
-                comment.time_added, comment.rating FROM comment
+                comment.time_added, 
+                (
+                    SELECT SUM(vote)
+                        FROM comment_vote
+                        WHERE comment_id=comment.comment_id
+                ) AS rating,
+                (
+                    SELECT vote 
+                        FROM comment_vote 
+                        WHERE comment_id=comment.comment_id 
+                        AND account_id=$4
+                ) AS vote
+            FROM comment
             JOIN r
                 ON r.comment_id=comment.answer_on
         )
         
         SELECT * FROM r;`,
-        [mangaKey, chapterNum, pageNum]
+        [mangaKey, chapterNum, pageNum, voterId ? voterId : '']
     );
+}
+
+/* get author of comment someone is replying on */
+async function getAuthorOriginalComment(replyOnId) {
+    return (await performQuery(
+        `SELECT name FROM account WHERE id=(
+            SELECT author FROM comment WHERE comment_id=$1 LIMIT 1
+        );`, [replyOnId]
+    ))[0].name;
 }
 
 async function getPrevNextChapterNum(mangaId, chapterNum) {
@@ -452,7 +510,7 @@ function changePassword(userId, newPassword) {
             SET passw_hashed=$2 WHERE id=$1;
         UPDATE salts
             SET salt=$3 WHERE id=$1;`,
-        [userId, newPasswordHashed, newSalt]        
+        [userId, newPasswordHashed, newSalt]
     );
 }
 
@@ -499,8 +557,27 @@ function updateBookmark(accId, mangaKey, newStatus, newChapter=null, newPage=nul
 async function updateComment(commentId, newText) {
     return performQuery(
         `UPDATE comment
-            SET comment.text=$1 WHERE comment.comment_id=$2;`, newText, commentId
+            SET text=$1 WHERE comment_id=$2;`, [newText, commentId]
     );
+}
+
+async function voteComment({ commentId, voterId, vote }) {
+    if (vote === 0) {
+        console.log(`An attempt to delete some vote ${commentId} ${voterId}`);
+        return performQuery(
+            `DELETE FROM comment_vote
+                WHERE comment_id=$1 AND account_id=$2;`,
+            [commentId, voterId]
+        );
+    }
+    else {
+        return performQuery(
+            `INSERT INTO comment_vote(comment_id, account_id, vote)
+                VALUES($1, $2, $3)
+                ON CONFLICT (comment_id, account_id) DO UPDATE SET vote=$3;`,
+            [commentId, voterId, vote]
+        );
+    }
 }
 
 async function updateChapter() {
@@ -524,13 +601,20 @@ async function updateOnlineStatus(userId) {
     return performQuery(
         `UPDATE account
             SET is_online=NOT is_online, last_online=NOW()
-            WHERE account.id='$1';`, userId
+            WHERE account.id='$1';`, [userId]
+    );
+}
+
+async function readNotification(notifId) {
+    return performQuery(
+        `UPDATE notification
+            SET readen=true WHERE id=$1`, [notifId]
     );
 }
 
 async function deleteManga(mangaName) {
     return performQuery(
-        'DELETE FROM manga WHERE name=$1', mangaName
+        'DELETE FROM manga WHERE name=$1', [mangaName]
     );
 }
 
@@ -540,6 +624,18 @@ async function deleteChapter(mangaName, chapterNumber) {
             SELECT manga_key from manga WHERE manga.name=$1 LIMIT 1
         ) AND chapter.number=$2`,
         mangaName, chapterNumber
+    );
+}
+
+async function deleteComment(commentId) {
+    return performQuery(
+        `DELETE FROM comment_vote 
+            WHERE comment_id in (
+                SELECT comment_id FROM comment 
+                    WHERE comment_id=$1 OR answer_on=$1
+            );
+        DELETE FROM comment WHERE comment_id=$1 OR answer_on=$1;`,
+        commentId
     );
 }
 
@@ -569,8 +665,9 @@ module.exports = {
     addChapter,
     createNotification,
     searchMangaByNameAuthor,
+    searchMangaAdvanced,
     searchMangaByName,
-    getMangaByIdImage,
+    /*getMangaByIdImage,*/
     getMangaById,
     searchMangaByAuthor,
     searchPopularManga,
@@ -578,19 +675,25 @@ module.exports = {
     searchRandomManga,
     getTableOfContents,
     getUserBookmarks,
+    getUserNotifications,
+    countUserNotifications,
     getUserMangaBookmarkStatus,
     getMangaPageData,
     getPageComments,
+    getAuthorOriginalComment,
     getPrevNextChapterNum,
     changePassword,
     changeUserGeneralData,
     updateBookmark,
     updateComment,
+    voteComment,
     //updateChapter,
     //updateMangaPage,
     updateOnlineStatus,
+    readNotification,
     deleteManga,
     deleteChapter,
+    deleteComment,
     deleteUser,
     //deleteNotification
 };

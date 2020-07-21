@@ -8,9 +8,10 @@
 
 .btn-bookmark-type {
     display: inline-block;
+    padding-top: 20px;
+    padding-bottom: 20px;
     background-color: #ffecd4;
     border: none;
-    height: 50px;
     width: 200px;
 }
 
@@ -26,6 +27,6 @@
     display: block;
     min-width: fit-content;
     border-bottom-style: solid;
-    border-color: #0000003d;
+    border-color: rgba(0, 0, 0, 0.239);
     border-bottom-width: thin;
 }

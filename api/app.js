@@ -11,6 +11,8 @@ const loginRouter = require('./routes/login');
 const searchRouter = require('./routes/search');
 const addRouter = require('./routes/add');
 const bookmarksRouter = require('./routes/bookmarks');
+const updateRouter = require('./routes/update');
+const deleteRouter = require('./routes/delete');
 
 const app = express();
 
@@ -32,6 +34,8 @@ app.use('/login', loginRouter);
 app.use('/search', searchRouter);
 app.use('/add', addRouter);
 app.use('/bookmarks', bookmarksRouter);
+app.use('/update', updateRouter);
+app.use('/delete', deleteRouter);
 
 // catch 404 and forward to error handler
 /*app.use(function(req, res, next) {
@@ -85,6 +89,7 @@ app.post('/upload/thumb', uploadThumbnail.single('file'), function(req, res, nex
 
 app.post('/upload/manga_pages', uploadMangaPage.single('file'), function(req, res, next) {
   console.log("Manga page file uploaded");
+  res.send("Manga page file uploaded");
 });
 
 app.post('/upload/profile_photo', uploadProfilePhoto.single('file'), function(req, res, next) {

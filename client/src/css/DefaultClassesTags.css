@@ -104,7 +104,7 @@ table tr:hover {
     padding: 2px 16px;
 }
 
-a {
+a, .link {
     color: black;
     text-decoration: none;
 }
@@ -163,4 +163,43 @@ a:hover {
 
 .link-colored:hover {
     text-decoration: underline;
+    color: rgb(235, 195, 144);
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+  
+.dropdown-content {
+    display: block;
+    position: absolute;
+    background-color:  #fff9e6;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.hoverable .dropdown-content {
+    display: none
+}
+
+.hoverable:hover .dropdown-content {
+    display: block
+}
+
+/* Links inside the dropdown */
+.dropdown-content .bookm-type {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.bookm-type > * {
+    vertical-align: center;
+}
+
+.dropdown-content .bookm-type:hover {
+    background-color:  #eed7ba;
 }

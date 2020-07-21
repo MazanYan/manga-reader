@@ -3,7 +3,7 @@ import '../../css/MangaPage.css';
 import { RouteComponentProps, Link } from 'react-router-dom';
 import axios from 'axios';
 import Bookmark from './BookmarkComponent';
-import CommentList, { BasicCommentProps, CommentProps, NewComment } from './CommentComponent';
+import CommentList, { BasicCommentProps, CommentProps, PageData } from './CommentComponent';
 import verifyToken from '../../helpers/VerifyToken';
 import { postgresToDate } from '../../helpers/ConvertTimestamp';
 
@@ -27,10 +27,10 @@ interface MangaPageState {
     pagesCountChapter?: number
 };
 
-function rawCommentToComment(rawComment: any, showReply: boolean, replyer?: string) : CommentProps {
+function rawCommentToComment(rawComment: any, pageData: PageData, interactable: boolean, replyer?: string) : CommentProps {
     const unpackedComment = new Map([
         ['commentId', rawComment.comment_id],
-        ['showReplyButton', showReply],
+        ['interactable', interactable],
         ['answerOn', rawComment.answer_on],
         ['commentText', rawComment.text],
         ['authorId', rawComment.author],
@@ -38,16 +38,18 @@ function rawCommentToComment(rawComment: any, showReply: boolean, replyer?: stri
         ['commentDate', postgresToDate(rawComment.time_added)],
         ['commentRating', rawComment.rating],
 
+        ['pageData', pageData],
         ['userReplyerId', replyer],
-        ['replies', rawComment.replies?.map((reply: any) => rawCommentToComment(reply, showReply, replyer))],
-        ['commentReplyId', rawComment.answer_on]
+        ['replies', rawComment.replies?.map((reply: any) => rawCommentToComment(reply, pageData, interactable, replyer))],
+        ['commentReplyId', rawComment.answer_on],
+        ['originalUserVote', rawComment.vote ? rawComment.vote : 0]
     ]);
     return Object.fromEntries(unpackedComment) as CommentProps;
 }
 
-function serverResponseToComments(rawComments: any, showReply: boolean, replyer?: string) : Array<BasicCommentProps> {
+function serverResponseToComments(rawComments: any, pageData: PageData, interactable: boolean, replyer?: string) : Array<BasicCommentProps> {
     const commentsUnpacked: Array<any> = [];
-    rawComments.forEach( (comment: any) => commentsUnpacked.push(rawCommentToComment(comment, showReply, replyer)) );
+    rawComments.forEach( (comment: any) => commentsUnpacked.push(rawCommentToComment(comment, pageData, interactable, replyer)) );
     return commentsUnpacked;
 }
 
@@ -55,18 +57,25 @@ export default function MangaPage(props: MangaPageProps) {
 
     const [mangaPageData, setMangaPageData] = useState<MangaPageState>();
     const [commentsList, setCommentsList] = useState<Array<BasicCommentProps>>();
-    const [addCommentClicked, setAddCommentClicked] = useState(false);
     const [loggedIn, setLoggedIn] = useState(false);
-    const [accId, setAccId] = useState("");
+    const [userInteractorId, setUserInteractorId] = useState('');
 
     // get general data and comments of manga page
     useEffect(() => {
-        const manga = parseInt(props.match.params.id);
-        const chapter = parseInt(props.match.params.ch);
-        const page = parseInt(props.match.params.pg);
-
-        axios.get(`http://${addresses.serverAddress}/search/page?manga=${manga}&chapter=${chapter}&page=${page}`)
-            .then(response => {
+        const pageData = {
+            mangaKey: parseInt(props.match.params.id),
+            chapterNum: parseInt(props.match.params.ch),
+            pageNum: parseInt(props.match.params.pg)
+        };
+        verifyToken().then(response => {
+                if (response) {
+                    setLoggedIn(true);
+                    setUserInteractorId(response.accId);
+                }
+            }).then(() => {
+                const userVoterQuery = userInteractorId ? `&user=${userInteractorId}` : '';
+                return axios.get(`http://${addresses.serverAddress}/search/page?manga=${pageData.mangaKey}&chapter=${pageData.chapterNum}&page=${pageData.pageNum}${userVoterQuery}`);
+            }).then(response => {
                 const result = response.data.response;
                 const gen = result.generalPageData[0];
                 console.log(response);
@@ -80,18 +89,10 @@ export default function MangaPage(props: MangaPageProps) {
                     nextChapter: result.nextChapter
                 });
                 return result.comments;
-            })
-            .then(comments => {
-                // verify that user is signed in
-                verifyToken().then(response => {
-                    if (response) {
-                        setLoggedIn(true);
-                        setAccId(response.accId);
-                    }
-                    setCommentsList(serverResponseToComments(comments, response?.accId, accId));
+            }).then(comments => {
+                    setCommentsList(serverResponseToComments(comments, pageData, userInteractorId !== '', userInteractorId));
                 }).catch(err => alert(err));
-            });
-    }, [props]);
+    }, [props, userInteractorId]);
 
     const renderPrevChapterButton = () => {
         if (mangaPageData?.prevChapter)
@@ -131,38 +132,26 @@ export default function MangaPage(props: MangaPageProps) {
             )
     };
 
-    const renderAddComment = () => {
-        if (addCommentClicked)
-            return (
-                <NewComment isReply={false} pageData={
-                    { 
-                        mangaKey: parseInt(props.match.params.id), 
-                        chapterNum: parseInt(props.match.params.ch),
-                        pageNum: parseInt(props.match.params.pg)
-                    }}/>
-            )
-        else 
-            return (<></>)
-    }
-
     const renderBookmark = () => {
         if (loggedIn)
             return (
                 <Bookmark
                     mangaId={parseInt(props.match.params.id)}
-                    userId={accId} 
+                    userId={userInteractorId} 
                     chapter={parseInt(props.match.params.ch)} 
                     page={parseInt(props.match.params.pg)}
                 />
             );
-        else
-            return (<></>);
     };
     
     return (
         <>
             <div className="header page-head">
-                <h3><Link to={`/manga/${props.match.params.id}`}>{mangaPageData?.mangaName}</Link></h3>
+                <h3>
+                    <Link to={`/manga/${props.match.params.id}`}>
+                        {mangaPageData?.mangaName}
+                    </Link>
+                </h3>
                 <strong>Volume {mangaPageData?.volume}. Chapter {props.match.params.ch} - {mangaPageData?.chapterName}</strong>{renderBookmark()}
             </div>
             <main>
@@ -173,17 +162,20 @@ export default function MangaPage(props: MangaPageProps) {
                 <div className="manga-page">
                     <div className="page-body">
                         <div className="square">
-                            <img className="page-image" src={`http://${addresses.serverAddress}/images/manga_pages/${mangaPageData?.image}`}/>
+                            <img 
+                                alt={mangaPageData?.chapterName} className="page-image" 
+                                src={`http://${addresses.serverAddress}/images/manga_pages/${mangaPageData?.image}`}
+                            />
                         </div>
                         <div className="pagination">
                             {
                                 Array.apply(null, Array(mangaPageData?.pagesCountChapter))
-                                    .map(function (_, i) {return i+1})
+                                    .map((_, i) => i+1)
                                     .map(i => {
                                         if (i === parseInt(props.match.params.pg))
                                             return (
                                                 <div className="page-link inactive">{i}</div>
-                                            )
+                                            );
                                         else
                                             return (
                                                 <a href={`http://${addresses.clientAddress}/manga/${props.match.params.id}/chapter${props.match.params.ch}/page${i}`}>
@@ -191,30 +183,21 @@ export default function MangaPage(props: MangaPageProps) {
                                                         {i}
                                                     </div>
                                                 </a>
-                                            )
+                                            );
                                     })
                             }
                         </div>
                     </div>
                 </div>
-                </main>
-                <main>
-                <div className="manga-page">
-                    <div className="page-body comments">
-                        Comments:<br/>
-                        <div className="btn btn-comment" onClick={() => setAddCommentClicked(!addCommentClicked)}>Add comment</div>
-                        <div className="btn-add-comment">
-                            {renderAddComment()}
-                        </div>
-                        {<CommentList pageData={
-                            { 
-                                mangaKey: parseInt(props.match.params.id), 
-                                chapterNum: parseInt(props.match.params.ch),
-                                pageNum: parseInt(props.match.params.pg)
-                            }
-                            } showReply={loggedIn} comments={commentsList} />}
-                    </div>
-                </div>
+            </main>
+            <main>
+                <CommentList 
+                    pageData={{ 
+                        mangaKey: parseInt(props.match.params.id), 
+                        chapterNum: parseInt(props.match.params.ch),
+                        pageNum: parseInt(props.match.params.pg)
+                    }} interactable={loggedIn} userInteractorId={userInteractorId} comments={commentsList!}
+                />
             </main>
         </>
     );

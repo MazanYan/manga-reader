@@ -3,14 +3,8 @@
 const express = require('express');
 const router = express.Router();
 const dbInterface = require('../helpers/dbInterface');
-
-router.get('/', function(req, res, next) {
-
-});
-
-router.post('/', function(req, res, next) {
-
-});
+//const notif = require('../helpers/notifications');
+const addresses = require('../config');
 
 router.get('/manga', function(req, res, next) {
     res.send('Here you can upload data about manga');
@@ -29,7 +23,7 @@ router.post('/manga', function(req, res, next) {
     });
     
     Promise.all([response]).then(resp => {
-        res.send(JSON.stringify({result: resp}));
+        res.send(JSON.stringify({ result: resp }));
     });
     
 });
@@ -44,23 +38,44 @@ router.post('/chapter', function(req, res, next) {
     const request = req.body;
     console.log(request);
 
-    const response = dbInterface.addChapter({
+    dbInterface.addChapter({
         mangaName: request.mangaName,
         chapterName: request.chapterName,
         chapterNumber: request.chapterNumber,
         chapterVolume: request.chapterVolume,
         images: request.images
-    });
-
-    Promise.all([response]).then(resp => {
+    }).then(resp => {
         console.log(resp);
-        res.send(JSON.stringify({result: resp}));
+        res.send(JSON.stringify({ result: resp }));
     });
 });
 
 router.post('/comment', function(req, res, next) {
-    console.log(req.body);
-    res.send('Send your comment here');
+    const [
+        author, manga,
+        chapter, page,
+        text, replyOn
+    ] = [
+            req.body.author, req.body.mangaKey, 
+            req.body.chapterNum, req.body.pageNum, 
+            req.body.text, req.body.replyOn
+        ];
+    dbInterface.addComment(
+            author, manga, 
+            chapter, page, 
+            text, replyOn
+        ).then(response => {
+            res.send(`Comment added ${response}`);
+        });
+    if (req.body.replyOn) {
+        dbInterface.getAuthorOriginalComment(req.body.replyOn)
+            .then(origCommentAuthor => {
+                const commentLink = `http://${addresses.clientAddress}/manga/${manga}/chapter${chapter}/page${page}`;
+                const commentText = `You have a reply from ${origCommentAuthor} on your comment: '${text}'`;
+                dbInterface.createNotification(author, commentText, 'Manga Reader', commentLink);
+                //notif.createNotification(author, commentText, 'Manga Reader', commentLink);
+            });
+    }
 });
 
 module.exports = router;

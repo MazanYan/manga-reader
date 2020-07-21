@@ -19,7 +19,6 @@ router.get('/:id', function(req, res, next) {
       res.send(JSON.stringify(sendData));
     })
     .catch(err => res.status(404).send("User not found"));
-  //next();
 });
 
 router.post('/:id/edit_general', async function(req, res, next) {
@@ -41,7 +40,6 @@ router.post('/:id/edit_general', async function(req, res, next) {
     .then(response => {
       res.send(response);
     });
-  //next();
 });
 
 router.post('/:id/edit_passwd', async function(req, res, next) {
@@ -73,12 +71,10 @@ router.post('/recover_passw/:token', function(req, res, next) {
 
 router.post('/', function(req, res, next) {
   res.status(404).send("No user data to get is specified");
-  //next();
 });
 
 router.get('/new', function(req, res, next) {
   res.status(404).send("Add new user here");
-  //next();
 });
 
 router.post('/new', function(req, res, next) {
@@ -100,10 +96,12 @@ router.post('/new', function(req, res, next) {
 
     sendMail(mailOptions);
     res.send(resp);
-    //next();
   });
 });
 
+/*
+  Recover password of user
+*/
 router.post('/recover', function(req, res, next) {
   const email = req.body.email;
   console.log(email);
@@ -124,8 +122,6 @@ router.post('/recover', function(req, res, next) {
         sendMail(mailOptions);
     });
   res.send(email);
-
-  //next();
 });
 
 router.get('/confirm/:token', function(req, res, next) {
@@ -139,8 +135,61 @@ router.get('/confirm/:token', function(req, res, next) {
     console.log(response);
     res.send("Your account is confirmed!");
   });
+});
 
-  //next();
-})
+/*
+  Get notifications of specific user
+  ?quantity=all - all notifications
+  ?quantity=read - all read notifications
+  ?quantity=unread - only unread notifications
+  &from=[number] - select read notification starting from [number]
+  &to=[number] - select read notification ending on [number]
+  &count={true | false} - count all notifications with specific type of specific user
+  &select={true | false} - select comments' body
+*/
+router.get('/notifications/:userId', function(req, res, next) {
+  const userId = req.params.userId;
+  const notificationsType = req.query.quantity;
+
+  const start = req.query.from;
+  const end = req.query.to;
+
+  let getNotificationsPromise;
+  let countNotificationsPromise;
+
+  const response = {
+    notificationsCount: null,
+    notificationsList: null
+  };
+
+  console.log('GET user\'s notifications');
+  console.log(req.query);
+
+  if (req.query.count === 'true') {
+    console.log("Count notifications");
+    countNotificationsPromise = dbInterface.countUserNotifications(userId, notificationsType)
+      .then(queryResult => {
+        response.notificationsCount = queryResult[0].count;
+      });
+  }
+  if (req.query.select === 'true')
+    getNotificationsPromise = dbInterface.getUserNotifications(userId, notificationsType, start, end)
+      .then(queryResult => {
+        let notifications;
+        if (notificationsType === 'all')
+          notifications = {
+            read: queryResult.filter(notif => notif.readen === true),
+            unread: queryResult.filter(notif => notif.readen === false)
+          };
+        else 
+          notifications = queryResult;
+
+        response.notificationsList = notifications;
+      });
+  
+  Promise.all([getNotificationsPromise, countNotificationsPromise])
+    .then(_ => res.send(response))
+    .catch(err => res.status(400).send(`Invalid query parameters. ${err}`));
+});
 
 module.exports = router;
