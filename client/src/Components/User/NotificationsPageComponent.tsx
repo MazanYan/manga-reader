@@ -49,14 +49,10 @@ export default function NotificationPage(props: NotificationPageProps) {
             if (renderNotifications) {
                 axios.get(`http://${addresses.serverAddress}/users/notifications/${userId}?quantity=read&from=${startReadNotification}&to=${endReadNotification}&select=true`)
                     .then(response => {
-                        console.log("Notifications");
-                        console.log(response);
                         setReadNotifications(response.data.notificationsList);
                     });
                 axios.get(`http://${addresses.serverAddress}/users/notifications/${userId}?quantity=unread&select=true`)
                 .then(response => {
-                    console.log("Notifications");
-                    console.log(response);
                     setNewNotifications(response.data.notificationsList);
                 });
             }

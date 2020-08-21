@@ -3,4 +3,4 @@ Attempt of making manga reading website. The site uses React on client side (wit
 
 # Starting project
 1. To init local test database do ```cd db && sudo ./initDb.sh```
-2. Client side of application and API are currently separate node projects. Do ```npm start``` in both folders.
+2. ```npm i``` in both ```client``` and ```api``` directories and ```npm start``` im main directory

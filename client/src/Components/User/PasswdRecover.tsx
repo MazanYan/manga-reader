@@ -2,17 +2,19 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { RouteComponentProps } from 'react-router-dom';
 import CryptoJS from 'crypto-js';
+import { useForm } from 'react-hook-form';
 
 const addresses = require('../../config');
 
 export function InputEmailPasswRecover() {
 
-    const [email, setEmail] = useState("");
+    const { register, handleSubmit } = useForm();
+    //const [email, setEmail] = useState("");
 
-    const handlePasswordReset = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+    const handlePasswordReset = (data: any) => {
+        //event.preventDefault();
         axios.post(`http://${addresses.serverAddress}/users/recover`, {
-            email: email
+            email: data.mail
         }).then(res => {
             console.log(res);
         });
@@ -25,13 +27,12 @@ export function InputEmailPasswRecover() {
             </div>
             <main className="contributions-main">
                 <div className="card card-contrib">
-                    <form className="form-contrib" onSubmit={handlePasswordReset}>
+                    <form className="form-contrib" onSubmit={handleSubmit(handlePasswordReset)}>
                         <label htmlFor="email">Type your e-mail</label>
-                        <input type="email" onChange={
-                            (e: React.ChangeEvent<HTMLInputElement>) => 
-                                setEmail(e.currentTarget.value)
-                        } />
-                        <button name="submit" type="submit">Send me e-mail for password reset</button>
+                        <input name="mail" type="email" ref={register}/>
+                        <button className="btn" name="submit" type="submit">
+                            Send me e-mail for password reset
+                        </button>
                     </form>
                 </div>
             </main>
@@ -49,20 +50,19 @@ interface SetNewPasswProps extends RouteComponentProps<SetNewPasswRouter> {
 
 export function SetNewPasswRecover(props: SetNewPasswProps) {
 
-    const [newPasswd, setNewPasswd] = useState("");
-    const [newPasswdConfirm, setNewPasswdConfirm] = useState("");
+    const { register, handleSubmit } = useForm();
 
-    const handleSetNewPasswd = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        if (newPasswd !== newPasswdConfirm) {
+    const handleSetNewPasswd = (data: any) => {
+
+        if (data.passwd !== data.passwdRepeat) {
             alert("New password and his confirmation are not the same");
         }
-        else if (newPasswd === "") {
+        else if (data.passwd === "") {
             alert("Please set new password");
         }
         else {
             const toSend = {
-                newPasswd: CryptoJS.SHA256(newPasswd).toString()
+                newPasswd: CryptoJS.SHA256(data.passwd).toString()
             }
             const token = props.match.params.token;
             console.log(token);
@@ -71,9 +71,6 @@ export function SetNewPasswRecover(props: SetNewPasswProps) {
         }
     }
 
-    const token = props.match.params.token;
-    console.log(token);
-
     return (
         <>
             <div className="header">
@@ -81,18 +78,12 @@ export function SetNewPasswRecover(props: SetNewPasswProps) {
             </div>
             <main className="contributions-main">
                 <div className="card card-contrib">
-                    <form className="form-contrib" onSubmit={handleSetNewPasswd}>
+                    <form className="form-contrib" onSubmit={handleSubmit(handleSetNewPasswd)}>
                         <label htmlFor="passwd">Set new password</label>
-                        <input name="passwd" type="password" onChange={
-                            (e: React.ChangeEvent<HTMLInputElement>) => 
-                                setNewPasswd(e.currentTarget.value)
-                        }/>
-                        <label htmlFor="passwd-repeat">Repeat new password</label>
-                        <input name="passwd-repeat" type="password" onChange={
-                            (e: React.ChangeEvent<HTMLInputElement>) => 
-                                setNewPasswdConfirm(e.currentTarget.value)
-                        }/>
-                        <button name="submit" type="submit">Reset password</button>
+                        <input name="passwd" type="password" ref={register}/>
+                        <label htmlFor="passwdRepeat">Repeat new password</label>
+                        <input name="passwdRepeat" type="password" ref={register}/>
+                        <button className="btn" name="submit" type="submit">Reset password</button>
                     </form>
                 </div>
             </main>
