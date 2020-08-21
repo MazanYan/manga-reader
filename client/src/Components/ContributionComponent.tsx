@@ -3,51 +3,29 @@ import '../css/ContributionPage.css';
 import { getThumbnailName, getMangaPageName } from '../helpers/generateImageName';
 import axios from 'axios';
 import verifyToken from '../helpers/VerifyToken';
+import { useForm } from 'react-hook-form';
+
 const addresses = require('../config');
 
 function AddManga() {
 
-    const [mangaName, setName] = useState("");
-    const [author, setAuthor] = useState("");
-    const [yearStarted, setYearStarted] = useState(0);
-    const [yearCompleted, setYearCompleted] = useState(0);
-    const [description, setDescription] = useState("");
-    const [thumbnail, setThumbnail] = useState<File>();
+    const { register, handleSubmit } = useForm();
     const [isOngoing, setIsOngoing] = useState(true);
-
-    const switchOngoing = () => {
-        setIsOngoing(!isOngoing);
-    }  
-
-    const renderYearCompleted = () => {
-        if(!isOngoing)
-            return (
-                <>
-                    <label htmlFor="yearEnd">Year when manga was completed:</label>
-                    <input type="number" min="1930" max="2020" name="yearEnd" onChange={
-                        (e: React.FormEvent<HTMLInputElement>) =>
-                        setYearCompleted(parseInt(e.currentTarget.value))
-                    }/>
-                </>
-            );
-        else return (<></>);
-    }
     
-    const handleSubmitManga = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+    const handleSubmitManga = (data: any) => {
 
         // render new filename on client side
-        const newFileName = getThumbnailName(mangaName, thumbnail?.type.slice(6));
-        const file = new File([thumbnail!], newFileName);
+        const newFileName = getThumbnailName(data.name, data.thumbnail[0]?.type.slice(6));
+        const file = new File([data.thumbnail[0]!], newFileName);
         
         const toSubmit = {
-            name: mangaName,
-            author: author,
-            descr: description,
-            yearStarted: yearStarted,
+            name: data.name,
+            author: data.author,
+            descr: data.descr,
+            yearStarted: data.year,
             fileName: newFileName,
             status: isOngoing ? 'ongoing' : 'finished',
-            yearEnd: yearCompleted
+            yearEnd: data.yearEnd
         }
         
         const {status, yearEnd, ...checkNull} = toSubmit;
@@ -63,53 +41,54 @@ function AddManga() {
         }
         
         console.log(toSubmit);
-        const data = new FormData();
-        data.append('file', file);
-        data.append('name', file.name);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('name', file.name);
         
-        const fileSendPromise = axios.post(`http://${addresses.serverAddress}/upload/thumb`, data);
+        const fileSendPromise = axios.post(`http://${addresses.serverAddress}/upload/thumb`, formData);
         const dataSendPromise = axios.post(`http://${addresses.serverAddress}/add/manga`, toSubmit);
         
         Promise.all([fileSendPromise, dataSendPromise])
-            .then((response: any) => {
-                if (response[0].data.result)
-                    alert(response[0].data.result)
-            });
+            .then((response: any) => alert('Manga successfully added'))
+            .catch(err => alert('Manga not added'));
     }
 
     return (
         <div className="card card-contrib">
             <h2>Add new manga:</h2>
-            <form onSubmit={handleSubmitManga} className="form-contrib">
-                <label htmlFor="name">Add name:</label>
-                <input type="text" name="name" onChange={
-                    (e: React.FormEvent<HTMLInputElement>) =>
-                    setName(e.currentTarget.value)}
-                />
-                <label htmlFor="author">Add author:</label>
-                <input type="text" name="author" onChange={
-                    (e: React.FormEvent<HTMLInputElement>) =>
-                    setAuthor(e.currentTarget.value)}
-                />
-                <label htmlFor="year">Year when manga was started:</label>
-                <input type="number" min="1930" max="2020" name="year" onChange={
-                    (e: React.FormEvent<HTMLInputElement>) =>
-                    setYearStarted(parseInt(e.currentTarget.value))}
-                />
-                <label htmlFor="ongoing">Is manga currently ongoing?</label>
-                <input type="checkbox" checked={isOngoing} onChange={switchOngoing} />
-                {renderYearCompleted()}
+            <form onSubmit={handleSubmit(handleSubmitManga)} className="form-contrib">
+                <label htmlFor="name">
+                    Add name:
+                </label>
+                <input type="text" name="name" ref={register}/>
+                <label htmlFor="author">
+                    Add author:
+                </label>
+                <input type="text" name="author" ref={register}/>
+                <label htmlFor="year">
+                    Year when manga was started:
+                </label>
+                <input type="number" min="1930" max="2020" name="year" ref={register}/>
+                <label htmlFor="ongoing">
+                    Is manga currently ongoing?
+                </label>
+                <input type="checkbox" checked={isOngoing} ref={register} onChange={() => setIsOngoing(!isOngoing)} />
+                {!isOngoing ? (
+                        <>
+                            <label htmlFor="yearEnd">Year when manga was completed:</label>
+                            <input type="number" name="yearEnd" ref={register({min: 1920, max: 2020})}/>
+                        </>
+                    ) : (<></>)
+                }
                 <label htmlFor="descr">Add description:<br/>(max 1500 symbols)</label>
-                <textarea name="descr" maxLength={1500} rows={4} onChange={
-                    (e: React.FormEvent<HTMLTextAreaElement>) =>
-                    setDescription(e.currentTarget.value)
-                }/>
+                <textarea name="descr" rows={4} ref={register({ maxLength: 1500 })}/>
                 <label htmlFor="thumbnail">Upload thumbnail</label>
-                <input name="thumbnail" type="file" accept="image/*" onChange={
+                <input name="thumbnail" type="file" accept="image/*" ref={register} onChange={
                     (e: any) => {
                         const uploaded = e.target.files[0];
                         if (uploaded.type.match("image/*"))
-                            setThumbnail(uploaded);
+                            return;
+                            //setThumbnail(uploaded);
                         else {
                             alert('You are attempting to submit not an image for thumbnail!');
                         }
@@ -242,12 +221,12 @@ function AddPages() {
 
 export default function MakeContribution() {
     const [pageSelected, setPageSelected] = useState(1);
-    const [authenticated, setAuthenticated] = useState(true);
+    const [authorized, setAuthorized] = useState(true);
 
     useEffect(() => {
         verifyToken().then(res => {
             if (!res)
-                setAuthenticated(false);
+                setAuthorized(false);
         });
     })
 
@@ -259,7 +238,7 @@ export default function MakeContribution() {
         }
     }
 
-    if (authenticated)
+    if (authorized)
         return (
             <>
                 <div className="header">

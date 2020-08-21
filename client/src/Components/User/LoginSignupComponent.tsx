@@ -2,110 +2,88 @@ import React, { useState } from 'react';
 import CryptoJS from 'crypto-js';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 
 const addresses = require('../../config');
 
 function LogInComponent() {
 
-    const [user, setUser] = useState("");
-    const [passw, setPassw] = useState("");
+    const { register, handleSubmit } = useForm();
 
-    const handleLogIn = (event: any) => {
-        event?.preventDefault();
+    const handleLogIn = (data: any) => {
 
         const loginData = {
-            user: user,
-            passw: CryptoJS.SHA256(passw).toString()
+            user: data.name,
+            passw: CryptoJS.SHA256(data.passwd).toString()
         }
 
-        const loginPromise = axios.post(`http://${addresses.serverAddress}/login`, loginData);
-
-        loginPromise.then((response: any) => {
-            console.log(response.status);
-            window.localStorage.setItem('jwt-token', response.data.token);
-            window.location.reload(false);
-        }).catch(error => {
-            alert(error.response.data.message);
-        });
+        axios.post(`http://${addresses.serverAddress}/login`, loginData)
+            .then((response: any) => {
+                console.log(response.status);
+                window.localStorage.setItem('jwt-token', response.data.token);
+                window.location.reload(false);
+            }).catch(error => {
+                alert(error.response.data.message);
+            });
     };
 
     return (
-        <>
-            <style>{`
-            `}</style>
-            <div className="card card-contrib">
-                <form onSubmit={handleLogIn} className="form-contrib">
-                    <label htmlFor="name">Username or email</label>
-                    <input name="name" type="text" onChange={
-                        (event) => setUser(event.target.value)
-                    }></input>
-                    <label htmlFor="passwd">Password</label>
-                    <input name="passwd" type="password" onChange={
-                        (event) => setPassw(event.target.value)
-                    }>
-                    </input>
-                    <Link className="link-colored" id="forg-passw" to="/auth/recover">Forgot Password?</Link>
-                    <button className="btn" type="submit">Log in</button>
-                </form>
-            </div>
-        </>
+        <div className="card card-contrib">
+            <form onSubmit={handleSubmit(handleLogIn)} className="form-contrib">
+                <label htmlFor="name">Username or email</label>
+                <input name="name" type="text" ref={register}></input>
+                <label htmlFor="passwd">Password</label>
+                <input name="passwd" type="password" ref={register}>
+                </input>
+                <Link className="link-colored" id="forg-passw" to="/auth/recover">
+                    Forgot Password?
+                </Link>
+                <button className="btn" type="submit">Log in</button>
+            </form>
+        </div>
     );
 }
 
 function SignUpComponent() {
 
-    const [username, setUsername] = useState("");
-    const [email, setEmail] = useState("");
-    const [passw, setPassw] = useState("");
-    const [passwConf, setPasswConf] = useState("");
+    const { register, handleSubmit } = useForm();
 
-    const handleSignUp = (event: any) => {
-        event.preventDefault();
-        console.log({username, email, passw, passwConf});
-        if (passw !== passwConf) {
+    const handleSignUp = (data: any) => {
+
+        console.log(data);
+        if (data.passwd !== data.passwdConf) {
             alert('Password and confirmed password do not match');
             return;
         }
-        const passwordHashed = CryptoJS.SHA256(passw).toString();
+        const passwordHashed = CryptoJS.SHA256(data.passwd).toString();
         const toSend = {
-            user: username,
-            email: email,
+            user: data.username,
+            email: data.mail,
             passw: passwordHashed
         };
 
-        console.log(toSend);
-
-        const sendUserDataPromise = axios.post(`http://${addresses.serverAddress}/users/new`, toSend);
-
-        Promise.all([sendUserDataPromise])
+        axios.post(`http://${addresses.serverAddress}/users/new`, toSend)
             .then(response => {
-                if (response[0].data.filter((message: string) => message.includes('ERROR')).length > 0) {
+                if (response.data.filter((message: string) => message.includes('ERROR')).length > 0) {
                     alert("Failed to add new user. Probably this e-mail is already used");
                 }
             })
             .catch(error => console.log(error));
-
     }
 
     return (
         <div className="card card-contrib">
-            <form className="form-contrib" onSubmit={handleSignUp}>
+            <form className="form-contrib" onSubmit={handleSubmit(handleSignUp)}>
                 <label htmlFor="name">Username (50 characters max)</label>
-                <input name="name" type="text" maxLength={50} onChange={
-                    (event) => setUsername(event.target.value)
-                }></input>
+                <input 
+                    name="username" type="text" /*maxLength={50}*/ 
+                    ref={register({ required: true, maxLength: 50 })} />
                 <label htmlFor="mail">E-mail</label>
-                <input name="mail" type="email" onChange={
-                    (event) => setEmail(event.target.value)
-                }></input>
+                <input name="mail" type="email" ref={register} />
                 <label htmlFor="passwd">Password</label>
-                <input name="passwd" type="password" onChange={
-                    (event) => setPassw(event.target.value)
-                }></input>
+                <input name="passwd" type="password" ref={register} />
                 <label htmlFor="passwdConf">Confirm password</label>
-                <input name="passwdConf" type="password" onChange={
-                    (event) => setPasswConf(event.target.value)
-                }></input>
+                <input name="passwdConf" type="password" ref={register} />
                 <button className="btn" type="submit">Sign up</button>
             </form>
         </div>

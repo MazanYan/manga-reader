@@ -66,13 +66,22 @@ export default function UserPageView(props: UserPageProps) {
         <main>
             <div id="user-page">
                 <div id="image-and-edit">
-                    <img alt={userName} id="image" src={`http://${addresses.serverAddress}/images/profile_photos/${profilePhoto}`}/>
+                    <img 
+                        alt={userName} id="image" 
+                        src={`http://${addresses.serverAddress}/images/profile_photos/${profilePhoto}`}
+                    />
                     {renderUserDataChangeButton()}
                 </div>
                 <div id="user-data">
-                    <div id="namePlaceholder"><strong>User: </strong>{userName}</div>
-                    <div id="userDescrPlaceholder"><strong>Description: </strong>{userDescr ? userDescr : 'no description'}</div>
-                    <div id="isOnline"><strong>Status: </strong>{userOnline ? 'online' : 'offline'}</div>
+                    <div id="namePlaceholder">
+                        <strong>User: </strong>{userName}
+                    </div>
+                    <div id="userDescrPlaceholder">
+                        <strong>Description: </strong>{userDescr ? userDescr : 'no description'}
+                    </div>
+                    <div id="isOnline">
+                        <strong>Status: </strong>{userOnline ? 'online' : 'offline'}
+                    </div>
                 </div>
             </div>
         </main>
