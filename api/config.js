@@ -1,4 +1,4 @@
-const clientPort = 4001;
+const clientPort = 3001;
 const serverPort = 4000;
 const ipAddress = 'localhost';
 const serverAddress = `${ipAddress}:${serverPort}`;

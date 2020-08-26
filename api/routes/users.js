@@ -13,7 +13,7 @@ router.get('/:id', function(req, res, next) {
       const sendData = {
         username: response[0].name,
         online: response[0].is_online,
-        photo: response[0].photo ? response[0].photo : 'sample.jpg',
+        photo: response[0].photo ? response[0].photo : 'sample.png',
         description: response[0].description
       };
       res.send(JSON.stringify(sendData));

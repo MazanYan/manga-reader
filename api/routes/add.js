@@ -70,7 +70,7 @@ router.post('/comment', function(req, res, next) {
     if (req.body.replyOn) {
         dbInterface.getAuthorOriginalComment(req.body.replyOn)
             .then(origCommentAuthor => {
-                const commentLink = `http://${addresses.clientAddress}/manga/${manga}/chapter${chapter}/page${page}`;
+                const commentLink = `http://${addresses.clientAddress}/manga/${manga}/${chapter}/${page}`;
                 const commentText = `You have a reply from ${origCommentAuthor} on your comment: '${text}'`;
                 dbInterface.createNotification(author, commentText, 'Manga Reader', commentLink);
                 //notif.createNotification(author, commentText, 'Manga Reader', commentLink);

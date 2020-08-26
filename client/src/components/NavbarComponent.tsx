@@ -94,12 +94,10 @@ export default function Navbar() {
     const { userId, userName, logout } = useAuth();
 
     useEffect(() => {
-        console.log('User Id');
-        console.log(userName);
         if (userId)
             axios.get(`http://${addresses.serverAddress}/users/notifications/${userId}?quantity=unread&select=true`)
                 .then(response => {
-                    console.log('Notifications');
+                    console.log('All notifications navbar');
                     console.log(response.data);
                     setNotifications(response.data.notificationsList);
                 }).catch(err => console.error(err));

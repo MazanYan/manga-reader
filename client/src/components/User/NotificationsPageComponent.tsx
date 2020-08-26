@@ -30,13 +30,15 @@ export default function NotificationPage(props: NotificationPageProps) {
     // count read notifications
     useEffect(() => {
         const userId = QueryString.parse(props.location.search).user;
+        console.log('UserId');
+        console.log(userId);
         axios.get(`http://${addresses.serverAddress}/users/notifications/${userId}?quantity=read&count=true`)
             .then(response => {
                 console.log("Count of read notifications");
                 console.log(response.data.notificationsCount);
                 setReadNotificationsCount(response.data.notificationsCount);
             });
-    }, []);
+    }, [userId]);
 
     // get body of all unread notifications and read notifications in range [startReadNotification, endReadNotification]
     useEffect(() => {
@@ -45,11 +47,14 @@ export default function NotificationPage(props: NotificationPageProps) {
             //setAllowed(true);
             axios.get(`http://${addresses.serverAddress}/users/notifications/${userId}?quantity=read&from=${startReadNotification}&to=${endReadNotification}&select=true`)
                 .then(response => {
-                    console.log(response);
+                    console.log('Read notifications');
+                    console.log(response.data);
                     setReadNotifications(response.data.notificationsList);
                 });
             axios.get(`http://${addresses.serverAddress}/users/notifications/${userId}?quantity=unread&select=true`)
                 .then(response => {
+                    console.log('Unread notifications');
+                    console.log(response.data);
                     setNewNotifications(response.data.notificationsList);
                 });
         }
@@ -72,7 +77,7 @@ export default function NotificationPage(props: NotificationPageProps) {
                 });
             }
         });*/
-    }, [startReadNotification, endReadNotification]);
+    }, [userId]);
 
     const renderNotifications = (notifications: Array<any>) => {
         return notifications.map(notif => (
