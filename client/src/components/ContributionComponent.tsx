@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import '../css/ContributionPage.css';
 import { getThumbnailName, getMangaPageName } from '../helpers/generateImageName';
 import axios from 'axios';
-import verifyToken from '../helpers/VerifyToken';
+import { useAuth } from '../hooks/useAuth';
+//import verifyToken from '../helpers/VerifyToken';
 import { useForm } from 'react-hook-form';
 
 const addresses = require('../config');
@@ -221,14 +222,15 @@ function AddPages() {
 
 export default function MakeContribution() {
     const [pageSelected, setPageSelected] = useState(1);
-    const [authorized, setAuthorized] = useState(true);
+    const { userId } = useAuth();
+    //const [authorized, setAuthorized] = useState(true);
 
-    useEffect(() => {
+    /*useEffect(() => {
         verifyToken().then(res => {
             if (!res)
                 setAuthorized(false);
         });
-    })
+    })*/
 
     const RenderComponent = () => {
         switch (pageSelected) {
@@ -238,7 +240,7 @@ export default function MakeContribution() {
         }
     }
 
-    if (authorized)
+    if (!!userId)
         return (
             <>
                 <div className="header">

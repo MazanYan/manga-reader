@@ -173,9 +173,12 @@ router.get('/notifications/:userId', function(req, res, next) {
       });
   }
   if (req.query.select === 'true')
+    console.log('Query to get body of notifications');
     getNotificationsPromise = dbInterface.getUserNotifications(userId, notificationsType, start, end)
       .then(queryResult => {
         let notifications;
+        console.log('query result');
+        console.log(queryResult);
         if (notificationsType === 'all')
           notifications = {
             read: queryResult.filter(notif => notif.readen === true),
@@ -188,7 +191,7 @@ router.get('/notifications/:userId', function(req, res, next) {
       });
   
   Promise.all([getNotificationsPromise, countNotificationsPromise])
-    .then(_ => res.send(response))
+    .then(_ => { console.log('Notifications:'); console.log(response); res.send(response) })
     .catch(err => res.status(400).send(`Invalid query parameters. ${err}`));
 });
 

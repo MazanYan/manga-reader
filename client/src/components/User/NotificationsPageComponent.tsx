@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import QueryString from 'query-string';
 import { RouteComponentProps } from 'react-router-dom';
-import verifyToken from '../../helpers/VerifyToken';
+//import verifyToken from '../../helpers/VerifyToken';
+import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 import '../../css/NotificationsPage.css';
 
@@ -15,13 +16,14 @@ export default function NotificationPage(props: NotificationPageProps) {
 
     const readCommentsPageLength = 5;
 
-    const [allowed, setAllowed] = useState(false);
+    //const [allowed, setAllowed] = useState(false);
     const [newNotifications, setNewNotifications] = useState<Array<any>>();
     const [readNotifications, setReadNotifications] = useState<Array<any>>();
     const [startReadNotification, setStartReadNotification] = useState(0);
     const [endReadNotification, setEndReadNotification] = useState(readCommentsPageLength);
     const [readNotificationsCount, setReadNotificationsCount] = useState(0);
     const [currentPage, setCurrentPage] = useState(Math.floor(startReadNotification / readCommentsPageLength) + 1);
+    const { userId } = useAuth();
 
     const pagesTotal = Math.ceil(readNotificationsCount / readCommentsPageLength);
 
@@ -38,14 +40,27 @@ export default function NotificationPage(props: NotificationPageProps) {
 
     // get body of all unread notifications and read notifications in range [startReadNotification, endReadNotification]
     useEffect(() => {
-        const userId = QueryString.parse(props.location.search).user;
-        verifyToken().then(response => {
+        const userIdPage = QueryString.parse(props.location.search).user;
+        if (userIdPage === userId) {
+            //setAllowed(true);
+            axios.get(`http://${addresses.serverAddress}/users/notifications/${userId}?quantity=read&from=${startReadNotification}&to=${endReadNotification}&select=true`)
+                .then(response => {
+                    console.log(response);
+                    setReadNotifications(response.data.notificationsList);
+                });
+            axios.get(`http://${addresses.serverAddress}/users/notifications/${userId}?quantity=unread&select=true`)
+                .then(response => {
+                    setNewNotifications(response.data.notificationsList);
+                });
+        }
+        
+        /*verifyToken().then(response => {
             if (response?.accId === userId) {
                 setAllowed(true);
                 return true;
             }
-            return false;
-        }).then(renderNotifications => {
+            return false;*/
+        /*}).then(renderNotifications => {
             if (renderNotifications) {
                 axios.get(`http://${addresses.serverAddress}/users/notifications/${userId}?quantity=read&from=${startReadNotification}&to=${endReadNotification}&select=true`)
                     .then(response => {
@@ -56,7 +71,7 @@ export default function NotificationPage(props: NotificationPageProps) {
                     setNewNotifications(response.data.notificationsList);
                 });
             }
-        });
+        });*/
     }, [startReadNotification, endReadNotification]);
 
     const renderNotifications = (notifications: Array<any>) => {
@@ -78,7 +93,7 @@ export default function NotificationPage(props: NotificationPageProps) {
         ));
     }
 
-    if (allowed)
+    if (!!userId)
         return (
             <>
                 <div className="header">

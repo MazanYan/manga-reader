@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
-import verifyToken from '../../helpers/VerifyToken';
+//import verifyToken from '../../helpers/VerifyToken';
+import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 import { getProfilePhotoName } from '../../helpers/generateImageName';
 import CryptoJS from 'crypto-js';
@@ -145,16 +146,21 @@ function EditUserPassword(props: UserPageEditProps) {
 
 export default function UserPageEdit(props: UserPageEditProps) {
 
-    const [isAllowed, setIsAllowed] = useState(false);
+    const [isAllowed, setIsAllowed] = useState<boolean>();
     const [pageSelected, setPageSelected] = useState(1);
+    const { userId } = useAuth();
 
     useEffect(() => {
-        verifyToken().then(res => {
+        if (userId === props.match.params.id)
+            setIsAllowed(true);
+        else
+            setIsAllowed(false);
+        /*verifyToken().then(res => {
             if (res?.accId === props.match.params.id)
                 setIsAllowed(true);
         }).catch(error => {
             setIsAllowed(false);
-        })
+        })*/
     });
 
     const selectPage = () => {

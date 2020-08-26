@@ -4,7 +4,8 @@ import { RouteComponentProps, Link } from 'react-router-dom';
 import axios from 'axios';
 import Bookmark from './BookmarkComponent';
 import CommentList, { BasicCommentProps, CommentProps, PageData } from './CommentComponent';
-import verifyToken from '../../helpers/VerifyToken';
+//import verifyToken from '../../helpers/VerifyToken';
+import { useAuth } from '../../hooks/useAuth';
 import { postgresToDate } from '../../helpers/ConvertTimestamp';
 
 const addresses = require('../../config');
@@ -57,8 +58,9 @@ export default function MangaPage(props: MangaPageProps) {
 
     const [mangaPageData, setMangaPageData] = useState<MangaPageState>();
     const [commentsList, setCommentsList] = useState<Array<BasicCommentProps>>();
-    const [loggedIn, setLoggedIn] = useState(false);
-    const [userInteractorId, setUserInteractorId] = useState('');
+    const { userId } = useAuth();
+    //const [loggedIn, setLoggedIn] = useState(false);
+    //const [userInteractorId, setUserInteractorId] = useState('');
 
     // get general data and comments of manga page
     useEffect(() => {
@@ -67,17 +69,15 @@ export default function MangaPage(props: MangaPageProps) {
             chapterNum: parseInt(props.match.params.ch),
             pageNum: parseInt(props.match.params.pg)
         };
-        verifyToken().then(response => {
-                if (response) {
-                    setLoggedIn(true);
-                    setUserInteractorId(response.accId);
-                }
-            }).then(() => {
-                const userVoterQuery = userInteractorId ? `&user=${userInteractorId}` : '';
-                return axios.get(`http://${addresses.serverAddress}/search/page?manga=${pageData.mangaKey}&chapter=${pageData.chapterNum}&page=${pageData.pageNum}${userVoterQuery}`);
-            }).then(response => {
+        console.log('Page Data:');
+        console.log(pageData);
+
+        const userVoterQuery = userId ? `&user=${userId}` : '';
+        axios.get(`http://${addresses.serverAddress}/search/page?manga=${pageData.mangaKey}&chapter=${pageData.chapterNum}&page=${pageData.pageNum}${userVoterQuery}`)
+            .then(response => {
                 const result = response.data.response;
                 const gen = result.generalPageData[0];
+                console.log('Response');
                 console.log(response);
                 setMangaPageData({
                     image: gen.image,
@@ -90,9 +90,36 @@ export default function MangaPage(props: MangaPageProps) {
                 });
                 return result.comments;
             }).then(comments => {
-                    setCommentsList(serverResponseToComments(comments, pageData, userInteractorId !== '', userInteractorId));
-                }).catch(err => alert(err));
-    }, [props, userInteractorId]);
+                setCommentsList(serverResponseToComments(comments, pageData, !!userId, userId));
+            }).catch(err => alert(err));
+
+        /*verifyToken().then(response => {
+            if (response) {
+                setLoggedIn(true);
+                setUserInteractorId(response.accId);
+            }
+        }).then(() => {
+            const userVoterQuery = userInteractorId ? `&user=${userInteractorId}` : '';
+            return axios.get(`http://${addresses.serverAddress}/search/page?manga=${pageData.mangaKey}&chapter=${pageData.chapterNum}&page=${pageData.pageNum}${userVoterQuery}`);
+        }).then(response => {
+            const result = response.data.response;
+            const gen = result.generalPageData[0];
+            console.log('Response');
+            console.log(response);
+            setMangaPageData({
+                image: gen.image,
+                volume: gen.volume,
+                chapterName: gen.chapter_name,
+                mangaName: gen.manga_name,
+                pagesCountChapter: gen.pages_count,
+                prevChapter: result.prevChapter,
+                nextChapter: result.nextChapter
+            });
+            return result.comments;
+        }).then(comments => {
+            setCommentsList(serverResponseToComments(comments, pageData, userInteractorId !== '', userInteractorId));
+        }).catch(err => alert(err));*/
+    }, [props, userId]);
 
     const renderPrevChapterButton = () => {
         if (mangaPageData?.prevChapter)
@@ -133,11 +160,11 @@ export default function MangaPage(props: MangaPageProps) {
     };
 
     const renderBookmark = () => {
-        if (loggedIn)
+        if (!!userId)//(loggedIn)
             return (
                 <Bookmark
                     mangaId={parseInt(props.match.params.id)}
-                    userId={userInteractorId} 
+                    userId={userId} 
                     chapter={parseInt(props.match.params.ch)} 
                     page={parseInt(props.match.params.pg)}
                 />
@@ -178,12 +205,19 @@ export default function MangaPage(props: MangaPageProps) {
                                             );
                                         else
                                             return (
+                                                <Link to={`/manga/${props.match.params.id}/${props.match.params.ch}/${i}`}>
+                                                    <div className="page-link">
+                                                        {i}
+                                                    </div>
+                                                </Link>
+                                            );
+                                            /*return (
                                                 <a href={`http://${addresses.clientAddress}/manga/${props.match.params.id}/chapter${props.match.params.ch}/page${i}`}>
                                                     <div className="page-link">
                                                         {i}
                                                     </div>
                                                 </a>
-                                            );
+                                            );*/
                                     })
                             }
                         </div>
@@ -196,7 +230,7 @@ export default function MangaPage(props: MangaPageProps) {
                         mangaKey: parseInt(props.match.params.id), 
                         chapterNum: parseInt(props.match.params.ch),
                         pageNum: parseInt(props.match.params.pg)
-                    }} interactable={loggedIn} userInteractorId={userInteractorId} comments={commentsList!}
+                    }} interactable={!!userId} userInteractorId={userId} comments={commentsList!}
                 />
             </main>
         </>

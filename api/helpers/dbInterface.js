@@ -375,11 +375,14 @@ async function getUserNotifications(userId, type, start, end) {
         countSelector='OFFSET $2 LIMIT $3';
     else
         countSelector='';
+    //console.log(userId, typeSelector, countSelector);
     const response = await performQuery(
         `SELECT * FROM notification WHERE account_id=$1 ${typeSelector} ${countSelector};`,
         [userId, start, end]
     );
-    console.log(typeSelector);
+    //console.log(typeSelector);
+    console.log('Response notifications list');
+    console.log(response);
     return response;
 }
 
@@ -388,7 +391,8 @@ async function getUserNotifications(userId, type, start, end) {
 */
 async function countUserNotifications(userId, type) {
     let typeSelector;
-    console.log(`Type of user's notifications to count: ${type}`);
+    //console.log(`User's notifications: ${userId}`);
+    //console.log(`Type of user's notifications to count: ${type}`);
     switch (type) {
         case 'read': typeSelector = 'AND readen=true'; break;
         case 'unread': typeSelector = 'AND readen=false'; break;

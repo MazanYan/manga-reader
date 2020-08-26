@@ -3,12 +3,14 @@ import CryptoJS from 'crypto-js';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { useAuth } from '../../hooks/useAuth';
 
 const addresses = require('../../config');
 
 function LogInComponent() {
 
     const { register, handleSubmit } = useForm();
+    const { login } = useAuth();
 
     const handleLogIn = (data: any) => {
 
@@ -19,8 +21,10 @@ function LogInComponent() {
 
         axios.post(`http://${addresses.serverAddress}/login`, loginData)
             .then((response: any) => {
-                console.log(response.status);
-                window.localStorage.setItem('jwt-token', response.data.token);
+                const jwtToken = response.data.token;
+                login(jwtToken);
+                /*console.log(response.status);
+                window.localStorage.setItem('jwt-token', response.data.token);*/
                 window.location.reload(false);
             }).catch(error => {
                 alert(error.response.data.message);

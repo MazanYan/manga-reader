@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps, Link } from 'react-router-dom';
-import verifyToken from '../../helpers/VerifyToken';
+//import verifyToken from '../../helpers/VerifyToken';
+import { useAuth } from '../../hooks/useAuth';
 import '../../css/UserPage.css';
 
 import axios from 'axios';
@@ -23,11 +24,12 @@ export default function UserPageView(props: UserPageProps) {
     const [userDescr, setUserDescr] = useState("");
     const [userOnline, setUserOnline] = useState("");
     const [isPageOfCurrentUser, setIsPageOfCurrentUser] = useState(false);
+    const { userId } = useAuth();
 
     useEffect(() => {
-        const userId = props.match.params.id;
+        const userIdRouter = props.match.params.id;
         console.log(userId);
-        axios.get(`http://${addresses.serverAddress}/users/${userId}`)
+        axios.get(`http://${addresses.serverAddress}/users/${userIdRouter}`)
             .then(response => {
                 setUserName(response.data.username);
                 setUserOnline(response.data.online);
@@ -39,10 +41,11 @@ export default function UserPageView(props: UserPageProps) {
                 setUserFound(false);
                 return;
             })
-        verifyToken()
+        setIsPageOfCurrentUser(userId === userIdRouter);
+        /*verifyToken()
             .then(res => {
                 setIsPageOfCurrentUser(res?.accId === props.match.params.id);
-            });
+            });*/
     }, [props, userName]);
 
     const renderUserDataChangeButton = () => {

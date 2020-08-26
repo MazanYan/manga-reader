@@ -7,7 +7,7 @@ export default function Manga(props: RouteComponentProps) {
     return (
         <Switch>
             <Route exact path="/manga/:id" component={MangaMain}/>
-            <Route exact path="/manga/:id/chapter:ch/page:pg" component={MangaPage}/>
+            <Route exact path="/manga/:id/:ch/:pg" component={MangaPage}/>
         </Switch>
     )
 }

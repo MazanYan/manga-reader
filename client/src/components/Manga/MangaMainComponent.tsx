@@ -5,7 +5,9 @@ import { MangaResponse, TableOfContentsResponse } from '../../helpers/MangaRespo
 import axios from 'axios';
 import { postgresToDate } from '../../helpers/ConvertTimestamp';
 import Bookmark from './BookmarkComponent';
-import verifyToken from '../../helpers/VerifyToken';
+//import verifyToken from '../../helpers/VerifyToken';
+import { useAuth } from '../../hooks/useAuth';
+
 const config = require('../../config');
 
 interface TableOfContentsProps {
@@ -41,12 +43,12 @@ function RenderTableOfContents(props: TableOfContentsProps) {
                     {props.chapters.map(chapt => (
                         <tr key={chapt.number}>
                             <td>
-                                <Link to={`${props.path}/chapter${chapt.number}/page1`}>
+                                <Link to={`${props.path}/${chapt.number}/1`}>
                                     {chapt.volume}
                                 </Link>
                             </td>
                             <td>
-                                <Link to={`${props.path}/chapter${chapt.number}/page1`}>
+                                <Link to={`${props.path}/${chapt.number}/1`}>
                                     {chapt.number} - {chapt.name}
                                 </Link>
                             </td>
@@ -65,7 +67,8 @@ export default function MangaMain(props: MangaMainPageProps) {
     const [tableOfContentsOpened, setTableOfContentsOpened] = useState(false);
     const [tableOfContents, setTableOfContents] = useState<Array<TableOfContentsResponse>>();
     const [mangaData, setMangaData] = useState<MangaResponse>();
-    const [loggedIn, setLoggedIn] = useState<LoggedInState>();
+    //const [loggedIn, setLoggedIn] = useState<LoggedInState>();
+    const { userId } = useAuth();
 
     useEffect(() => {
         console.log(props.match.params.id);
@@ -81,13 +84,13 @@ export default function MangaMain(props: MangaMainPageProps) {
         });
     }, [props, mangaId]);
 
-    useEffect(() => {
+    /*useEffect(() => {
         verifyToken().then(res => {
             console.log(res);
             if (res)
                 setLoggedIn({ loggedIn: true, userId: res?.accId });
         });
-    }, []);
+    }, []);*/
 
     const renderTableOfContents = () => {
         if (tableOfContentsOpened) {
@@ -112,7 +115,7 @@ export default function MangaMain(props: MangaMainPageProps) {
                 <div id="other-info">
                     <p>{mangaData?.bookmarks_count} people added this manga to bookmarks</p>
                     <p>Last updated at {mangaData?.last_modify_time ? postgresToDate(mangaData?.last_modify_time)?.toLocaleDateString() : "unknown time"}</p>
-                    {loggedIn ? <Bookmark mangaId={mangaId} userId={loggedIn.userId!}/> : <></>}
+                    {!!userId ? <Bookmark mangaId={mangaId} userId={userId}/> : <></>}
                 </div>
                 <button className="btn" id="open-table-of-contents" onClick={() => setTableOfContentsOpened(!tableOfContentsOpened)}>Table of Contents</button>
                 <div id="table-of-contents">{renderTableOfContents()}</div>

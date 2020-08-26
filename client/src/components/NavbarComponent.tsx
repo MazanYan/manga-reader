@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Search from './Search/SearchComponent';
 import { Link } from 'react-router-dom';
-import verifyToken from '../helpers/VerifyToken';
+//import verifyToken from '../helpers/VerifyToken';
+import { useAuth } from '../hooks/useAuth';
 import axios from 'axios';
 import '../css/Navbar.css';
 const addresses = require('../config');
@@ -86,13 +87,23 @@ function LoggedInNavbar(props: LoggedInNavbarProps) {
 
 export default function Navbar() {
 
-    const [loggedIn, setLoggedIn] = useState(false);
-    const [accName, setAccName] = useState("");
-    const [accId, setAccId] = useState("");
+    //const [loggedIn, setLoggedIn] = useState(false);
+    //const [accName, setAccName] = useState("");
+    //const [accId, setAccId] = useState("");
     const [notifications, setNotifications] = useState<Array<any>>();
+    const { userId, userName, logout } = useAuth();
 
     useEffect(() => {
-        verifyToken().then(res => {
+        console.log('User Id');
+        console.log(userName);
+        if (userId)
+            axios.get(`http://${addresses.serverAddress}/users/notifications/${userId}?quantity=unread&select=true`)
+                .then(response => {
+                    console.log('Notifications');
+                    console.log(response.data);
+                    setNotifications(response.data.notificationsList);
+                }).catch(err => console.error(err));
+        /*verifyToken().then(res => {
             if (res) {
                 setLoggedIn(true);
                 setAccName(res!.accName);
@@ -108,21 +119,21 @@ export default function Navbar() {
                     console.log(response.data);
                     setNotifications(response.data.notificationsList);
                 });
-        }).catch(err => console.log(err));
-    }, [accName]);
+        }).catch(err => console.log(err));*/
+    }, [userId]);
 
     const renderLoggedIn = () => {
-        if (loggedIn)
+        if (!!userId)
             return (
                 <LoggedInNavbar 
-                    userId={accId}
-                    userName={accName}
+                    userId={userId}
+                    userName={userName}
                     notifications={notifications}
-                    logoutFunction={() => {
+                    logoutFunction={logout/*() => {
                         setLoggedIn(false);
                         setAccName("");
                         setAccId("");
-                    }}
+                    }*/}
                 />
             );
         else

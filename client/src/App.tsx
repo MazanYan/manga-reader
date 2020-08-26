@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import './App.css';
-import MainComponent from "./Components/MainComponent";
+import MainComponent from "./components/MainComponent";
 import { BrowserRouter } from 'react-router-dom';
 
 const TITLE = 'Manga Reader';
