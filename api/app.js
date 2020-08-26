@@ -4,6 +4,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
+const { serverPort } = require('./config');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -96,4 +97,10 @@ app.post('/upload/profile_photo', uploadProfilePhoto.single('file'), function(re
   console.log("Profile photo uploaded");
 })
 
-module.exports = app
+const port = process.env.PORT || serverPort;
+
+app.listen(port, () => {
+  console.log(`server started on port ${port}`);
+})
+
+module.exports = app;
