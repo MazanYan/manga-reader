@@ -1,0 +1,37 @@
+{
+    "dev": {
+      "driver": "postgresql",
+      "filename": "./db/database.pgsql"
+    },
+  
+    "test": {
+      "driver": "postgresql",
+      "filename": ":memory:"
+    },
+  
+    "prod": {
+      "driver": "postgresql",
+      "user": "postgres",
+      "database": { "ENV": "DATABASE" },
+      "password": { "ENV": "PASSWORD" }
+    },
+  
+    "pg": {
+      "driver": "pg",
+      "user": "test",
+      "password": "test",
+      "host": "localhost",
+      "database": "mydb",
+      "port": "20144",
+      "ssl": "true",
+      "schema": "my_schema"
+    },
+  
+    "mongo": {
+      "driver": "mongodb",
+      "database": "my_db",
+      "host": "localhost"
+    },
+  
+    "other": "postgres://uname:pw@server.com/dbname"
+}

@@ -10,7 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "node-pg-migrate": "^5.1.1",
+    "db-migrate": "^0.11.11",
+    "db-migrate-pg": "^1.2.2",
     "pg": "^8.2.1"
   }
 }
